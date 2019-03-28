@@ -278,7 +278,7 @@ void 		update_transpose_cv(void);
 void 		update_spread(int16_t tmp);
 void 		update_spread_cv(void);
 void 		combine_transpose_spread(void);
-void 		trim_transpose(int32_t *transpose);
+void 		trim_array(int32_t *a, uint32_t num_elements, int32_t min, int32_t max);
 void 		compute_transpositions(void);
 float 		compute_transposition(int32_t transpose);
 void 		reset_notes(void);

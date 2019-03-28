@@ -1071,16 +1071,20 @@ void update_osc_param_lock(void)
 void update_oct(int16_t tmp)
 {
 	uint8_t i;
-	int16_t oct[NUM_CHANNELS];
+	int32_t oct[NUM_CHANNELS];
 
 	for (i = 0; i < NUM_CHANNELS; i++)
 		oct[i] = params.oct[i];
 
-	if (change_param_i16(oct, tmp))
+	if (change_param_i32(oct, tmp))
 	{
 		start_ongoing_display_octave();
+
+		trim_array(oct, NUM_CHANNELS, 0, MAX_OCT);
+
 		for (i = 0; i < NUM_CHANNELS; i++)
-			params.oct[i] = _CLAMP_I16(oct[i], 0, MAX_OCT);
+			params.oct[i] = oct[i];
+			// params.oct[i] = _CLAMP_I16(oct[i], 0, MAX_OCT);
 	}
 }
 
@@ -1249,6 +1253,7 @@ void update_transpose(int16_t tmp){
 	uint8_t i;
 	int32_t transpose_enc[NUM_CHANNELS];
 	uint8_t channels_changed;
+	int32_t min, max;
 
 	for (i = 0; i < NUM_CHANNELS; i++)
 		transpose_enc[i] = params.transpose_enc[i];
@@ -1256,7 +1261,16 @@ void update_transpose(int16_t tmp){
 	channels_changed = change_param_i32(transpose_enc, tmp);
 	if (channels_changed)
 	{
-		trim_transpose(transpose_enc);
+		if (system_settings.transpose_display_mode	== TRANSPOSE_NOWRAP) {
+			max = MAX_TRANSPOSE_NOWRAP;
+			min = MIN_TRANSPOSE_NOWRAP;
+		}
+		else {
+			max = MAX_TRANSPOSE_WRAP;
+			min = MIN_TRANSPOSE_WRAP;
+		}
+		trim_array(transpose_enc, NUM_CHANNELS, min, max);
+
 		start_ongoing_display_transpose();
 
 		for (i = 0; i < NUM_CHANNELS; i++)
@@ -1313,55 +1327,53 @@ void combine_transpose_spread(void){
 	}
 }
 
-// trim_transpose() trims extra transpose steps beyond MAX/MIN values, when all channels are beyond threshold.
-void trim_transpose(int32_t *transpose){
+// trim_array() trims extra steps beyond MAX/MIN values, when all elements are beyond threshold of display_min or display_max
+void trim_array(int32_t *a, uint32_t num_elements, int32_t display_min, int32_t display_max){
 	
 	uint8_t chan;
 	int16_t min,max;
-	int32_t mode_max, mode_min;
 
-	if (system_settings.transpose_display_mode	== TRANSPOSE_NOWRAP) {
-		mode_max = MAX_TRANSPOSE_NOWRAP;
-		mode_min = MIN_TRANSPOSE_NOWRAP;
-	}
-	else {
-		mode_max = MAX_TRANSPOSE_WRAP;
-		mode_min = MIN_TRANSPOSE_WRAP;
-	}
+	uint8_t all_over_max, all_under_min;
 
-	if ( 	(transpose[0] > mode_max) &&
-			(transpose[1] > mode_max) && 
-			(transpose[2] > mode_max) && 
-			(transpose[3] > mode_max) && 
-			(transpose[4] > mode_max) && 
-			(transpose[5] > mode_max)
-		){
-
-		min = 999;
-		for (chan = 0; chan < NUM_CHANNELS; chan++){
-			if(transpose[chan] < min){min =  transpose[chan];}
-		}
-
-		for (chan = 0; chan < NUM_CHANNELS; chan++){
-			transpose[chan] -= (min - mode_max);
+	all_over_max = 1;
+	for (chan=0; chan<num_elements; chan++)
+	{
+		if (a[chan] <= display_max) {
+			all_over_max = 0;
+			break;
 		}
 	}
 
-	else if ((transpose[0] < mode_min) &&
-			(transpose[1] < mode_min) && 
-			(transpose[2] < mode_min) && 
-			(transpose[3] < mode_min) && 
-			(transpose[4] < mode_min) && 
-			(transpose[5] < mode_min)
-		){
-
-		max = -999;
-		for (chan = 0; chan < NUM_CHANNELS; chan++){
-			if(transpose[chan] > max){max =  transpose[chan];}
+	if (all_over_max)
+	{
+		min = INT16_MAX;
+		for (chan = 0; chan < num_elements; chan++){
+			if(a[chan] < min) min = a[chan];
 		}
 
-		for (chan = 0; chan < NUM_CHANNELS; chan++){
-			transpose[chan] -= (max - mode_min);
+		for (chan = 0; chan < num_elements; chan++){
+			a[chan] -= (min - display_max);
+		}
+		return;
+	}
+
+	all_under_min = 1;
+	for (chan=0; chan<num_elements; chan++)
+	{
+		if (a[chan] >= display_min) {
+			all_under_min = 0;
+			break;
+		}
+	}
+	if (all_under_min)
+	{
+		max = INT16_MIN;
+		for (chan = 0; chan < num_elements; chan++){
+			if(a[chan] > max) max = a[chan];
+		}
+
+		for (chan = 0; chan < num_elements; chan++){
+			a[chan] -= (max - display_min);
 		}
 	}
 }
