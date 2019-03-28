@@ -251,6 +251,7 @@ void update_button_leds(void){
 	uint32_t					now = (HAL_GetTick()/TICKS_PER_MS);
 	static uint32_t				animation_phase = 0;
 	static enum ongoingDisplays	display_cache = ONGOING_DISPLAY_NONE;
+	int16_t oct;
 
 	for (i = 0; i < NUM_BUTTONS; i++){
 
@@ -281,9 +282,10 @@ void update_button_leds(void){
 					} 
 
 					else if ( led_cont.ongoing_display == ONGOING_DISPLAY_OCTAVE){
-						led_cont.button[i].c_red  		= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_red;
-						led_cont.button[i].c_green 		= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_green;
-						led_cont.button[i].c_blue  		= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_blue;
+						oct = _CLAMP_I16(params.oct[i], 0 , MAX_OCT);
+						led_cont.button[i].c_red  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_red;
+						led_cont.button[i].c_green 	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_green;
+						led_cont.button[i].c_blue  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_blue;			
 						led_cont.button[i].brightness  	= F_MAX_BRIGHTNESS * lock_brightness;	
 					}
 
@@ -1198,14 +1200,15 @@ void display_sphere_save(void)
 void display_octave(void){
 
 	uint8_t i,j;
+	int16_t oct;
 
 	// update LED ring <-- FixMe: This could just run once at begining of display
 	for (i = 0; i < NUM_LED_OUTRING; i++){	
 		if ( (i > 6) && (i < 10) ){ 
 			led_cont.outring[i].brightness 	= F_MAX_BRIGHTNESS*0.1; //dim				
-			led_cont.outring[i].c_red  		= 1638 ;
-			led_cont.outring[i].c_green 	= 1638 ;
-			led_cont.outring[i].c_blue  	= 1638 ;
+			led_cont.outring[i].c_red  		= 1024 ;
+			led_cont.outring[i].c_green 	= 1024 ;
+			led_cont.outring[i].c_blue  	= 1024 ;
 		}
 
 		else{
@@ -1218,32 +1221,32 @@ void display_octave(void){
 
 	// Light up LED ring positions corresponding to current indiv oct
 	for (i=0; i<NUM_CHANNELS; i++){
+		oct = _CLAMP_I16(params.oct[i], 0 , MAX_OCT);
 		j = (i>=NUM_CHANNELS/2) ? (i-NUM_CHANNELS/2) : (i+NUM_CHANNELS/2); //set bottom-left as origin
-
-		led_cont.inring[j].c_red  	= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_red;
-		led_cont.inring[j].c_green 	= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_green;
-		led_cont.inring[j].c_blue  	= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_blue;	
+		led_cont.inring[j].c_red  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_red;
+		led_cont.inring[j].c_green 	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_green;
+		led_cont.inring[j].c_blue  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_blue;	
 
 		// flash locked channels
 		if (led_cont.flash_state && params.osc_param_lock[i]){
-			led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].brightness = 0;
+			led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = 0;
 			led_cont.inring[j].brightness = 0;
 		}
 		else {
 			if(macro_states.all_af_buttons_released){
-					led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].brightness = F_MAX_BRIGHTNESS;				
+					led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = F_MAX_BRIGHTNESS;				
 					led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;				
 			}
 
 			else{
 				if (button_pressed(i) || (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE)){ //Todo: What is FINETUNE doing here?
-					led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].brightness = F_MAX_BRIGHTNESS;
+					led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = F_MAX_BRIGHTNESS;
 					led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;
 				} 
 
 				// idle channels are grey-ed
 				else if (!button_pressed(i)){
-					led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].brightness = 0.1;				
+					led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = 0.1;				
 					led_cont.inring[j].brightness = 0.1;				
 				}
 			}
