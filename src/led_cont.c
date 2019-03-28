@@ -1201,8 +1201,8 @@ void display_octave(void){
 
 	// update LED ring <-- FixMe: This could just run once at begining of display
 	for (i = 0; i < NUM_LED_OUTRING; i++){	
-		if ( (i > 6) && (i < 10) ){
-			led_cont.outring[i].brightness 	= F_MAX_BRIGHTNESS/2;				
+		if ( (i > 6) && (i < 10) ){ 
+			led_cont.outring[i].brightness 	= F_MAX_BRIGHTNESS*0.1; //dim				
 			led_cont.outring[i].c_red  		= 1638 ;
 			led_cont.outring[i].c_green 	= 1638 ;
 			led_cont.outring[i].c_blue  	= 1638 ;
@@ -1236,7 +1236,7 @@ void display_octave(void){
 			}
 
 			else{
-				if (button_pressed(i) || (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE)){ //FixMe: Why FINETUNE? should this be ONGOING_DISPLAY_OCTAVE?
+				if (button_pressed(i) || (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE)){ //Todo: What is FINETUNE doing here?
 					led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].brightness = F_MAX_BRIGHTNESS;
 					led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;
 				} 
