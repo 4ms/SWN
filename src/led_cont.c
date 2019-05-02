@@ -1089,7 +1089,7 @@ void display_finetune (void){
 			t_finetune = _CLAMP_I16(params.finetune[i], MIN_FINETUNE_WRAP, MAX_FINETUNE_WRAP);
 
 			if (t_finetune==0) {
-				detune_pos_i = i*3+1;
+				detune_pos_i = j*3+1;
 				set_rgb_color(&led_cont.outring[detune_pos_i], ledc_WHITE);
 				// led_cont.outring[detune_pos_i].brightness = F_MAX_BRIGHTNESS*0.25; //dim tuned channels?
 			}
