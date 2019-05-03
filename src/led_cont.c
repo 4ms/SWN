@@ -821,19 +821,13 @@ void turn_outring_off(void){
 void display_wtpos_inring(void){
 
 	uint8_t 	i, j;
-	float 		folded_wt_pos;
 	uint16_t 	scaled_wt_pos[3];
 
 	for ( i = 0 ; i < NUM_CHANNELS ; i++)
 	{
-		folded_wt_pos 	 =_FOLD_F(calc_params.wt_pos[0][i], 1.5);
-		scaled_wt_pos[0] = _SCALE_F2U16(folded_wt_pos, 0, 1.5, 2048, 4095);
-
-		folded_wt_pos 	 =_FOLD_F(calc_params.wt_pos[1][i], 1.5);
-		scaled_wt_pos[1] = _SCALE_F2U16(folded_wt_pos, 0, 1.5, 2048, 3900);
-
-		folded_wt_pos 	 =_FOLD_F(calc_params.wt_pos[2][i], 1.5);
-		scaled_wt_pos[2] = _SCALE_F2U16(folded_wt_pos, 0, 1.5, 2048, 4095);
+		scaled_wt_pos[0] = _SCALE_F2U16(calc_params.wt_pos[0][i], 0, 2, 2048, 4095);
+		scaled_wt_pos[1] = _SCALE_F2U16(calc_params.wt_pos[1][i], 0, 2, 2048, 3900);
+		scaled_wt_pos[2] = _SCALE_F2U16(calc_params.wt_pos[2][i], 0, 2, 2048, 4095);
 
 		j = (i>=NUM_CHANNELS/2) ? (i-NUM_CHANNELS/2) : (i+NUM_CHANNELS/2); //set bottom-left as origin
 		led_cont.inring[j].c_red 		= 3 * exp_1voct_10_41V[scaled_wt_pos[0]];

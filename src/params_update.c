@@ -1968,7 +1968,7 @@ void calc_wt_pos(uint8_t chan){
 	total_browse = params.wt_browse_step_pos_enc[chan] + cv;
 	get_browse_nav(total_browse, &browse_nav[0], &browse_nav[1], &browse_nav[2]);
 
-	// DISPERTION
+	// DISPERSION
 	cv = params.wt_pos_lock[chan] ? 0 : params.dispersion_cv;
 	total_disp = _FOLD_F(params.dispersion_enc, 1.0) + cv;
 
