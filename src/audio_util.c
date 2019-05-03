@@ -99,7 +99,7 @@ int32_t convert_s24_to_s32(int32_t src)
 	uint32_t in_24bit;
 	int32_t in_s24bit;
 
-	in_24bit = src << 8;						//0x007FFFFF max, 0x00FFFFFF first negatove value (-1)
+	in_24bit = src << 8;						//0x007FFFFF max, 0x00FFFFFF first negative value (-1)
 	in_s24bit = (int32_t)in_24bit;
 	in_s24bit >>= 8;
 	return (in_s24bit);

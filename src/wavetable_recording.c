@@ -35,6 +35,7 @@
 #include "oscillator.h"
 #include "led_cont.h"
 #include "led_colors.h"
+#include "math_util.h"
 
 extern o_params params;
 extern o_led_cont 		led_cont;
@@ -53,8 +54,7 @@ void record_audio_buffer(int32_t audio_in_sample)
 
 	if (ui_mode == WTRECORDING) {
 		if (recbuf.wh < NUM_SAMPLES_IN_RECBUF_SMOOTHED)	{
-			//wtrec_update_sync_signal();
-			recbuf.data[recbuf.wh] = -audio_in_sample / 256;
+			recbuf.data[recbuf.wh] = _CLAMP_I32(-audio_in_sample/256, INT16_MIN, INT16_MAX);
 			recbuf.wh++;
 		}
 		else {
