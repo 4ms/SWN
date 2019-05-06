@@ -1213,8 +1213,8 @@ void display_octave(void){
 
 		// else{
 			led_cont.outring[i].brightness 	= 0;				
-			led_cont.outring[i].c_red  		= 4032  - 4032 * (OCT_OUTRING_MAP[i] -2)  / 16;
-			led_cont.outring[i].c_green 	= 3800 * (OCT_OUTRING_MAP[i] -2) / 16;
+			led_cont.outring[i].c_red  		= 4032  - 4032 * (OCT_OUTRING_MAP[i])  / 18;
+			led_cont.outring[i].c_green 	= 3800 * (OCT_OUTRING_MAP[i]) / 18;
 			led_cont.outring[i].c_blue  	= 0;
 		// }
 	}	
