@@ -88,8 +88,7 @@ extern const uint8_t 	led_outring_map[NUM_LED_OUTRING];
 extern const uint8_t 	led_inring_map[NUM_LED_INRING];
 
 const uint8_t INDIV_ADJ_OUTRING_MAP[NUM_LED_OUTRING + 1] 	= { 9, 10, 11, 12, 13, 14, 15, 16, 17, 9, 0,  1,   2, 3,  4,  5,  6,  7,  8 };
-const uint8_t OCT_OUTRING_MAP[NUM_LED_OUTRING] 		    	= { 10, 11, 12, 13, 14, 15, 16, 17, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-const uint16_t OUTRING_GRADIENT[NUM_LED_OUTRING + 1] 	   	= { 0, 126, 252, 378, 504, 630, 756, 882, 1008, 0, 2268, 2016, 1890, 1764, 1638, 1512, 1386, 1260, 1134 };
+const uint8_t OCT_OUTRING_MAP[NUM_LED_OUTRING] 		    	= { 9, 10, 11, 12, 13, 14, 15, 16, 17, 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
 // Color palettes
 extern uint32_t colorPalette[NUM_LED_COLORS][NUM_PALETTE_COLORS];
@@ -282,7 +281,8 @@ void update_button_leds(void){
 					} 
 
 					else if ( led_cont.ongoing_display == ONGOING_DISPLAY_OCTAVE){
-						oct = _CLAMP_I16(params.oct[i], 0 , MAX_OCT);
+						oct = _CLAMP_I16(params.oct[i], MIN_OCT , MAX_OCT) - MIN_OCT;
+						oct = _CLAMP_I16(oct, 0, NUM_LED_OUTRING-1);
 						led_cont.button[i].c_red  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_red;
 						led_cont.button[i].c_green 	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_green;
 						led_cont.button[i].c_blue  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_blue;			
@@ -1204,24 +1204,25 @@ void display_octave(void){
 
 	// update LED ring <-- FixMe: This could just run once at begining of display
 	for (i = 0; i < NUM_LED_OUTRING; i++){	
-		if ( (i > 6) && (i < 10) ){ 
-			led_cont.outring[i].brightness 	= F_MAX_BRIGHTNESS*0.1; //dim				
-			led_cont.outring[i].c_red  		= 1024 ;
-			led_cont.outring[i].c_green 	= 1024 ;
-			led_cont.outring[i].c_blue  	= 1024 ;
-		}
+		// if ( (i > 6) && (i < 10) ){ 
+		// 	led_cont.outring[i].brightness 	= F_MAX_BRIGHTNESS*0.1; //dim				
+		// 	led_cont.outring[i].c_red  		= 1024 ;
+		// 	led_cont.outring[i].c_green 	= 1024 ;
+		// 	led_cont.outring[i].c_blue  	= 1024 ;
+		// }
 
-		else{
+		// else{
 			led_cont.outring[i].brightness 	= 0;				
 			led_cont.outring[i].c_red  		= 4032  - 4032 * (OCT_OUTRING_MAP[i] -2)  / 16;
 			led_cont.outring[i].c_green 	= 3800 * (OCT_OUTRING_MAP[i] -2) / 16;
 			led_cont.outring[i].c_blue  	= 0;
-		}
+		// }
 	}	
 
 	// Light up LED ring positions corresponding to current indiv oct
 	for (i=0; i<NUM_CHANNELS; i++){
-		oct = _CLAMP_I16(params.oct[i], 0 , MAX_OCT);
+		oct = _CLAMP_I16(params.oct[i], MIN_OCT , MAX_OCT) - MIN_OCT;
+		oct = _CLAMP_I16(oct, 0, NUM_LED_OUTRING-1);
 		j = (i>=NUM_CHANNELS/2) ? (i-NUM_CHANNELS/2) : (i+NUM_CHANNELS/2); //set bottom-left as origin
 		led_cont.inring[j].c_red  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_red;
 		led_cont.inring[j].c_green 	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_green;

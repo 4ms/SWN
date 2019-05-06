@@ -34,12 +34,14 @@
 #include "sphere.h"
 #include "lfo_wavetable_bank.h"
 
-#define F_MIN_FREQ			16.35 						// C-1 is 8.175 , C0 is 16.35. C1 is 32.7
+#define F_MIN_FREQ			(0.1)
+#define F_BASE_FREQ			16.35
 #define F_MAX_FREQ			(F_SAMPLERATE*3 - 36000.0) //96300.0 					
 #define INIT_OCT			3	// C4 ~261Hz
 #define TTONE_OCT			2	// C2 ~87Hz
 #define TTONE_TRANSPOSE 	5	// F2 if oct at TTONE_OCT
-#define MAX_OCT				14	// MAX_OCT = flp2((uint32_t)(F_MAX_FREQ / F_MIN_FREQ))/2;
+#define MIN_OCT				(-3)	
+#define MAX_OCT				14	
 #define NUM_NOTES 			12
 #define NUM_CHORDS			26
 #define NUM_WTSEL_SPREADS	6
@@ -153,7 +155,7 @@ typedef struct o_calc_params{
 	float		qtz_freq				[NUM_CHANNELS]		;
 
 	uint8_t 	prev_qtz_note			[NUM_CHANNELS]		;
-	uint8_t 	prev_qtz_oct			[NUM_CHANNELS]		;
+	int8_t 		prev_qtz_oct			[NUM_CHANNELS]		;
 
 	// FLAGS
 	uint8_t 	already_handled_button 	[NUM_CHANNELS]		; 

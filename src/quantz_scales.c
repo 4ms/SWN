@@ -156,11 +156,11 @@ void init_quantz_scales(void)
 
 }
 
-float quantize_to_scale(uint8_t scale_num, float unqtz_freq, uint8_t *qtz_note, uint8_t *qtz_oct){
+float quantize_to_scale(uint8_t scale_num, float unqtz_freq, uint8_t *qtz_note, int8_t *qtz_oct){
 //float quantize_to_scale(uint8_t scale_num, float unqtz_freq, uint8_t *qtz_note, uint8_t *qtz_oct, uint8_t prev_qtz_note, uint8_t prev_qtz_oct){
 
 	uint8_t note 			= 0;
-	uint8_t oct  			= 0;
+	int8_t oct  			= 0;
 	float 	qtz_freq		= unqtz_freq;
 	float	high_note;
 	float	distance_from_midpt;

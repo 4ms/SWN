@@ -849,7 +849,8 @@ void update_transpose_cv(void)
 void update_pitch(uint8_t chan)
 {	
 	float ch_freq, ch_freq_adc, qtz_ch_freq;
-	uint8_t note, oct;
+	uint8_t note;
+	int8_t oct;
 	int16_t oct_clamped;
 	
 	if(  (params.key_sw[chan] == ksw_MUTE)
@@ -873,8 +874,12 @@ void update_pitch(uint8_t chan)
 		if (params.new_key[chan]) params.new_key[chan] = 0;
 	}
 
-	oct_clamped = _CLAMP_I16(params.oct[chan], 0 , MAX_OCT);
-	ch_freq = (F_MIN_FREQ  * calc_params.transposition[chan] * (1 << oct_clamped) * calc_params.voct[chan]);
+	ch_freq = F_BASE_FREQ  * calc_params.transposition[chan] * calc_params.voct[chan];
+	oct_clamped = _CLAMP_I16(params.oct[chan], MIN_OCT , MAX_OCT);
+	if (oct_clamped < 0)
+		ch_freq /= (float)(1 << (-oct_clamped));
+	else 
+		ch_freq *= (1 << oct_clamped);
 
 	if (params.indiv_scale[chan]==sclm_NONE)
 	{
@@ -1083,7 +1088,7 @@ void update_oct(int16_t tmp)
 		start_ongoing_display_octave();
 
 		//Clamp to active range, but preserve relative spacing
-		trim_array(oct, NUM_CHANNELS, 0, MAX_OCT);
+		trim_array(oct, NUM_CHANNELS, MIN_OCT, MAX_OCT);
 		
 		//don't allow any channel to be more than MAX_OCT away from active range
 		for (i = 0; i < NUM_CHANNELS; i++)

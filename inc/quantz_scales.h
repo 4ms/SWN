@@ -48,5 +48,5 @@ enum scaleMap{
 void init_quantz_scales(void);
 //Todo: use previous note/oct to apply hysterisis correction (ie make sure we've moved far enough into another note/oct before changing)
 //float quantize_to_scale(uint8_t scale_num, float unqtz_freq, uint8_t *qtz_note, uint8_t *qtz_oct, uint8_t prev_qtz_note, uint8_t prev_qtz_oct);
-float quantize_to_scale(uint8_t scale_num, float unqtz_freq, uint8_t *qtz_note, uint8_t *qtz_oct);
+float quantize_to_scale(uint8_t scale_num, float unqtz_freq, uint8_t *qtz_note, int8_t *qtz_oct);
 
