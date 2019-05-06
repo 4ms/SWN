@@ -101,21 +101,25 @@ void set_params_for_editing(void)
 	params.dispersion_enc = 0;
 	update_wt_disp(CLEAR_LPF);
 
-	// clear wt selection spread and set all wtsel to match channel A
 	for (i=0;i<NUM_CHANNELS;i++)
 	{
 		params.wtsel_enc[i] = params.wtsel_enc[0];
 		params.wtsel_spread_enc[i] = 0;
 
-		params.wt_nav_enc[0][i] = params.wt_nav_enc[0][0];
-		params.wt_nav_enc[1][i] = params.wt_nav_enc[1][0];
-		params.wt_nav_enc[2][i] = params.wt_nav_enc[2][0];
-		params.wt_browse_step_pos_enc[i] = params.wt_browse_step_pos_enc[0];
+		// params.wt_nav_enc[0][i] = params.wt_nav_enc[0][0];
+		// params.wt_nav_enc[1][i] = params.wt_nav_enc[1][0];
+		// params.wt_nav_enc[2][i] = params.wt_nav_enc[2][0];
+		// params.wt_browse_step_pos_enc[i] = params.wt_browse_step_pos_enc[0];
+		params.wt_nav_enc[0][i] = 0;
+		params.wt_nav_enc[1][i] = 0;
+		params.wt_nav_enc[2][i] = 0;
+		params.wt_browse_step_pos_enc[i] = 0;
 		reset_wbrowse_morph(i);
-		calc_wt_pos(i);
 	}
-
+	
 	update_wtsel();
+	update_all_wt_pos_interp_params();
+	force_all_wt_interp_update();
 }
 
 
