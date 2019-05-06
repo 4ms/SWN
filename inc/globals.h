@@ -43,9 +43,8 @@
 	#define PCB_VERSION 100
 #endif
 
-//Update the FW Version anytime FLASH RAM settings format is changed
 #define FW_MAJOR_VERSION 	1
-#define FW_MINOR_VERSION 	0
+#define FW_MINOR_VERSION 	1
 
 // #define ALLOW_LOCKS
 

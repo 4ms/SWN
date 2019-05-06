@@ -285,11 +285,9 @@ void init_calc_params(void)
 	uint8_t chan, j;
 	for (chan=0; chan<NUM_CHANNELS; chan++)
 	{
-		// calc_params.tuning[chan] = 1;
-		// calc_params.transposition[chan] = 1;
-		// calc_params.level[i] = 4093;
-	 // 	calc_params.wtsel[i] = 1; 
-	 // 	calc_params.transpose[i] = 0;
+
+		calc_params.prev_qtz_note[chan] = 0xFF;
+		calc_params.prev_qtz_oct[chan] = 0xFF;
 
 		for (j = 0; j < NUM_ARM_FLAGS; j++)
 			calc_params.armed[j][chan] = 0;
@@ -852,8 +850,6 @@ void update_pitch(uint8_t chan)
 {	
 	float ch_freq, ch_freq_adc, qtz_ch_freq;
 	uint8_t note, oct;
-	static uint8_t prev_qtz_note[NUM_CHANNELS] = {0};
-	static uint8_t prev_qtz_oct[NUM_CHANNELS] = {0};
 	
 	if(  (params.key_sw[chan] == ksw_MUTE)
 	 || ((params.key_sw[chan] != ksw_MUTE) && params.new_key[chan])
@@ -884,15 +880,15 @@ void update_pitch(uint8_t chan)
 	}
 	else
   	{
+//Todo: 
 //	  	qtz_ch_freq = quantize_to_scale(params.indiv_scale[chan], ch_freq, &note, &oct, prev_qtz_note[chan], prev_qtz_oct[chan]);
 	  	qtz_ch_freq = quantize_to_scale(params.indiv_scale[chan], ch_freq, &note, &oct);
 
-		if (qtz_ch_freq!=ch_freq && params.qtz_note_changed[chan]==0 && (prev_qtz_note[chan]!=note || prev_qtz_oct[chan]!=oct))
+		if (qtz_ch_freq!=ch_freq && params.qtz_note_changed[chan]==0 && (calc_params.prev_qtz_note[chan]!=note || calc_params.prev_qtz_oct[chan]!=oct))
 		{
-			prev_qtz_note[chan] = note;
-			prev_qtz_oct[chan] = oct;
+			calc_params.prev_qtz_note[chan] = note;
+			calc_params.prev_qtz_oct[chan] = oct;
 			calc_params.qtz_freq[chan] = qtz_ch_freq;
-			//if ((params.key_sw[chan]==ksw_MUTE || !params.note_on[chan])) //read new qtz note only when in mute mode or Note/Key and Note Off
 			if (params.key_sw[chan]!=ksw_MUTE && !params.note_on[chan]) //read new qtz note only in Note/Key mode and Note Off
 				params.qtz_note_changed[chan] = 1;
 		}

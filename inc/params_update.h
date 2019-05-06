@@ -152,6 +152,9 @@ typedef struct o_calc_params{
 	float 		voct 					[NUM_CHANNELS]		;
 	float		qtz_freq				[NUM_CHANNELS]		;
 
+	uint8_t 	prev_qtz_note			[NUM_CHANNELS]		;
+	uint8_t 	prev_qtz_oct			[NUM_CHANNELS]		;
+
 	// FLAGS
 	uint8_t 	already_handled_button 	[NUM_CHANNELS]		; 
 	uint8_t 	button_safe_release		[2]					;
