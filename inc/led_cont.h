@@ -94,6 +94,9 @@ typedef struct o_led_cont{
 
 } o_led_cont;
 	
+static inline uint8_t lock_flash_state(void) {
+	return (((HAL_GetTick()/TICKS_PER_MS) & 0xFF) > 200);
+}
 
 void 		init_led_cont(void);
 void 		start_led_display(void);
@@ -102,8 +105,6 @@ void 		update_display_at_encoder_press(void);
 void	 	update_led_flash(void);
 
 void 		update_button_leds(void);
-void 		flash_button(uint8_t chan);
-void 		solid_button(uint8_t button);
 void 		update_encoder_leds(void);
 void 		update_array_leds(void);
 void		update_clockin_led(void);

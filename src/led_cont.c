@@ -246,7 +246,7 @@ void update_button_leds(void){
 	enum VoctCalStates 			voct_state;
 
 	int32_t 					tri_period, tri_phase;
-	float 						tri_wave, brightness;
+	float 						tri_wave, brightness, lock_brightness;
 
 	uint32_t					now = (HAL_GetTick()/TICKS_PER_MS);
 	static uint32_t				animation_phase = 0;
@@ -260,49 +260,32 @@ void update_button_leds(void){
 
 				if(led_cont.ongoing_display){
 
-					// if ( led_cont.ongoing_display == ONGOING_DISPLAY_OSC_PARAM_LOCK){
-					// 	led_cont.button[i].c_red 	= colorPalette[c_RED]	[ledc_FUSHIA + 1-params.osc_param_lock[i]];
-					// 	led_cont.button[i].c_green 	= colorPalette[c_GREEN]	[ledc_FUSHIA + 1-params.osc_param_lock[i]];
-					// 	led_cont.button[i].c_blue 	= colorPalette[c_BLUE]	[ledc_FUSHIA + 1-params.osc_param_lock[i]];
-					// 	if(params.osc_param_lock[i]){flash_button(i);}
-					// }				
+					if (params.osc_param_lock[i] && lock_flash_state())
+						lock_brightness = 0;
+					else
+						lock_brightness = F_MAX_BRIGHTNESS;
 
-					// else
+					if (!params.note_on[i])
+						lock_brightness = F_MAX_BRIGHTNESS - lock_brightness;
 
 					if ( (led_cont.ongoing_display == ONGOING_DISPLAY_SCALE)){
-						led_cont.button[i].c_red 	= colorPalette[c_RED]	[qtz_scale_colors[ params.indiv_scale[i] ] ];
-						led_cont.button[i].c_green 	= colorPalette[c_GREEN]	[qtz_scale_colors[ params.indiv_scale[i] ] ];
-						led_cont.button[i].c_blue 	= colorPalette[c_BLUE]	[qtz_scale_colors[ params.indiv_scale[i] ] ];
-						if(params.osc_param_lock[i]){flash_button(i);}
+						set_rgb_color_brightness(&led_cont.button[i], qtz_scale_colors[ params.indiv_scale[i] ], lock_brightness);
 					}
 
-					else if( (led_cont.ongoing_display == ONGOING_DISPLAY_TRANSPOSE) ){		
-						led_cont.button[i].c_red 		= CH_COLOR_MAP[i][0];
-						led_cont.button[i].c_green 		= CH_COLOR_MAP[i][1];
-						led_cont.button[i].c_blue 		= CH_COLOR_MAP[i][2];
-						if(params.osc_param_lock[i]){flash_button(i);}
+					else if( (led_cont.ongoing_display == ONGOING_DISPLAY_TRANSPOSE) ){
+						set_rgb_color_by_array(&led_cont.button[i], CH_COLOR_MAP[i], lock_brightness);
 					} 
 
 					else if( (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE) ){		
-						led_cont.button[i].c_red 		= CH_COLOR_MAP[i][0];
-						led_cont.button[i].c_green 		= CH_COLOR_MAP[i][1];
-						led_cont.button[i].c_blue 		= CH_COLOR_MAP[i][2];
-						if(params.osc_param_lock[i]){flash_button(i);}
+						set_rgb_color_by_array(&led_cont.button[i], CH_COLOR_MAP[i], lock_brightness);
 					} 
 
 					else if ( led_cont.ongoing_display == ONGOING_DISPLAY_OCTAVE){
-						led_cont.button[i].c_red  	= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_red;
-						led_cont.button[i].c_green 	= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_green;
-						led_cont.button[i].c_blue  	= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_blue;			
-						if(params.osc_param_lock[i]){flash_button(i);}
+						led_cont.button[i].c_red  		= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_red;
+						led_cont.button[i].c_green 		= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_green;
+						led_cont.button[i].c_blue  		= led_cont.outring[OCT_OUTRING_MAP[params.oct[i]]].c_blue;
+						led_cont.button[i].brightness  	= F_MAX_BRIGHTNESS * lock_brightness;	
 					}
-
-					// else if ( led_cont.ongoing_display == ONGOING_DISPLAY_WT_POS_LOCK){
-					// 	led_cont.button[i].c_red 	= led_cont.outring[i * 3].c_red ;
-					// 	led_cont.button[i].c_green 	= led_cont.outring[i * 3].c_green ;
-					// 	led_cont.button[i].c_blue 	= led_cont.outring[i * 3].c_blue ;	
-					// 	if (params.wt_pos_lock[i]){flash_button(i);}
-					// }
 
 					else if ( led_cont.ongoing_display == ONGOING_DISPLAY_LFO_TOVCA){
 						if (lfos.to_vca[i]) {
@@ -354,11 +337,12 @@ void update_button_leds(void){
 					}
 				}
 
+
 				else { //no ongoing_display
 
 					if (params.key_sw[i] == ksw_MUTE)
 					{
-						if (params.osc_param_lock[i] && ((now & 0xFF) > 200))
+						if (params.osc_param_lock[i] && lock_flash_state())
 							brightness = 0;
 						else
 							brightness = F_MAX_BRIGHTNESS;
@@ -368,7 +352,7 @@ void update_button_leds(void){
 					}
 					else{
 						
-						if (params.osc_param_lock[i] && ((now & 0xFF) > 200))
+						if (params.osc_param_lock[i] && lock_flash_state())
 							brightness = 0;
 						else
 							brightness = 0.30 + lfos.out_lpf[i]/2.0;
@@ -462,17 +446,6 @@ void update_button_leds(void){
 	}
 }
 
-
-void flash_button(uint8_t button){
-	if (led_cont.flash_state)
-		led_cont.button[button].brightness = 0;
-	else 
-		solid_button(button);
-}
-
-void solid_button(uint8_t button){
-	led_cont.button[button].brightness = F_MAX_BRIGHTNESS;
-}
 
 
 void update_encoder_leds(void){
