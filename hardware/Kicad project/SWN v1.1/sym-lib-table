@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name SMR-eagle)(type Legacy)(uri ${KIPRJMOD}/../lib/SMR-eagle.lib)(options "")(descr ""))
+)

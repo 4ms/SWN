@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?>
+
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="org.eclipse.cdt.cross.arm.gnu.macosx.toolchain.base.379936989">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="org.eclipse.cdt.cross.arm.gnu.macosx.toolchain.base.379936989" moduleId="org.eclipse.cdt.core.settings" name="Default">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" id="org.eclipse.cdt.cross.arm.gnu.macosx.toolchain.base.379936989" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+					<folderInfo id="org.eclipse.cdt.cross.arm.gnu.macosx.toolchain.base.379936989.323126808" name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.cross.arm.gnu.macosx.toolchain.base.340300097" name="org.eclipse.cdt.cross.arm.gnu.macosx.toolchain.base" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.toolchain.base">
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.processor.1290247326" name="Processor" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.processor"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.architecture.736405086" name="Architecture" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.architecture"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.thumb.1879913926" name="Thumb (-mthumb)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.thumb"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.thumbinterwork.57116229" name="Thumb interwork (-mthumb-interwork)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.thumbinterwork"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.endiannes.1563903149" name="Endianness" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.endiannes"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.fpu.abi.898366198" name="Float ABI" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.fpu.abi"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.fpu.unit.453846283" name="FPU Type" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.fpu.unit"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.other.988041432" name="Other target flags" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.target.other"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.debugging.level.1751908591" name="Debug level" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.debugging.level"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.debugging.format.173710965" name="Debug format" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.debugging.format"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.debugging.other.934545263" name="Other debugging flags" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.debugging.other"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.debugging.prof.1482426006" name="Generate prof information (-p)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.debugging.prof"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.debugging.gprof.298667605" name="Generate gprof information (-pg)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.debugging.gprof"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.addtools.createflash.2123762932" name="Create Flash Image" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.addtools.createflash"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.addtools.createlisting.1285625285" name="Create Extended Listing" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.addtools.createlisting"/>
+							<option id="org.eclipse.cdt.cross.arm.gnu.macosx.option.addtools.printsize.1533795250" name="Print Size" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.option.addtools.printsize"/>
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="org.eclipse.cdt.cross.arm.gnu.macosx.platform.base.343160112" isAbstract="false" name="OS X Platform" osList="macosx" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.platform.base"/>
+							<builder id="org.eclipse.cdt.cross.arm.gnu.macosx.builder.base.914258351" managedBuildOn="false" name="ARM OS X GNU Make builder (GNUARM).Default" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.builder.base"/>
+							<tool id="org.eclipse.cdt.cross.arm.gnu.macosx.assembler.base.1660994543" name="ARM OS X GCC Assembler (GNUARM)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.assembler.base"/>
+							<tool id="org.eclipse.cdt.cross.arm.gnu.macosx.c.compiler.base.689102655" name="ARM OS X GCC C Compiler (GNUARM)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.c.compiler.base"/>
+							<tool id="org.eclipse.cdt.cross.arm.gnu.macosx.cpp.compiler.base.1396967143" name="ARM OS X GCC C++ Compiler (GNUARM)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.cpp.compiler.base"/>
+							<tool id="org.eclipse.cdt.cross.arm.gnu.macosx.c.linker.base.891646868" name="ARM OS X GCC C Linker (GNUARM)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.c.linker.base"/>
+							<tool id="org.eclipse.cdt.cross.arm.gnu.macosx.cpp.linker.base.678472989" name="ARM OS X GCC C++ Linker (GNUARM)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.cpp.linker.base"/>
+							<tool id="org.eclipse.cdt.cross.arm.gnu.macosx.archiver.base.269820619" name="ARM OS X GCC Archiver (GNUARM)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.archiver.base"/>
+							<tool id="org.eclipse.cdt.cross.arm.gnu.macosx.createflash.base.1930090828" name="ARM OS X GNU Create Flash Image (GNUARM)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.createflash.base"/>
+							<tool id="org.eclipse.cdt.cross.arm.gnu.macosx.createlisting.base.1869422727" name="ARM OS X GNU Create Listing (GNUARM)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.createlisting.base"/>
+							<tool id="org.eclipse.cdt.cross.arm.gnu.macosx.printsize.base.2075865467" name="ARM OS X GNU Print Size (GNUARM)" superClass="org.eclipse.cdt.cross.arm.gnu.macosx.printsize.base"/>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="stm-audio-bootloader.null.1571963867" name="stm-audio-bootloader"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+</cproject>

@@ -1,0 +1,36 @@
+ inc[REF_CLK] 
+ 1) get rid of lfos.spid[REF_CLK] (i_ref_ in channel inc calculation)
+	  No need to know the spid equivalent of the reference clock, since it _is_ the base period
+
+ 2) Calculate lfos.inc[REF_CLK]=calc_lfo_inc(clockin_elapsed_ticks/1000.0);
+ 3) Calculate lfos.inc[channel] like this:
+    period = (clockin_elapsed_ticks/1000.0) * calc_divmult_amount(lfos.spid[GLO_CLK]) * calc_divmult_amount(lfos.spid[chan]);
+	  if (period < AUDIO_RANGE_LIMIT) // 1.0/32.0 ?
+		period = LFO_DIVMULTS[NUM_DIVMULTS-1] * _N_OVER_12TH_ROOT_TWO(ref+chan+glo-36);
+
+	lfos.inc[chan] = calc_lfo_inc(period);
+
+ 4) Calculate lfos.inc[GLO_CLK] like this:
+ 	period[GLO_CLK] = (clockin_elapsed_ticks/1000.0) * calc_divmult_amount(lfos.spid[GLO_CLK]);
+ 	lfos.inc[GLO_CLK] = calc_lfo_inc(period[GLO_CLK]); //only used for global LFO LED
+
+ 5) Cycle_spent is the wt_pos, minus manual phase offset (wraps 0 to 1)
+   Every 7.2kHz: 
+   lfos.cycle_spent[chan] += lfos.inc[chan], wrapping [0,1)
+   lfos.wt_pos[chan] = lfos.cycle_spent[chan] + lfos.phase[chan], wraps [0, 1);
+   So if we change phase[], the wt_pos instantly updates
+   If we reset cycle_spent[] to 0, lfo is resynced without losing manual phase offset relative to other lfos
+
+ 6) Change in external clock period (>1%, TBD) forces an lfo resync:
+	cycles_spent[chan] = nearest point 1.0/(divmult(chan) * divmult(global))
+	divmult = divmult(chan) * divmult(global); //effective total divmult amount
+	if (divmult>1) cycles_spent[chan] = 0; //re-sync a multiplied clock by reseting to 0
+	else
+		snap = cycles_spent[chan] / divmult; //so if divmult=0.333 then snap is [0..3) 
+		snap = round_to_closest_integer(snap) * divmult, then wrap [0,1); 
+								//0.2=>0, 1.1=>1=>0.3333, 1.5=>2=>0.6666, 2.9 =>3=>0
+		cycles_spent[chan] = snap;
+		--->Does this keep the relative phase info? Seems like it might force channels to snap different ways.
+		--->Maybe it's better just to reset all cycles_spent to 0
+		--->Or "snap" the global clock, then use that amount to offset each channel
+		------something like this is being done in current code

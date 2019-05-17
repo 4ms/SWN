@@ -1,0 +1,1729 @@
+EESchema Schematic File Version 4
+LIBS:SWN-cache
+EELAYER 29 0
+EELAYER END
+$Descr B 17000 11000
+encoding utf-8
+Sheet 1 7
+Title "SWN-p2.4"
+Date "2018-03-15"
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+Text Notes 12450 9525 0    150  ~ 0
+Spherical Wavetable Navigator
+Text Notes 12450 9700 0    100  ~ 0
+copyright (c) 2018 4ms Company
+Text Notes 675  1075 0    200  ~ 0
+Sheet 1: ARM
+$Comp
+L SMR-eagle:+3.3V #+3.3V01
+U 1 1 5935CDE1
+P 3975 625
+F 0 "#+3.3V01" H 3825 625 70  0001 L BNN
+F 1 "+3.3V" H 3825 625 70  0000 L BNN
+F 2 "" H 3975 625 60  0001 C CNN
+F 3 "" H 3975 625 60  0001 C CNN
+	1    3975 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V02
+U 1 1 5935CE45
+P 4375 625
+F 0 "#+3.3V02" H 4225 625 70  0001 L BNN
+F 1 "+3.3V" H 4225 625 70  0000 L BNN
+F 2 "" H 4375 625 60  0001 C CNN
+F 3 "" H 4375 625 60  0001 C CNN
+	1    4375 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V03
+U 1 1 5935CEA9
+P 4775 625
+F 0 "#+3.3V03" H 4625 625 70  0001 L BNN
+F 1 "+3.3V" H 4625 625 70  0000 L BNN
+F 2 "" H 4775 625 60  0001 C CNN
+F 3 "" H 4775 625 60  0001 C CNN
+	1    4775 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V04
+U 1 1 5935CF0D
+P 5175 625
+F 0 "#+3.3V04" H 5025 625 70  0001 L BNN
+F 1 "+3.3V" H 5025 625 70  0000 L BNN
+F 2 "" H 5175 625 60  0001 C CNN
+F 3 "" H 5175 625 60  0001 C CNN
+	1    5175 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V05
+U 1 1 5935CF71
+P 5575 625
+F 0 "#+3.3V05" H 5425 625 70  0001 L BNN
+F 1 "+3.3V" H 5425 625 70  0000 L BNN
+F 2 "" H 5575 625 60  0001 C CNN
+F 3 "" H 5575 625 60  0001 C CNN
+	1    5575 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V06
+U 1 1 5935CFD5
+P 5975 625
+F 0 "#+3.3V06" H 5825 625 70  0001 L BNN
+F 1 "+3.3V" H 5825 625 70  0000 L BNN
+F 2 "" H 5975 625 60  0001 C CNN
+F 3 "" H 5975 625 60  0001 C CNN
+	1    5975 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V07
+U 1 1 5935D039
+P 6275 625
+F 0 "#+3.3V07" H 6125 625 70  0001 L BNN
+F 1 "+3.3V" H 6125 625 70  0000 L BNN
+F 2 "" H 6275 625 60  0001 C CNN
+F 3 "" H 6275 625 60  0001 C CNN
+	1    6275 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V08
+U 1 1 5935D09D
+P 3775 1675
+F 0 "#+3.3V08" H 3625 1675 70  0001 L BNN
+F 1 "+3.3V" H 3625 1675 70  0000 L BNN
+F 2 "" H 3775 1675 60  0001 C CNN
+F 3 "" H 3775 1675 60  0001 C CNN
+	1    3775 1675
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V09
+U 1 1 5935D165
+P 10275 4675
+F 0 "#+3.3V09" H 10125 4675 70  0001 L BNN
+F 1 "+3.3V" H 10125 4675 70  0000 L BNN
+F 2 "" H 10275 4675 60  0001 C CNN
+F 3 "" H 10275 4675 60  0001 C CNN
+	1    10275 4675
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V010
+U 1 1 5935D1C9
+P 9275 3075
+F 0 "#+3.3V010" H 9125 3075 70  0001 L BNN
+F 1 "+3.3V" H 9125 3075 70  0000 L BNN
+F 2 "" H 9275 3075 60  0001 C CNN
+F 3 "" H 9275 3075 60  0001 C CNN
+	1    9275 3075
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V011
+U 1 1 5935D22D
+P 4575 1275
+F 0 "#+3.3V011" H 4425 1275 70  0001 L BNN
+F 1 "+3.3V" H 4425 1275 70  0000 L BNN
+F 2 "" H 4575 1275 60  0001 C CNN
+F 3 "" H 4575 1275 60  0001 C CNN
+	1    4575 1275
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V012
+U 1 1 5935D291
+P 3775 3775
+F 0 "#+3.3V012" H 3625 3775 70  0001 L BNN
+F 1 "+3.3V" H 3800 3750 70  0000 L BNN
+F 2 "" H 3775 3775 60  0001 C CNN
+F 3 "" H 3775 3775 60  0001 C CNN
+	1    3775 3775
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C12
+U 1 1 5935D359
+P 7025 9450
+F 0 "C12" H 7065 9474 70  0000 L BNN
+F 1 "0.1uF" H 7050 9300 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 7015 9240 65  0001 L TNN
+F 3 "" H 7025 9450 60  0001 C CNN
+	1    7025 9450
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C22
+U 1 1 5935D421
+P 6275 825
+F 0 "C22" H 6315 849 70  0000 L BNN
+F 1 "0.1uF" H 6314 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 6265 615 65  0001 L TNN
+F 3 "" H 6275 825 60  0001 C CNN
+	1    6275 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C23
+U 1 1 5935D4E9
+P 5975 825
+F 0 "C23" H 6015 849 70  0000 L BNN
+F 1 "0.1uF" H 6014 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 5965 615 65  0001 L TNN
+F 3 "" H 5975 825 60  0001 C CNN
+	1    5975 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C24
+U 1 1 5935D5B1
+P 5575 825
+F 0 "C24" H 5615 849 70  0000 L BNN
+F 1 "0.1uF" H 5614 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 5565 615 65  0001 L TNN
+F 3 "" H 5575 825 60  0001 C CNN
+	1    5575 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C25
+U 1 1 5935D679
+P 5175 825
+F 0 "C25" H 5215 849 70  0000 L BNN
+F 1 "0.1uF" H 5214 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 5165 615 65  0001 L TNN
+F 3 "" H 5175 825 60  0001 C CNN
+	1    5175 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C26
+U 1 1 5935D741
+P 4775 825
+F 0 "C26" H 4815 849 70  0000 L BNN
+F 1 "0.1uF" H 4814 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 4765 615 65  0001 L TNN
+F 3 "" H 4775 825 60  0001 C CNN
+	1    4775 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C27
+U 1 1 5935D809
+P 4375 825
+F 0 "C27" H 4415 849 70  0000 L BNN
+F 1 "0.1uF" H 4414 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 4365 615 65  0001 L TNN
+F 3 "" H 4375 825 60  0001 C CNN
+	1    4375 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C28
+U 1 1 5935D8D1
+P 2975 1875
+F 0 "C28" H 3015 1899 70  0000 L BNN
+F 1 "2.2uF" H 3014 1710 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 2965 1665 65  0001 L TNN
+F 3 "" H 2975 1875 60  0001 C CNN
+	1    2975 1875
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C29
+U 1 1 5935D999
+P 2575 1675
+F 0 "C29" H 2615 1699 70  0000 L BNN
+F 1 "2.2uF" H 2614 1510 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 2565 1465 65  0001 L TNN
+F 3 "" H 2575 1675 60  0001 C CNN
+	1    2575 1675
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C32
+U 1 1 5935DA61
+P 7375 8675
+F 0 "C32" H 7375 8700 70  0000 L BNN
+F 1 "18pF" H 7375 8550 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 7365 8465 65  0001 L TNN
+F 3 "" H 7375 8675 60  0001 C CNN
+	1    7375 8675
+	0    1    1    0   
+$EndComp
+$Comp
+L SMR-eagle:CB C33
+U 1 1 5935DB29
+P 7575 8875
+F 0 "C33" H 7615 8900 70  0000 L BNN
+F 1 "18pF" H 7600 8750 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 7565 8665 65  0001 L TNN
+F 3 "" H 7575 8875 60  0001 C CNN
+	1    7575 8875
+	0    1    1    0   
+$EndComp
+$Comp
+L SMR-eagle:CB C64
+U 1 1 5935DBF1
+P 3975 825
+F 0 "C64" H 4015 849 70  0000 L BNN
+F 1 "0.1uF" H 4014 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 3965 615 65  0001 L TNN
+F 3 "" H 3975 825 60  0001 C CNN
+	1    3975 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND013
+U 1 1 5935DC55
+P 3975 1125
+F 0 "#GND013" H 3975 1125 60  0001 C CNN
+F 1 "~" H 3975 1125 60  0001 C CNN
+F 2 "" H 3975 1125 60  0001 C CNN
+F 3 "" H 3975 1125 60  0001 C CNN
+	1    3975 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND014
+U 1 1 5935DCB9
+P 7025 9750
+F 0 "#GND014" H 7025 9750 60  0001 C CNN
+F 1 "~" H 7025 9750 60  0001 C CNN
+F 2 "" H 7025 9750 60  0001 C CNN
+F 3 "" H 7025 9750 60  0001 C CNN
+	1    7025 9750
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND015
+U 1 1 5935DD1D
+P 3775 3675
+F 0 "#GND015" H 3775 3675 60  0001 C CNN
+F 1 "~" H 3775 3675 60  0001 C CNN
+F 2 "" H 3775 3675 60  0001 C CNN
+F 3 "" H 3775 3675 60  0001 C CNN
+	1    3775 3675
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND016
+U 1 1 5935DD81
+P 6275 1125
+F 0 "#GND016" H 6275 1125 60  0001 C CNN
+F 1 "~" H 6275 1125 60  0001 C CNN
+F 2 "" H 6275 1125 60  0001 C CNN
+F 3 "" H 6275 1125 60  0001 C CNN
+	1    6275 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND017
+U 1 1 5935DDE5
+P 5975 1125
+F 0 "#GND017" H 5975 1125 60  0001 C CNN
+F 1 "~" H 5975 1125 60  0001 C CNN
+F 2 "" H 5975 1125 60  0001 C CNN
+F 3 "" H 5975 1125 60  0001 C CNN
+	1    5975 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND018
+U 1 1 5935DE49
+P 5575 1125
+F 0 "#GND018" H 5575 1125 60  0001 C CNN
+F 1 "~" H 5575 1125 60  0001 C CNN
+F 2 "" H 5575 1125 60  0001 C CNN
+F 3 "" H 5575 1125 60  0001 C CNN
+	1    5575 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND019
+U 1 1 5935DEAD
+P 5175 1125
+F 0 "#GND019" H 5175 1125 60  0001 C CNN
+F 1 "~" H 5175 1125 60  0001 C CNN
+F 2 "" H 5175 1125 60  0001 C CNN
+F 3 "" H 5175 1125 60  0001 C CNN
+	1    5175 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND020
+U 1 1 5935DF11
+P 4775 1125
+F 0 "#GND020" H 4775 1125 60  0001 C CNN
+F 1 "~" H 4775 1125 60  0001 C CNN
+F 2 "" H 4775 1125 60  0001 C CNN
+F 3 "" H 4775 1125 60  0001 C CNN
+	1    4775 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND021
+U 1 1 5935DF75
+P 4375 1125
+F 0 "#GND021" H 4375 1125 60  0001 C CNN
+F 1 "~" H 4375 1125 60  0001 C CNN
+F 2 "" H 4375 1125 60  0001 C CNN
+F 3 "" H 4375 1125 60  0001 C CNN
+	1    4375 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND022
+U 1 1 5935DFD9
+P 2975 2175
+F 0 "#GND022" H 2975 2175 60  0001 C CNN
+F 1 "~" H 2975 2175 60  0001 C CNN
+F 2 "" H 2975 2175 60  0001 C CNN
+F 3 "" H 2975 2175 60  0001 C CNN
+	1    2975 2175
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND023
+U 1 1 5935E03D
+P 2575 1975
+F 0 "#GND023" H 2575 1975 60  0001 C CNN
+F 1 "~" H 2575 1975 60  0001 C CNN
+F 2 "" H 2575 1975 60  0001 C CNN
+F 3 "" H 2575 1975 60  0001 C CNN
+	1    2575 1975
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND024
+U 1 1 5935E0A1
+P 7675 9675
+F 0 "#GND024" H 7675 9675 60  0001 C CNN
+F 1 "~" H 7675 9675 60  0001 C CNN
+F 2 "" H 7675 9675 60  0001 C CNN
+F 3 "" H 7675 9675 60  0001 C CNN
+	1    7675 9675
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND025
+U 1 1 5935E169
+P 7775 8975
+F 0 "#GND025" H 7775 8975 60  0001 C CNN
+F 1 "~" H 7775 8975 60  0001 C CNN
+F 2 "" H 7775 8975 60  0001 C CNN
+F 3 "" H 7775 8975 60  0001 C CNN
+	1    7775 8975
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND026
+U 1 1 5935E1CD
+P 3575 2575
+F 0 "#GND026" H 3575 2575 60  0001 C CNN
+F 1 "~" H 3575 2575 60  0001 C CNN
+F 2 "" H 3575 2575 60  0001 C CNN
+F 3 "" H 3575 2575 60  0001 C CNN
+	1    3575 2575
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND027
+U 1 1 5935E231
+P 10475 6975
+F 0 "#GND027" H 10475 6975 60  0001 C CNN
+F 1 "~" H 10475 6975 60  0001 C CNN
+F 2 "" H 10475 6975 60  0001 C CNN
+F 3 "" H 10475 6975 60  0001 C CNN
+	1    10475 6975
+	-1   0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:TRACE-20 H1
+U 1 1 5935E2F9
+P 11075 5875
+F 0 "H1" H 10676 7025 70  0000 L BNN
+F 1 "TRACE-20" H 11474 4725 70  0000 R TNN
+F 2 "4ms-footprints:CONN-2x10-SMT-127" H 11065 5665 65  0001 L TNN
+F 3 "" H 11075 5875 60  0001 C CNN
+	1    11075 5875
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:RB R26
+U 1 1 5935E6E1
+P 7675 9375
+F 0 "R26" H 7575 9433 70  0000 L BNN
+F 1 "10k" H 7476 9245 70  0000 L BNN
+F 2 "4ms-footprints:R0603" H 7665 9165 65  0001 L TNN
+F 3 "" H 7675 9375 60  0001 C CNN
+	1    7675 9375
+	0    -1   1    0   
+$EndComp
+$Comp
+L SMR-eagle:HEADER-1X4 SWD_1
+U 1 1 5935E871
+P 10700 3775
+F 0 "SWD_1" H 10775 3950 70  0000 L BNN
+F 1 "HEADER-1X4" H 11225 4125 70  0001 R TNN
+F 2 "4ms_Connector:Pins_1x04_2.54mm_TH_SWD" H 10690 3565 65  0001 L TNN
+F 3 "" H 10700 3775 60  0001 C CNN
+	1    10700 3775
+	-1   0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:STM32F429ZI U7
+U 1 1 5935E939
+P 5375 4675
+F 0 "U7" H 3976 7725 70  0000 L BNN
+F 1 "STM32F765ZG" H 5365 4565 65  0001 L TNN
+F 2 "4ms-footprints:LQFP-144_ARM_20x20mm_Pitch0.5mm" H 5365 4465 65  0001 L TNN
+F 3 "" H 5375 4675 60  0001 C CNN
+	1    5375 4675
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CRYSTALE X1
+U 1 1 5935EA01
+P 7075 8775
+F 0 "X1" H 7175 8815 70  0000 L BNN
+F 1 "16MHz" H 7175 8676 70  0000 L BNN
+F 2 "4ms-footprints:FA-238-Pins1and2diag" H 7065 8565 65  0001 L TNN
+F 3 "" H 7075 8775 60  0001 C CNN
+	1    7075 8775
+	0    1    1    0   
+$EndComp
+NoConn ~ 10475 5675
+Text GLabel 3175 2375 0    50   UnSpc ~ 0
+ADC-VDD
+Text GLabel 2625 5075 0    50   UnSpc ~ 0
+ENVPWM1
+Text GLabel 2625 4975 0    50   UnSpc ~ 0
+ENVPWM2
+Text GLabel 2625 5875 0    50   UnSpc ~ 0
+ENVPWM3
+Text GLabel 2625 4375 0    50   UnSpc ~ 0
+ENVPWM4
+Text GLabel 2625 4275 0    50   UnSpc ~ 0
+ENVPWM5
+Text GLabel 2625 4175 0    50   UnSpc ~ 0
+ENVPWM6
+Text GLabel 1550 5975 0    50   UnSpc ~ 0
+CHORDADC
+Text GLabel 2250 8375 0    50   UnSpc ~ 0
+AUDIO_SENSE
+Text GLabel 3250 6675 0    50   UnSpc ~ 0
+I2C1_SCL
+Text GLabel 3250 6775 0    50   UnSpc ~ 0
+I2C1_SDA
+Text GLabel 3250 6875 0    50   UnSpc ~ 0
+I2C2_SCL
+Text GLabel 3250 6975 0    50   UnSpc ~ 0
+I2C2_SDA
+Text GLabel 7350 4875 2    50   UnSpc ~ 0
+I2S2_LRCK
+Text GLabel 7350 4975 2    50   UnSpc ~ 0
+I2S2_MCLK
+Text GLabel 7350 4775 2    50   UnSpc ~ 0
+I2S2_SCLK
+Text GLabel 7375 2975 2    50   UnSpc ~ 0
+I2S2_SDI
+Text GLabel 7350 4675 2    50   UnSpc ~ 0
+I2S2_SDO
+Text GLabel 2225 5175 0    50   UnSpc ~ 0
+CLK_SENSE
+Text GLabel 2250 8475 0    50   UnSpc ~ 0
+CLK_BUS_IN
+Text GLabel 3250 6575 0    50   UnSpc ~ 0
+LEDRING_OE
+Text GLabel 2250 8575 0    50   UnSpc ~ 0
+LOCKBUT1
+Text GLabel 7975 1875 2    50   UnSpc ~ 0
+LOCKBUT2
+Text GLabel 7975 1975 2    50   UnSpc ~ 0
+LOCKBUT3
+Text GLabel 7975 2575 2    50   UnSpc ~ 0
+LOCKBUT4
+Text GLabel 7975 3575 2    50   UnSpc ~ 0
+LOCKBUT5
+Text GLabel 7975 3675 2    50   UnSpc ~ 0
+LOCKBUT6
+Text GLabel 12275 5775 2    50   UnSpc ~ 0
+NRST
+Text GLabel 8600 5975 2    50   UnSpc ~ 0
+DISPADC
+Text GLabel 1550 7775 0    50   UnSpc ~ 0
+LFOADC
+Text GLabel 7975 2875 2    50   UnSpc ~ 0
+ROTENC1
+Text GLabel 3250 8275 0    50   UnSpc ~ 0
+ROTENC2
+Text GLabel 7975 2775 2    50   UnSpc ~ 0
+ROTENCSW
+Text GLabel 1550 4475 0    50   UnSpc ~ 0
+BROWSEADC
+Text GLabel 8600 6375 2    50   UnSpc ~ 0
+DISPPATADC
+Text GLabel 8600 5675 2    50   UnSpc ~ 0
+SLDADC1
+Text GLabel 8600 5775 2    50   UnSpc ~ 0
+SLDADC2
+Text GLabel 8600 5875 2    50   UnSpc ~ 0
+SLDADC3
+Text GLabel 8600 6075 2    50   UnSpc ~ 0
+SLDADC4
+Text GLabel 8600 6175 2    50   UnSpc ~ 0
+SLDADC5
+Text GLabel 8600 6275 2    50   UnSpc ~ 0
+SLDADC6
+Text GLabel 7975 3275 2    50   UnSpc ~ 0
+SLLED1
+Text GLabel 7975 3075 2    50   UnSpc ~ 0
+SLLED2
+Text GLabel 7975 2675 2    50   UnSpc ~ 0
+SLLED3
+Text GLabel 7975 4575 2    50   UnSpc ~ 0
+SLLED4
+Text GLabel 2225 6075 0    50   UnSpc ~ 0
+SLLED5
+Text GLabel 7975 5575 2    50   UnSpc ~ 0
+SLLED6
+Text GLabel 1550 8175 0    50   UnSpc ~ 0
+WTSPREADADC
+Text GLabel 3550 5575 0    50   UnSpc ~ 0
+SWCK
+Text GLabel 12275 5175 2    50   UnSpc ~ 0
+SWCK
+Text GLabel 3550 5475 0    50   UnSpc ~ 0
+SWDIO
+Text GLabel 12275 4975 2    50   UnSpc ~ 0
+SWDIO
+Text GLabel 12275 5375 2    50   UnSpc ~ 0
+SWO
+Text GLabel 3550 6175 0    50   UnSpc ~ 0
+SWO
+Text GLabel 7000 3775 2    50   UnSpc ~ 0
+TRACECK
+Text GLabel 12375 5975 2    50   UnSpc ~ 0
+TRACECK
+Text GLabel 7000 3875 2    50   UnSpc ~ 0
+TRACED0
+Text GLabel 12375 6175 2    50   UnSpc ~ 0
+TRACED0
+Text GLabel 7000 4075 2    50   UnSpc ~ 0
+TRACED2
+Text GLabel 7000 4175 2    50   UnSpc ~ 0
+TRACED3
+NoConn ~ 11675 5575
+NoConn ~ 10475 5875
+NoConn ~ 10475 5475
+NoConn ~ 10475 6075
+Text GLabel 7200 9275 2    50   UnSpc ~ 0
+NRST
+$Comp
+L 4ms-ic:S25FL127 U8
+U 1 1 598BCE44
+P 11100 2250
+F 0 "U8" H 11100 2911 100 0000 C CNN
+F 1 "S25FL127" H 11100 2783 50  0000 C CNN
+F 2 "4ms_Package_SOIC:SOIC-8_5.28x4.9mm_Pitch1.27mm" H 11100 2300 125 0001 C CNN
+F 3 "" H 11100 2300 125 0001 C CNN
+	1    11100 2250
+	1    0    0    -1  
+$EndComp
+$Sheet
+S 13720 2800 800  800 
+U 59A8B3B8
+F0 "audio" 60
+F1 "swn-audio.sch" 60
+$EndSheet
+$Sheet
+S 15070 2775 800  800 
+U 59A8B3BA
+F0 "channels" 60
+F1 "swn-channels.sch" 60
+$EndSheet
+$Sheet
+S 13850 6175 800  800 
+U 59A8B3BC
+F0 "Global Controls" 60
+F1 "swn-globalctrl.sch" 60
+$EndSheet
+$Sheet
+S 13820 4600 800  800 
+U 59A8B3BE
+F0 "LED Ring" 60
+F1 "swn-ledring.sch" 60
+$EndSheet
+$Sheet
+S 15170 4575 800  800 
+U 59A8B3C0
+F0 "Power" 60
+F1 "swn-power.sch" 60
+$EndSheet
+Text Notes 13840 3295 0    125  ~ 0
+AUDIO
+Text Notes 15080 3300 0    100  ~ 0
+CHANNEL\nCONTROLS
+Text Notes 13860 6730 0    100  ~ 0
+GLOBAL\nCONTROLS
+Text Notes 14005 5160 0    125  ~ 0
+LED\nRING
+Text Notes 15235 5045 0    125  ~ 0
+POWER
+$Sheet
+S 15225 6175 825  800 
+U 59AF0AB3
+F0 "V/OCT ADC" 60
+F1 "swn-voctadc.sch" 60
+$EndSheet
+Text Notes 15400 6750 0    100  ~ 0
+V/OCT\nADC
+Text GLabel 7975 7475 2    60   BiDi ~ 0
+SENSECH1
+Text GLabel 7975 7375 2    60   BiDi ~ 0
+SENSECH2
+Text GLabel 7975 7275 2    60   BiDi ~ 0
+SENSECH3
+Text GLabel 7975 6475 2    60   BiDi ~ 0
+SENSECH6
+Text GLabel 1550 8075 0    50   UnSpc ~ 0
+SPHEREADC
+Text GLabel 7975 7775 2    50   UnSpc ~ 0
+LFOVCABUT
+Text GLabel 7975 7875 2    50   UnSpc ~ 0
+LFOGATEBUT
+Text GLabel 7975 8275 2    50   UnSpc ~ 0
+CLKIN
+Text GLabel 7975 8175 2    50   UnSpc ~ 0
+LFOSPEEDENC2
+Text GLabel 2250 6375 0    50   UnSpc ~ 0
+LFOSHAPEENC1
+Text GLabel 2250 6275 0    50   UnSpc ~ 0
+LFOSHAPESW1
+Text GLabel 7975 8375 2    50   UnSpc ~ 0
+LONGITUDEENC1
+Text GLabel 7975 8575 2    50   UnSpc ~ 0
+LONGITUDESW1
+Text GLabel 2250 6475 0    50   UnSpc ~ 0
+LFOSHAPEENC2
+Text GLabel 7975 8475 2    50   UnSpc ~ 0
+LONGITUDEENC2
+Text GLabel 7975 6775 2    50   UnSpc ~ 0
+LATITUDEENC2
+Text GLabel 2250 9175 0    50   UnSpc ~ 0
+TRANSPOSEENC2
+Text GLabel 7975 8075 2    50   UnSpc ~ 0
+LFOSPEEDENC1
+Text GLabel 7975 7975 2    50   UnSpc ~ 0
+LFOSPEEDSW1
+Text GLabel 7975 7175 2    50   UnSpc ~ 0
+RADIUSENC2
+Text GLabel 7975 6675 2    50   UnSpc ~ 0
+LATITUDEENC1
+Text GLabel 7975 5375 2    50   UnSpc ~ 0
+LATITUDESW1
+Text GLabel 7975 2375 2    50   UnSpc ~ 0
+FINEENC2
+Text GLabel 2250 9075 0    50   UnSpc ~ 0
+TRANSPOSEENC1
+Text GLabel 2250 8975 0    50   UnSpc ~ 0
+TRANSPOSESW1
+Text GLabel 7975 7675 2    50   UnSpc ~ 0
+PRESETENC2
+Text GLabel 7975 7075 2    50   UnSpc ~ 0
+RADIUSENC1
+Text GLabel 7975 6875 2    50   UnSpc ~ 0
+RADIUSSW1
+Text GLabel 7975 2275 2    50   UnSpc ~ 0
+FINEENC1
+Text GLabel 7975 2175 2    50   UnSpc ~ 0
+FINESW1
+Text GLabel 7975 7575 2    50   UnSpc ~ 0
+PRESETENC1
+Text GLabel 7975 3375 2    50   UnSpc ~ 0
+PRESETSW1
+Text GLabel 1550 7975 0    50   UnSpc ~ 0
+RADIUSADC
+$Comp
+L SMR-eagle:+3.3V #+3.3V028
+U 1 1 59BC1049
+P 10975 3550
+F 0 "#+3.3V028" H 10825 3550 70  0001 L BNN
+F 1 "+3.3V" H 10825 3550 70  0000 L BNN
+F 2 "" H 10975 3550 60  0001 C CNN
+F 3 "" H 10975 3550 60  0001 C CNN
+	1    10975 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND029
+U 1 1 59BC115E
+P 11175 4175
+F 0 "#GND029" H 11175 4175 60  0001 C CNN
+F 1 "~" H 11175 4175 60  0001 C CNN
+F 2 "" H 11175 4175 60  0001 C CNN
+F 3 "" H 11175 4175 60  0001 C CNN
+	1    11175 4175
+	-1   0    0    -1  
+$EndComp
+Text GLabel 10950 3775 2    50   UnSpc ~ 0
+SWCK
+Text GLabel 10825 3975 2    50   UnSpc ~ 0
+SWDIO
+Text GLabel 8000 5075 2    50   UnSpc ~ 0
+VOLTOCT_VCA
+Text GLabel 7975 2475 2    50   UnSpc ~ 0
+MUTES
+Text GLabel 7975 5475 2    60   BiDi ~ 0
+SENSEXP
+$Comp
+L SMR-eagle:RB R296
+U 1 1 59BD3C70
+P 1075 7875
+F 0 "R296" H 975 8025 45  0000 C CNN
+F 1 "1M" H 975 7950 45  0000 C CNN
+F 2 "4ms-footprints:R0603" H 1105 8025 20  0001 C CNN
+F 3 "" H 1075 7875 60  0001 C CNN
+	1    1075 7875
+	1    0    0    -1  
+$EndComp
+Text GLabel 1550 7675 0    50   UnSpc ~ 0
+LATADC
+$Comp
+L SMR-eagle:GND #GND030
+U 1 1 59BD40E1
+P 875 7975
+F 0 "#GND030" H 875 7975 60  0001 C CNN
+F 1 "~" H 875 7975 60  0001 C CNN
+F 2 "" H 875 7975 60  0001 C CNN
+F 3 "" H 875 7975 60  0001 C CNN
+	1    875  7975
+	1    0    0    -1  
+$EndComp
+Text GLabel 3250 4875 0    50   Output ~ 0
+SPIADC2_DIN
+Text GLabel 3250 4675 0    50   Output ~ 0
+SPIADC2_SCLK
+Text GLabel 3250 4575 0    50   Output ~ 0
+SPIADC2_CS
+Text GLabel 3250 4775 0    50   Input ~ 0
+SPIADC2_DOUT
+Text GLabel 3250 7375 0    50   Output ~ 0
+SPIADC1_DIN
+Text GLabel 3250 7175 0    50   Output ~ 0
+SPIADC1_SCLK
+Text GLabel 3250 7075 0    50   Output ~ 0
+SPIADC1_CS
+Text GLabel 3250 7275 0    50   Input ~ 0
+SPIADC1_DOUT
+Text Notes 1075 6475 3    60   ~ 0
+Place R296 far from ARM\n(random noise source)
+Text GLabel 3250 8875 0    50   Output ~ 0
+SPIRAM_DIN
+Text GLabel 3250 8675 0    50   Output ~ 0
+SPIRAM_SCLK
+Text GLabel 3250 5675 0    50   Output ~ 0
+SPIRAM_CS
+Text GLabel 3250 8775 0    50   Input ~ 0
+SPIRAM_DOUT
+Wire Wire Line
+	4575 1475 4575 1375
+Wire Wire Line
+	10475 4875 10275 4875
+Wire Wire Line
+	10275 4875 10275 4775
+Wire Wire Line
+	6875 3175 9275 3175
+Wire Wire Line
+	3175 2375 3575 2375
+Wire Wire Line
+	3775 2275 3575 2275
+Wire Wire Line
+	3575 2275 3575 2375
+Connection ~ 3575 2375
+Wire Wire Line
+	2625 4375 3775 4375
+Wire Wire Line
+	1550 4475 3775 4475
+Wire Wire Line
+	3250 4775 3775 4775
+Wire Wire Line
+	3775 4875 3250 4875
+Wire Wire Line
+	1550 7675 3775 7675
+Wire Wire Line
+	3775 7775 1550 7775
+Wire Wire Line
+	7975 3275 6875 3275
+Wire Wire Line
+	3250 4575 3775 4575
+Wire Wire Line
+	3775 8475 2250 8475
+Wire Wire Line
+	3775 4975 2625 4975
+Wire Wire Line
+	2225 5175 3775 5175
+Wire Wire Line
+	3775 5975 1550 5975
+Wire Wire Line
+	1275 7875 3775 7875
+Wire Wire Line
+	3775 7975 1550 7975
+Wire Wire Line
+	7775 8875 7775 8675
+Wire Wire Line
+	7775 8875 7675 8875
+Wire Wire Line
+	7775 8675 7475 8675
+Connection ~ 7775 8875
+Wire Wire Line
+	3575 2475 3775 2475
+Wire Wire Line
+	10475 5275 10375 5275
+Wire Wire Line
+	10375 5275 10375 6275
+Wire Wire Line
+	10375 6275 10475 6275
+Wire Wire Line
+	3775 6675 3250 6675
+Wire Wire Line
+	3775 6775 3250 6775
+Wire Wire Line
+	3775 6875 3250 6875
+Wire Wire Line
+	3775 6975 3250 6975
+Wire Wire Line
+	3775 7075 3250 7075
+Wire Wire Line
+	3250 8275 3775 8275
+Wire Wire Line
+	3775 7175 3250 7175
+Wire Wire Line
+	3775 7275 3250 7275
+Wire Wire Line
+	3775 7375 3250 7375
+Wire Wire Line
+	3775 8375 2250 8375
+Wire Wire Line
+	6875 1875 7975 1875
+Wire Wire Line
+	6875 1975 7975 1975
+Wire Wire Line
+	6875 2075 7975 2075
+Wire Wire Line
+	6875 3575 7975 3575
+Wire Wire Line
+	6875 3675 7975 3675
+Wire Wire Line
+	3775 6575 3250 6575
+Wire Wire Line
+	3775 6075 2225 6075
+Wire Wire Line
+	3775 4175 2625 4175
+Wire Wire Line
+	6875 8775 6875 8675
+Wire Wire Line
+	6875 8675 7075 8675
+Connection ~ 7075 8675
+Wire Wire Line
+	3775 1975 3275 1975
+Wire Wire Line
+	3275 1975 3275 1775
+Wire Wire Line
+	3275 1775 2975 1775
+Wire Wire Line
+	3775 1875 3375 1875
+Wire Wire Line
+	3375 1875 3375 1575
+Wire Wire Line
+	3375 1575 2575 1575
+Wire Wire Line
+	6875 9175 7675 9175
+Wire Wire Line
+	6875 8875 7075 8875
+Connection ~ 7075 8875
+Wire Wire Line
+	6875 9275 7025 9275
+Wire Wire Line
+	7025 9275 7025 9350
+Wire Wire Line
+	11675 5775 12275 5775
+Wire Wire Line
+	7975 2675 6875 2675
+Wire Wire Line
+	2625 4275 3775 4275
+Wire Wire Line
+	6875 5975 8600 5975
+Wire Wire Line
+	3775 4675 3250 4675
+Wire Wire Line
+	7975 2875 6875 2875
+Wire Wire Line
+	7375 2975 6875 2975
+Wire Wire Line
+	7975 2775 6875 2775
+Wire Wire Line
+	6875 6375 8600 6375
+Wire Wire Line
+	3775 8075 1550 8075
+Wire Wire Line
+	6875 5675 8600 5675
+Wire Wire Line
+	6875 5775 8600 5775
+Wire Wire Line
+	6875 5875 8600 5875
+Wire Wire Line
+	6875 6075 8600 6075
+Wire Wire Line
+	6875 6175 8600 6175
+Wire Wire Line
+	6875 6275 8600 6275
+Wire Wire Line
+	6875 3075 7975 3075
+Wire Wire Line
+	6875 4575 7975 4575
+Wire Wire Line
+	3775 8175 1550 8175
+Wire Wire Line
+	11675 5175 12275 5175
+Wire Wire Line
+	3550 5475 3775 5475
+Wire Wire Line
+	11675 4975 12275 4975
+Wire Wire Line
+	11675 5375 12275 5375
+Wire Wire Line
+	3775 6175 3550 6175
+Wire Wire Line
+	6875 3775 7000 3775
+Wire Wire Line
+	11675 5975 12375 5975
+Wire Wire Line
+	6875 3875 7000 3875
+Wire Wire Line
+	11675 6175 12375 6175
+Wire Wire Line
+	11675 6375 12375 6375
+Wire Wire Line
+	7000 4075 6875 4075
+Wire Wire Line
+	7000 4175 6875 4175
+Wire Wire Line
+	12375 6775 11675 6775
+Wire Wire Line
+	10800 3675 10975 3675
+Wire Wire Line
+	10975 3675 10975 3650
+Wire Wire Line
+	10800 3875 11175 3875
+Wire Wire Line
+	10800 3775 10950 3775
+Wire Wire Line
+	10800 3975 10825 3975
+Wire Wire Line
+	11175 3875 11175 4075
+Wire Wire Line
+	3550 5575 3775 5575
+Wire Wire Line
+	6875 4675 7350 4675
+Wire Wire Line
+	6875 4775 7350 4775
+Wire Wire Line
+	6875 4875 7350 4875
+Wire Wire Line
+	6875 4975 7350 4975
+Wire Wire Line
+	2625 5075 3775 5075
+Wire Wire Line
+	3775 8575 2250 8575
+Wire Wire Line
+	7975 5575 6875 5575
+Wire Wire Line
+	3250 5675 3775 5675
+Wire Wire Line
+	3775 8675 3250 8675
+Wire Wire Line
+	3250 8775 3775 8775
+Wire Wire Line
+	3250 8875 3775 8875
+Wire Notes Line
+	1550 3825 1550 9250
+Wire Notes Line
+	2250 3825 2250 9250
+Wire Notes Line
+	3250 3825 3250 9250
+Wire Notes Line
+	750  3825 750  9250
+Text Notes 1275 3975 2    60   ~ 0
+ADC
+Text Notes 2000 4025 2    60   ~ 0
+Dig.\nPanel
+Text Notes 2550 3975 2    60   ~ 0
+PWM
+Text Notes 3125 3975 2    60   ~ 0
+Comm.
+Text Notes 3525 3975 2    60   ~ 0
+Debug
+Wire Notes Line
+	7975 1450 7975 8625
+Wire Notes Line
+	8600 1450 8600 8625
+Wire Notes Line
+	9100 1450 9100 8625
+Wire Notes Line
+	7350 1450 7350 8625
+Text Notes 8925 1600 2    60   ~ 0
+ADC
+Text Notes 8400 1650 2    60   ~ 0
+Dig.\nPanel
+Text Notes 7800 1600 2    60   ~ 0
+Comm.
+Text Notes 7325 1600 2    60   ~ 0
+Debug
+Text GLabel 10250 1850 0    50   Input ~ 0
+SPIRAM_CS
+Text GLabel 10250 2250 0    50   Input ~ 0
+SPIRAM_DIN
+Text GLabel 11925 2550 2    50   Input ~ 0
+SPIRAM_SCLK
+Text GLabel 10250 2050 0    50   Output ~ 0
+SPIRAM_DOUT
+Wire Wire Line
+	10500 2250 10250 2250
+Wire Wire Line
+	10500 2050 10250 2050
+Wire Wire Line
+	10500 1850 10250 1850
+Wire Wire Line
+	11925 2550 11700 2550
+$Comp
+L SMR-eagle:+3.3V #+3.3V013
+U 1 1 59C6A5D1
+P 11850 1750
+F 0 "#+3.3V013" H 11700 1750 70  0001 L BNN
+F 1 "+3.3V" H 11700 1750 70  0000 L BNN
+F 2 "" H 11850 1750 60  0001 C CNN
+F 3 "" H 11850 1750 60  0001 C CNN
+	1    11850 1750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	11700 1950 11850 1950
+Wire Wire Line
+	11850 1950 11850 1850
+$Comp
+L SMR-eagle:GND #GND03
+U 1 1 59C6A706
+P 11850 2425
+F 0 "#GND03" H 11850 2425 60  0001 C CNN
+F 1 "~" H 11850 2425 60  0001 C CNN
+F 2 "" H 11850 2425 60  0001 C CNN
+F 3 "" H 11850 2425 60  0001 C CNN
+	1    11850 2425
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	11700 2250 11850 2250
+Wire Wire Line
+	11850 2250 11850 2325
+$Comp
+L SMR-eagle:CB C162
+U 1 1 59C6A8B7
+P 12225 2050
+F 0 "C162" H 12225 2075 70  0000 L BNN
+F 1 "0.1uF" H 12225 1925 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 12215 1840 65  0001 L TNN
+F 3 "" H 12225 2050 60  0001 C CNN
+	1    12225 2050
+	1    0    0    -1  
+$EndComp
+Connection ~ 11850 1950
+Connection ~ 11850 2250
+Text GLabel 10225 2650 0    50   BiDi ~ 0
+SPIRAM_IO3
+Text GLabel 10225 2450 0    50   BiDi ~ 0
+SPIRAM_IO2
+Wire Wire Line
+	10500 2650 10225 2650
+Wire Wire Line
+	10225 2450 10500 2450
+Text GLabel 3250 5375 0    50   BiDi ~ 0
+SPIRAM_IO3
+Text GLabel 3250 5275 0    50   BiDi ~ 0
+SPIRAM_IO2
+Wire Wire Line
+	3775 5275 3250 5275
+Wire Wire Line
+	3775 5375 3250 5375
+Wire Wire Line
+	6875 7275 7975 7275
+Wire Wire Line
+	6875 7475 7975 7475
+Wire Wire Line
+	6875 7375 7975 7375
+Text GLabel 7975 4475 2    60   BiDi ~ 0
+SENSECH4
+Wire Wire Line
+	6875 4475 7975 4475
+Text GLabel 7975 6575 2    60   BiDi ~ 0
+SENSECH5
+Wire Wire Line
+	6875 6475 7975 6475
+Wire Wire Line
+	6875 6575 7975 6575
+Wire Wire Line
+	6875 5475 7975 5475
+Wire Wire Line
+	3775 9175 2250 9175
+Wire Wire Line
+	3775 9075 2250 9075
+Wire Wire Line
+	3775 8975 2250 8975
+Wire Wire Line
+	3775 6475 2250 6475
+Wire Wire Line
+	3775 6375 2250 6375
+Wire Wire Line
+	3775 6275 2250 6275
+Wire Wire Line
+	6875 2175 7975 2175
+Wire Wire Line
+	6875 2275 7975 2275
+Wire Wire Line
+	6875 2375 7975 2375
+Wire Wire Line
+	6875 2475 7975 2475
+Wire Wire Line
+	7975 7975 6875 7975
+Wire Wire Line
+	7975 8075 6875 8075
+Wire Wire Line
+	7975 8175 6875 8175
+Wire Wire Line
+	6875 8275 7975 8275
+Wire Wire Line
+	6875 4375 7225 4375
+Wire Wire Line
+	6875 7875 7975 7875
+Wire Wire Line
+	6875 7775 7975 7775
+Wire Wire Line
+	6875 7675 7975 7675
+Wire Wire Line
+	6875 7575 7975 7575
+Wire Wire Line
+	7975 3375 6875 3375
+Wire Wire Line
+	7975 8375 6875 8375
+Wire Wire Line
+	7975 8475 6875 8475
+Wire Wire Line
+	6875 8575 7975 8575
+Wire Wire Line
+	6875 5375 7975 5375
+Wire Wire Line
+	6875 6675 7975 6675
+Wire Wire Line
+	6875 6875 7975 6875
+Wire Wire Line
+	6875 6775 7975 6775
+Wire Wire Line
+	6875 7175 7975 7175
+Wire Wire Line
+	6875 7075 7975 7075
+Wire Notes Line
+	750  3825 3550 3825
+Wire Notes Line
+	750  4050 3550 4050
+Wire Notes Line
+	3550 3825 3550 9250
+Wire Notes Line
+	7000 1450 7000 8625
+Wire Notes Line
+	7000 1650 9100 1650
+Wire Notes Line
+	7000 1450 9100 1450
+$Comp
+L SMR-eagle:+3.3V #+3.3V014
+U 1 1 59C9844A
+P 6725 625
+F 0 "#+3.3V014" H 6575 625 70  0001 L BNN
+F 1 "+3.3V" H 6575 625 70  0000 L BNN
+F 2 "" H 6725 625 60  0001 C CNN
+F 3 "" H 6725 625 60  0001 C CNN
+	1    6725 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V015
+U 1 1 59C98450
+P 7125 625
+F 0 "#+3.3V015" H 6975 625 70  0001 L BNN
+F 1 "+3.3V" H 6975 625 70  0000 L BNN
+F 2 "" H 7125 625 60  0001 C CNN
+F 3 "" H 7125 625 60  0001 C CNN
+	1    7125 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V016
+U 1 1 59C98456
+P 7425 625
+F 0 "#+3.3V016" H 7275 625 70  0001 L BNN
+F 1 "+3.3V" H 7275 625 70  0000 L BNN
+F 2 "" H 7425 625 60  0001 C CNN
+F 3 "" H 7425 625 60  0001 C CNN
+	1    7425 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C165
+U 1 1 59C9845C
+P 7425 825
+F 0 "C165" H 7465 849 70  0000 L BNN
+F 1 "0.1uF" H 7464 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 7415 615 65  0001 L TNN
+F 3 "" H 7425 825 60  0001 C CNN
+	1    7425 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C164
+U 1 1 59C98462
+P 7125 825
+F 0 "C164" H 7165 849 70  0000 L BNN
+F 1 "0.1uF" H 7164 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 7115 615 65  0001 L TNN
+F 3 "" H 7125 825 60  0001 C CNN
+	1    7125 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C163
+U 1 1 59C98468
+P 6725 825
+F 0 "C163" H 6765 849 70  0000 L BNN
+F 1 "0.1uF" H 6764 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 6715 615 65  0001 L TNN
+F 3 "" H 6725 825 60  0001 C CNN
+	1    6725 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND06
+U 1 1 59C9846E
+P 7425 1125
+F 0 "#GND06" H 7425 1125 60  0001 C CNN
+F 1 "~" H 7425 1125 60  0001 C CNN
+F 2 "" H 7425 1125 60  0001 C CNN
+F 3 "" H 7425 1125 60  0001 C CNN
+	1    7425 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND05
+U 1 1 59C98474
+P 7125 1125
+F 0 "#GND05" H 7125 1125 60  0001 C CNN
+F 1 "~" H 7125 1125 60  0001 C CNN
+F 2 "" H 7125 1125 60  0001 C CNN
+F 3 "" H 7125 1125 60  0001 C CNN
+	1    7125 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND04
+U 1 1 59C9847A
+P 6725 1125
+F 0 "#GND04" H 6725 1125 60  0001 C CNN
+F 1 "~" H 6725 1125 60  0001 C CNN
+F 2 "" H 6725 1125 60  0001 C CNN
+F 3 "" H 6725 1125 60  0001 C CNN
+	1    6725 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V017
+U 1 1 59C984F4
+P 7800 625
+F 0 "#+3.3V017" H 7650 625 70  0001 L BNN
+F 1 "+3.3V" H 7650 625 70  0000 L BNN
+F 2 "" H 7800 625 60  0001 C CNN
+F 3 "" H 7800 625 60  0001 C CNN
+	1    7800 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:+3.3V #+3.3V018
+U 1 1 59C984FA
+P 8100 625
+F 0 "#+3.3V018" H 7950 625 70  0001 L BNN
+F 1 "+3.3V" H 7950 625 70  0000 L BNN
+F 2 "" H 8100 625 60  0001 C CNN
+F 3 "" H 8100 625 60  0001 C CNN
+	1    8100 625 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C167
+U 1 1 59C98500
+P 8100 825
+F 0 "C167" H 8140 849 70  0000 L BNN
+F 1 "0.1uF" H 8139 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 8090 615 65  0001 L TNN
+F 3 "" H 8100 825 60  0001 C CNN
+	1    8100 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:CB C166
+U 1 1 59C98506
+P 7800 825
+F 0 "C166" H 7840 849 70  0000 L BNN
+F 1 "0.1uF" H 7839 660 70  0000 L BNN
+F 2 "4ms-footprints:C0603" H 7790 615 65  0001 L TNN
+F 3 "" H 7800 825 60  0001 C CNN
+	1    7800 825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND08
+U 1 1 59C9850C
+P 8100 1125
+F 0 "#GND08" H 8100 1125 60  0001 C CNN
+F 1 "~" H 8100 1125 60  0001 C CNN
+F 2 "" H 8100 1125 60  0001 C CNN
+F 3 "" H 8100 1125 60  0001 C CNN
+	1    8100 1125
+	1    0    0    -1  
+$EndComp
+$Comp
+L SMR-eagle:GND #GND07
+U 1 1 59C98512
+P 7800 1125
+F 0 "#GND07" H 7800 1125 60  0001 C CNN
+F 1 "~" H 7800 1125 60  0001 C CNN
+F 2 "" H 7800 1125 60  0001 C CNN
+F 3 "" H 7800 1125 60  0001 C CNN
+	1    7800 1125
+	1    0    0    -1  
+$EndComp
+Connection ~ 7025 9275
+Wire Wire Line
+	2625 5875 3775 5875
+Wire Notes Line
+	2625 3825 2625 9250
+Wire Notes Line
+	3550 9250 750  9250
+Wire Notes Line
+	9100 8625 6675 8625
+$Comp
+L 4ms-headers:Conn_02x04_Odd_Even J3
+U 1 1 59FD0DC2
+P 13550 1400
+F 0 "J3" H 13600 1750 50  0000 C CNN
+F 1 "Conn_02x04_Odd_Even" H 13600 1650 50  0000 C CNN
+F 2 "4ms_Connector:Pins_2x04_2.54mm_TH" H 13550 1400 50  0001 C CNN
+F 3 "~" H 13550 1400 50  0001 C CNN
+	1    13550 1400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3575 2375 3775 2375
+Wire Wire Line
+	10475 6675 10475 6875
+Wire Wire Line
+	7075 8675 7175 8675
+Wire Wire Line
+	7075 8875 7375 8875
+Wire Wire Line
+	11850 1950 12225 1950
+Wire Wire Line
+	11850 2250 12225 2250
+Wire Wire Line
+	7025 9275 7200 9275
+Text Label 7075 4325 0    60   ~ 0
+RX
+Text Label 7225 4375 0    60   ~ 0
+TX
+Wire Wire Line
+	6875 4275 7075 4275
+Wire Wire Line
+	7075 4275 7075 4325
+Text GLabel 13350 1600 0    50   UnSpc ~ 0
+TRACED3
+Text GLabel 13350 1500 0    50   UnSpc ~ 0
+TRACED2
+Wire Wire Line
+	6875 5075 8000 5075
+Text Label 13350 1300 2    60   ~ 0
+TX
+Text Label 13350 1400 2    60   ~ 0
+RX
+Wire Wire Line
+	13850 1300 13850 1400
+Wire Wire Line
+	13850 1500 13850 1600
+Wire Wire Line
+	13850 1500 13850 1400
+Connection ~ 13850 1500
+Connection ~ 13850 1400
+$Comp
+L SMR-eagle:GND #GND0110
+U 1 1 5AB2D6E2
+P 13850 1700
+F 0 "#GND0110" H 13850 1700 60  0001 C CNN
+F 1 "~" H 13850 1700 60  0001 C CNN
+F 2 "" H 13850 1700 60  0001 C CNN
+F 3 "" H 13850 1700 60  0001 C CNN
+	1    13850 1700
+	-1   0    0    -1  
+$EndComp
+Connection ~ 13850 1600
+Text Notes 6000 3000 2    50   ~ 0
+SAI2_SD_A
+Text Notes 5975 5000 2    60   ~ 0
+SAI2_SD_B\n_SCK_B\n_FS_B\n_MCK_B
+Text Notes 5325 7400 2    60   ~ 0
+SPI2_NSS\n_SCK\n_MISO\n_MOSI
+Wire Wire Line
+	6875 3975 7000 3975
+Text GLabel 12375 6375 2    50   UnSpc ~ 0
+TRACED1
+Text GLabel 7000 3975 2    50   UnSpc ~ 0
+TRACED1
+Wire Wire Line
+	10475 5075 10375 5075
+Wire Wire Line
+	10375 5075 10375 5275
+Connection ~ 10375 5275
+Wire Wire Line
+	3775 2775 3775 2875
+Wire Wire Line
+	3775 3375 3775 3475
+Wire Wire Line
+	3775 3475 3775 3575
+Connection ~ 3775 3475
+Connection ~ 3775 3575
+Wire Wire Line
+	5675 1475 5575 1475
+Wire Wire Line
+	5575 1475 5475 1475
+Connection ~ 5575 1475
+Wire Wire Line
+	5375 1475 5475 1475
+Connection ~ 5475 1475
+Wire Wire Line
+	5375 1475 5275 1475
+Connection ~ 5375 1475
+Wire Wire Line
+	5275 1475 5175 1475
+Connection ~ 5275 1475
+Connection ~ 5175 1475
+Wire Wire Line
+	4975 1475 5075 1475
+Connection ~ 5075 1475
+Wire Wire Line
+	5075 1475 5175 1475
+Wire Wire Line
+	4975 1475 4875 1475
+Connection ~ 4975 1475
+Wire Wire Line
+	4875 1475 4775 1475
+Connection ~ 4875 1475
+Wire Wire Line
+	4775 1475 4675 1475
+Connection ~ 4775 1475
+Wire Wire Line
+	4675 1475 4575 1475
+Connection ~ 4675 1475
+Connection ~ 4575 1475
+Wire Wire Line
+	3775 3175 3775 3075
+Wire Wire Line
+	3775 3175 3775 3275
+Connection ~ 3775 3175
+Wire Wire Line
+	3775 3275 3775 3375
+Connection ~ 3775 3275
+Connection ~ 3775 3375
+Wire Wire Line
+	3775 3075 3775 2975
+Connection ~ 3775 3075
+Wire Wire Line
+	3775 2975 3775 2875
+Connection ~ 3775 2975
+Connection ~ 3775 2875
+Wire Wire Line
+	10475 6475 10475 6675
+Connection ~ 10475 6675
+Wire Wire Line
+	10475 6475 10475 6275
+Connection ~ 10475 6475
+Connection ~ 10475 6275
+$Comp
+L 4ms-mech:4ms-logo G***1
+U 1 1 5C2808D2
+P 14900 10075
+F 0 "G***1" H 14900 10075 40  0001 C CNN
+F 1 "4ms-logo" H 14900 10075 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_15.5x6.6mm" H 14900 10310 40  0000 C CNN
+F 3 "" H 14900 10075 40  0001 C CNN
+	1    14900 10075
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***3
+U 1 1 5C2847BC
+P 16050 10075
+F 0 "G***3" H 16050 10075 40  0001 C CNN
+F 1 "4ms-logo" H 16050 10075 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_15.5x6.6mm" H 16050 10310 40  0000 C CNN
+F 3 "" H 16050 10075 40  0001 C CNN
+	1    16050 10075
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***2
+U 1 1 5C2847FB
+P 13800 10075
+F 0 "G***2" H 13800 10075 40  0001 C CNN
+F 1 "4ms-logo" H 13800 10075 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_15.5x6.6mm" H 13800 10310 40  0000 C CNN
+F 3 "" H 13800 10075 40  0001 C CNN
+	1    13800 10075
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***4
+U 1 1 5C284A01
+P 17175 10100
+F 0 "G***4" H 17175 10100 40  0001 C CNN
+F 1 "4ms-logo" H 17175 10100 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_15.5x6.6mm" H 17175 10335 40  0000 C CNN
+F 3 "" H 17175 10100 40  0001 C CNN
+	1    17175 10100
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***5
+U 1 1 5C284A40
+P 17200 10375
+F 0 "G***5" H 17200 10375 40  0001 C CNN
+F 1 "4ms-logo" H 17200 10375 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_3.8x1.7mm" H 17200 10610 40  0000 C CNN
+F 3 "" H 17200 10375 40  0001 C CNN
+	1    17200 10375
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***6
+U 1 1 5C284A7F
+P 17225 10675
+F 0 "G***6" H 17225 10675 40  0001 C CNN
+F 1 "4ms-logo" H 17225 10675 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_3.8x1.7mm" H 17225 10910 40  0000 C CNN
+F 3 "" H 17225 10675 40  0001 C CNN
+	1    17225 10675
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***7
+U 1 1 5C28514C
+P 17200 10975
+F 0 "G***7" H 17200 10975 40  0001 C CNN
+F 1 "4ms-logo" H 17200 10975 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_3.8x1.7mm" H 17200 11210 40  0000 C CNN
+F 3 "" H 17200 10975 40  0001 C CNN
+	1    17200 10975
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***8
+U 1 1 5C28518B
+P 17175 11300
+F 0 "G***8" H 17175 11300 40  0001 C CNN
+F 1 "4ms-logo" H 17175 11300 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_3.8x1.7mm" H 17175 11535 40  0000 C CNN
+F 3 "" H 17175 11300 40  0001 C CNN
+	1    17175 11300
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***9
+U 1 1 5C2851CA
+P 17225 11600
+F 0 "G***9" H 17225 11600 40  0001 C CNN
+F 1 "4ms-logo" H 17225 11600 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_3.8x1.7mm" H 17225 11835 40  0000 C CNN
+F 3 "" H 17225 11600 40  0001 C CNN
+	1    17225 11600
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***10
+U 1 1 5C285344
+P 17200 11825
+F 0 "G***10" H 17200 11825 40  0001 C CNN
+F 1 "4ms-logo" H 17200 11825 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_3.8x1.7mm" H 17200 12060 40  0000 C CNN
+F 3 "" H 17200 11825 40  0001 C CNN
+	1    17200 11825
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***11
+U 1 1 5C285383
+P 17275 12075
+F 0 "G***11" H 17275 12075 40  0001 C CNN
+F 1 "4ms-logo" H 17275 12075 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_3.8x1.7mm" H 17275 12310 40  0000 C CNN
+F 3 "" H 17275 12075 40  0001 C CNN
+	1    17275 12075
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***12
+U 1 1 5C2853C2
+P 17175 12350
+F 0 "G***12" H 17175 12350 40  0001 C CNN
+F 1 "4ms-logo" H 17175 12350 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_3.8x1.7mm" H 17175 12585 40  0000 C CNN
+F 3 "" H 17175 12350 40  0001 C CNN
+	1    17175 12350
+	1    0    0    -1  
+$EndComp
+$Comp
+L 4ms-mech:4ms-logo G***13
+U 1 1 5C285401
+P 17175 12600
+F 0 "G***13" H 17175 12600 40  0001 C CNN
+F 1 "4ms-logo" H 17175 12600 40  0001 C CNN
+F 2 "4ms_Symbol:4msLogo_3.8x1.7mm" H 17175 12835 40  0000 C CNN
+F 3 "" H 17175 12600 40  0001 C CNN
+	1    17175 12600
+	1    0    0    -1  
+$EndComp
+Text GLabel 7975 2075 2    50   UnSpc ~ 0
+SELBUS
+Wire Wire Line
+	6875 2575 7975 2575
+Text GLabel 12375 6575 2    50   UnSpc ~ 0
+TRACED2
+Wire Wire Line
+	12375 6575 11675 6575
+Text GLabel 12375 6775 2    50   UnSpc ~ 0
+TRACED3
+$EndSCHEMATC

@@ -1,0 +1,12 @@
+wavetable/libraries/wavefiles/*
+build
+#*.wav
+local/
+LOCAL/
+\.DS_Store
+tmp/
+*.o
+
+calc_lfoinc_table/calc-increments
+
+wavetable/formant_library_calc/make-waveform-library
