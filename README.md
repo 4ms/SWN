@@ -1,4 +1,4 @@
-#Spherical Wavetable Navigator
+# Spherical Wavetable Navigator
 
 Firmware for the Spherical Wavetable Navigator, a Eurorack-format module from 4ms Company.
 
