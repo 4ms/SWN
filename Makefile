@@ -199,7 +199,7 @@ $(BUILDDIR)/%.o: %.s
 
 
 flash: $(BIN)
-	st-flash write $(BIN) 0x8000000
+	st-flash write $(BIN) 0x08010000
 
 clean:
 	rm -rf build
