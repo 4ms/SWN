@@ -87,33 +87,6 @@ void init_timekeeper(void)
 	tim_timing[i].prescaler			= 7;
 	tim_timing[i].clock_division 	= 0;
 
-
-	//Hi-res ADC chip A (ADS8634)
-	//Prescale = 0 --> 108MHz / 1 = 108MHz
-	//Period = 3600 --> 108MHz / 1200 = 90kHz
-	//With 3 ADC channels on chip A, 90kHz ==> 30kHz sampling rate per channel 
-	// 30kHz / 10 oversampling = 3kHz raw values updated
-	i = HIRES_ADC_A_TIM_number;
-	tim_timing[i].priority1 		= 3;
-	tim_timing[i].priority2 		= 2;
-	tim_timing[i].period 			= 1200;
-	tim_timing[i].prescaler			= 0;
-	tim_timing[i].clock_division 	= 0;
-
-
-	//Hi-res ADC chip B (ADS8634)
-	//Prescale = 0 --> 108MHz / 1 = 108MHz
-	//Period = 1000 --> 108MHz / 900 = 120kHz
-	//With 4 ADC channels on chip B, 120kHz ==> 30kHz sampling rate per channel
-	//30kHz / 10 oversampling = 3kHz raw values updated
-	i = HIRES_ADC_B_TIM_number;
-	tim_timing[i].priority1 		= 3;
-	tim_timing[i].priority2 		= 2;
-	tim_timing[i].period 			= 900;
-	tim_timing[i].prescaler			= 0;
-	tim_timing[i].clock_division 	= 0;
-
-
 	//UI Param update (encoders, switches, buttons)
 	//Run every 1kHz (1ms)
 	//Prescale = 3 --> 108MHz / 4 = 27MHz

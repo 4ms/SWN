@@ -34,7 +34,7 @@
 
 //
 // Modes:
-// SPI (perhaps with a bitbanged NSS?) using interrupts
+// SPI using interrupts
 // DMA continuous
 //
 
@@ -46,32 +46,22 @@
 //delays about 32ns for every value of x
 #define delay_32ns(x) do {  register unsigned int i;  for (i = 0; i < x; ++i)   __asm__ __volatile__ ("nop\n\t":::"memory"); } while (0)
 
-
-// Chip pin and peripheral structure
 ads8634Chip			chip[ NUMBER_OF_ADS8634_CHIPS ];
 
-// SPI and DMA stuctures for each chip
 SPI_HandleTypeDef	spi_ads8634[ NUMBER_OF_ADS8634_CHIPS ];
 // DMA_InitTypeDef 	spi_dma_tx[ NUMBER_OF_ADS8634_CHIPS ];
 // DMA_InitTypeDef 	spi_dma_rx[ NUMBER_OF_ADS8634_CHIPS ];
 
-// Chip's register inititialization commands
 #define				REG_INIT_BUFFER_SIZE 	8
 uint16_t			reg_init_buffer[ REG_INIT_BUFFER_SIZE ];
 
 // Pointer to location where ADC data should be put
 float 				*g_adc_buffer_addr[ NUMBER_OF_ADS8634_CHIPS ];
-
-// Number of channels in buffer (usually 4)
 uint8_t				g_adc_buffer_numchans[ NUMBER_OF_ADS8634_CHIPS ];
 
-// Amount of oversampling
+
 uint8_t				g_oversample_amt[ NUMBER_OF_ADS8634_CHIPS ][ MAX_ADCS_PER_CHIP ];
-
-// Buffer for storing oversampling
 uint16_t			g_oversample_buff[ NUMBER_OF_ADS8634_CHIPS ][ MAX_ADCS_PER_CHIP ][ MAX_OVERSAMPLE_BUFF_SIZE ];
-
-// Current index of oversampling buffer
 uint16_t			g_os_i[ NUMBER_OF_ADS8634_CHIPS ][ MAX_ADCS_PER_CHIP ];
 
 // errors
@@ -222,7 +212,6 @@ void ads8634_SPI_GPIO_init(uint8_t chipnum)
 			__HAL_RCC_SPI6_CLK_ENABLE();
 	#endif
 
-
 	// Assume GPIO RCC is enabled already, or if not do it here:
 	//
 	//		__HAL_RCC_GPIOx_CLK_ENABLE()
@@ -252,9 +241,6 @@ void ads8634_SPI_GPIO_init(uint8_t chipnum)
 	gpio.Pin 		= chip[chipnum].CS.pin;
 	gpio.Alternate 	= chip[chipnum].CS.af;
 	HAL_GPIO_Init(chip[chipnum].CS.gpio, &gpio);
-
-	//Deselect the chip: CS high
-	PIN_HIGH(chip[chipnum].CS.gpio, chip[chipnum].CS.pin);
 }
 
 
@@ -307,9 +293,6 @@ void ads8634_IRQ_init(uint8_t chipnum, float *adc_buffer, uint8_t adc_buffer_cha
 	// Configure the SPI interrupt priority
 	HAL_NVIC_SetPriority(chip[chipnum].SPI_IRQn, 3, 0);
 	HAL_NVIC_EnableIRQ(chip[chipnum].SPI_IRQn);
-
-	//Pull Chip-Select pin low right before enabling the SPI
-	//PIN_LOW(chip[chipnum].CS.gpio, chip[chipnum].CS.pin);
 
 	// Enable the Rx buffer not empty interrupt
 	__HAL_SPI_ENABLE_IT(&spi_ads8634[chipnum], SPI_IT_RXNE);
@@ -527,16 +510,10 @@ void ads8634_init_with_SPIIRQ(float *adc_buffer, uint8_t adc_buffer_chans, uint8
 	for (chan=0;chan<MAX_ADCS_PER_CHIP;chan++)
 		init_oversampling(chipnum, chan, oversample_amts[chan]);
 
-
 	ads8634_SPI_start(chipnum);
 
 	//Initiate first transfer by writing zeros
 	chip[chipnum].SPIx->DR = 0x1;
-
-	// if (chipnum==0)
-	// 	start_timer_IRQ(HIRES_ADC_A_TIM_number, &ADS8634_A_update);
-	// else if (chipnum==1)
-	// 	start_timer_IRQ(HIRES_ADC_B_TIM_number, &ADS8634_B_update);
 }
 
 //Todo: not tested yet!
@@ -545,10 +522,7 @@ void ads8634_set_vrange(uint8_t chipnum, enum RangeSel *v_ranges, uint8_t number
 	uint8_t i;
 	enum RangeSel padded_ranges[MAX_ADCS_PER_CHIP];
 
-	if (chipnum==0)
-		pause_timer_IRQ(HIRES_ADC_A_TIM_number);
-	else if (chipnum==1)
-		pause_timer_IRQ(HIRES_ADC_B_TIM_number);
+	__HAL_SPI_DISABLE_IT(&spi_ads8634[chipnum], SPI_IT_RXNE);
 
 	for (i=0;i<MAX_ADCS_PER_CHIP;i++)
 	{
@@ -559,26 +533,16 @@ void ads8634_set_vrange(uint8_t chipnum, enum RangeSel *v_ranges, uint8_t number
 	ads8634_create_vrange_buffer(padded_ranges);
 
 	while (chip[chipnum].status != READY_TO_TX) {;}
-
 	chip[chipnum].status = NOT_READY_TO_TX;
-
-	PIN_LOW(chip[chipnum].CS.gpio, chip[chipnum].CS.pin);
 
 	for (i=0;i<MAX_ADCS_PER_CHIP;i++) 
 	{
-		chip[chipnum].SPIx->DR = reg_init_buffer[i];
 		while (!(chip[chipnum].SPIx->SR & SPI_FLAG_TXE)) {;}
+		chip[chipnum].SPIx->DR = reg_init_buffer[i];
 	}
 
-	PIN_HIGH(chip[chipnum].CS.gpio, chip[chipnum].CS.pin);
 
-
-	chip[chipnum].status = READY_TO_TX;
-
-	if (chipnum==0)
-		resume_timer_IRQ(HIRES_ADC_A_TIM_number);
-	else if (chipnum==1)
-		resume_timer_IRQ(HIRES_ADC_B_TIM_number);
+	__HAL_SPI_ENABLE_IT(&spi_ads8634[chipnum], SPI_IT_RXNE);
 }
 
 //*************************//
@@ -633,7 +597,7 @@ void ADS8634_A_SPI_IRQHANDLER(void)
 	// SPI Interrupt triggered when Receive buffer Not Empty (RXNE)
 	if ((itflag & SPI_FLAG_RXNE) && (itsource & SPI_IT_RXNE))
 	{
-		//PIN_HIGH(chip[0].CS.gpio, chip[0].CS.pin);
+		chip[0].status = NOT_READY_TO_TX;
 
 		recv_data = chip[0].SPIx->DR;
 
@@ -652,9 +616,10 @@ void ADS8634_A_SPI_IRQHANDLER(void)
 				g_adc_buffer_addr[0][chan] = resolve_oversampling(0, chan);
 			}
 		}
-		
+
 		chip[0].SPIx->DR = 0x00;
-		// chip[0].status = READY_TO_TX;
+
+		chip[0].status = READY_TO_TX;
 	}
 }
 
@@ -668,7 +633,7 @@ void ADS8634_B_SPI_IRQHANDLER(void)
 	// SPI Interrupt triggered when Receive buffer Not Empty (RXNE)
 	if ((itflag & SPI_FLAG_RXNE) && (itsource & SPI_IT_RXNE))
 	{
-		//PIN_HIGH(chip[1].CS.gpio, chip[1].CS.pin);
+		chip[1].status = NOT_READY_TO_TX;
 
 		// Grab the received data
 		recv_data = chip[1].SPIx->DR;
@@ -689,7 +654,8 @@ void ADS8634_B_SPI_IRQHANDLER(void)
 			}
 		}
 		chip[1].SPIx->DR = 0x00;
-		// chip[1].status = READY_TO_TX;
+
+		chip[1].status = READY_TO_TX;
 	}
 }
 
@@ -711,31 +677,5 @@ void ADS8634_B_SPI_IRQHANDLER(void)
 	// }
 // }
 
-
-//
-// This Interrupt Handler is called on a timer.
-// It initiates the SPI peripheral to read the next ADC value
-//
-void ADS8634_A_update(void)
-{
-	if (chip[0].status == READY_TO_TX)
-	{
-		PIN_LOW(chip[0].CS.gpio, chip[0].CS.pin);
-
-		chip[0].status = NOT_READY_TO_TX;
-		chip[0].SPIx->DR = 0; //initiates a data transfer by writing zeros
-	}
-}
-
-void ADS8634_B_update(void)
-{
-	if (chip[1].status == READY_TO_TX)
-	{
-		PIN_LOW(chip[1].CS.gpio, chip[1].CS.pin);
-
-		chip[1].status = NOT_READY_TO_TX;
-		chip[1].SPIx->DR = 0; //initiates a data transfer by writing zeros
-	}
-}
 
 

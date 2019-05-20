@@ -33,9 +33,9 @@
 #include <stm32f7xx.h>
 
 #define MONO_LED_TIM_number					4
-#define HIRES_ADC_A_TIM_number				5
+// #define UNUSED				5
 #define OSC_TIM_number						6
-#define HIRES_ADC_B_TIM_number 				7
+// #define UNUSED 				7
 #define ANALOG_CONDITIONING_TIM_number		8
 #define PWM_OUTS_TIM_number					9
 #define LED_UPDATE_TIM_number				10
