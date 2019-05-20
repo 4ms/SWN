@@ -43,6 +43,8 @@
 #include "wavetable_editing.h"
 #include "wavetable_recording.h"
 #include "rotary_driver.h"
+#include "gpio_pins.h"
+
 
 extern enum UI_Modes 	ui_mode;
 extern o_rotary 		rotary[NUM_ROTARIES];
@@ -69,10 +71,12 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 	int32_t			audio_out_sample;
 	float			output_buffer_evens[MONO_BUFSZ], output_buffer_odds[MONO_BUFSZ];
 
+	static float 	prev_level[NUM_CHANNELS] = {0.0};
+	float 			interpolated_level, level_inc;
+
 	
 	oscout_status = 	((ui_mode != WTRECORDING) && (ui_mode != WTMONITORING) && (ui_mode != WTREC_WAIT));
 	audiomon_status = 	((ui_mode == WTRECORDING) || (ui_mode == WTMONITORING) || (ui_mode == WTTTONE) || (ui_mode == WTREC_WAIT));
-
 
 	// RESET OUPUT BUFFERS
 	// -------------------
@@ -87,7 +91,10 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 	// -----------------
 
 	for (chan = 0; chan < NUM_CHANNELS; chan++){
-		read_level(chan); //FIXME: Make this function thread-safe and put it with rest of paramater functions
+		read_level(chan);
+		level_inc = (calc_params.level[chan] - prev_level[chan]) / MONO_BUFSZ;
+		interpolated_level = prev_level[chan];
+		prev_level[chan] = calc_params.level[chan];
 
 		for (i_sample = 0; i_sample < MONO_BUFSZ; i_sample++){
 
@@ -106,16 +113,19 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 
 			xfade0 = (wt_osc.mc[wt_osc.buffer_sel[chan]][chan][wt_osc.rh0[chan]] * wt_osc.rhd_inv[chan]) + (wt_osc.mc[wt_osc.buffer_sel[chan]][chan][wt_osc.rh1[chan]] * wt_osc.rhd[chan]);
 
+
 			if(wt_osc.wt_xfade[chan] > 0){
 
 				wt_osc.wt_xfade[chan] -= XFADE_INC;
 				xfade1 = wt_osc.mc[1-wt_osc.buffer_sel[chan]][chan][wt_osc.rh0[chan]] * wt_osc.rhd_inv[chan] + wt_osc.mc[1-wt_osc.buffer_sel[chan]][chan][wt_osc.rh1[chan]] * wt_osc.rhd[chan];
 				
-				smpl = ((xfade0 * (1.0 - wt_osc.wt_xfade[chan])) + (xfade1 * wt_osc.wt_xfade[chan])) * (calc_params.level[chan]);
+				smpl = ((xfade0 * (1.0 - wt_osc.wt_xfade[chan])) + (xfade1 * wt_osc.wt_xfade[chan])) * interpolated_level;
 
 			} else {
-				smpl = xfade0  * (calc_params.level[chan]);
+				smpl = xfade0  * interpolated_level;
 			}
+
+			interpolated_level +=  level_inc;
 
 			// AUDIO OUT			
 			// ---------
