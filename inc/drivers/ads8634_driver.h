@@ -89,7 +89,7 @@ static inline void create_chip(ads8634Chip *chip, uint8_t chipnum){
 
 		chip->CS.pin			= GPIO_PIN_12;
 		chip->CS.gpio 			= GPIOB;
-		chip->CS.af				= 0;
+		chip->CS.af				= GPIO_AF5_SPI2;
 
 		// chip->DMAx				= DMA2;
 		// chip->DMA_clk			= RCC_AHB1Periph_DMA2;
@@ -124,7 +124,7 @@ static inline void create_chip(ads8634Chip *chip, uint8_t chipnum){
 
 		chip->CS.pin				= GPIO_PIN_4;
 		chip->CS.gpio 				= GPIOA;
-		chip->CS.af					= 0;
+		chip->CS.af					= GPIO_AF5_SPI1;
 
 		// chip->DMAx				= DMA2;
 		// chip->DMA_clk			= RCC_AHB1Periph_DMA2;

@@ -249,10 +249,8 @@ void ads8634_SPI_GPIO_init(uint8_t chipnum)
 	HAL_GPIO_Init(chip[chipnum].MISO.gpio, &gpio);  
 
 	// SPI  CS pin configuration
-	gpio.Mode 		= GPIO_MODE_OUTPUT_PP;
-	gpio.Speed 		= GPIO_SPEED_FREQ_VERY_HIGH;
-	gpio.Pull  		= GPIO_NOPULL;
 	gpio.Pin 		= chip[chipnum].CS.pin;
+	gpio.Alternate 	= chip[chipnum].CS.af;
 	HAL_GPIO_Init(chip[chipnum].CS.gpio, &gpio);
 
 	//Deselect the chip: CS high
@@ -272,17 +270,18 @@ void ads8634_SPI_init(uint8_t chipnum)
 	spi_ads8634[chipnum].Instance               = chip[chipnum].SPIx;
 	spi_ads8634[chipnum].Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
 	spi_ads8634[chipnum].Init.Direction         = SPI_DIRECTION_2LINES;
-	spi_ads8634[chipnum].Init.CLKPhase          = SPI_PHASE_2EDGE;
+	spi_ads8634[chipnum].Init.CLKPhase          = SPI_PHASE_1EDGE;
 	spi_ads8634[chipnum].Init.CLKPolarity       = SPI_POLARITY_LOW;
 	spi_ads8634[chipnum].Init.DataSize          = SPI_DATASIZE_16BIT;
 	spi_ads8634[chipnum].Init.FirstBit          = SPI_FIRSTBIT_MSB;
 	spi_ads8634[chipnum].Init.TIMode            = SPI_TIMODE_DISABLE;
 	spi_ads8634[chipnum].Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
 	spi_ads8634[chipnum].Init.CRCPolynomial     = 7;
-	spi_ads8634[chipnum].Init.NSS               = SPI_NSS_SOFT;
+	spi_ads8634[chipnum].Init.NSS               = SPI_NSS_HARD_OUTPUT;
+	spi_ads8634[chipnum].Init.NSSPMode			= SPI_NSS_PULSE_ENABLE;
 	spi_ads8634[chipnum].Init.Mode 				= SPI_MODE_MASTER;
 
-	if (HAL_SPI_Init(&spi_ads8634[chipnum]) != HAL_OK) //HAL_SPI_Init() -> calls HAL_SPI_MspInit()
+	if (HAL_SPI_Init(&spi_ads8634[chipnum]) != HAL_OK)
 		hiresadc_error = (ADS_SPI_INIT_ERR<<1) | chipnum;
 }
 
@@ -310,7 +309,7 @@ void ads8634_IRQ_init(uint8_t chipnum, float *adc_buffer, uint8_t adc_buffer_cha
 	HAL_NVIC_EnableIRQ(chip[chipnum].SPI_IRQn);
 
 	//Pull Chip-Select pin low right before enabling the SPI
-	PIN_LOW(chip[chipnum].CS.gpio, chip[chipnum].CS.pin);
+	//PIN_LOW(chip[chipnum].CS.gpio, chip[chipnum].CS.pin);
 
 	// Enable the Rx buffer not empty interrupt
 	__HAL_SPI_ENABLE_IT(&spi_ads8634[chipnum], SPI_IT_RXNE);
@@ -534,10 +533,10 @@ void ads8634_init_with_SPIIRQ(float *adc_buffer, uint8_t adc_buffer_chans, uint8
 	//Initiate first transfer by writing zeros
 	chip[chipnum].SPIx->DR = 0x1;
 
-	if (chipnum==0)
-		start_timer_IRQ(HIRES_ADC_A_TIM_number, &ADS8634_A_update);
-	else if (chipnum==1)
-		start_timer_IRQ(HIRES_ADC_B_TIM_number, &ADS8634_B_update);
+	// if (chipnum==0)
+	// 	start_timer_IRQ(HIRES_ADC_A_TIM_number, &ADS8634_A_update);
+	// else if (chipnum==1)
+	// 	start_timer_IRQ(HIRES_ADC_B_TIM_number, &ADS8634_B_update);
 }
 
 //Todo: not tested yet!
@@ -634,7 +633,7 @@ void ADS8634_A_SPI_IRQHANDLER(void)
 	// SPI Interrupt triggered when Receive buffer Not Empty (RXNE)
 	if ((itflag & SPI_FLAG_RXNE) && (itsource & SPI_IT_RXNE))
 	{
-		PIN_HIGH(chip[0].CS.gpio, chip[0].CS.pin);
+		//PIN_HIGH(chip[0].CS.gpio, chip[0].CS.pin);
 
 		recv_data = chip[0].SPIx->DR;
 
@@ -653,8 +652,9 @@ void ADS8634_A_SPI_IRQHANDLER(void)
 				g_adc_buffer_addr[0][chan] = resolve_oversampling(0, chan);
 			}
 		}
-
-		chip[0].status = READY_TO_TX;
+		
+		chip[0].SPIx->DR = 0x00;
+		// chip[0].status = READY_TO_TX;
 	}
 }
 
@@ -668,7 +668,7 @@ void ADS8634_B_SPI_IRQHANDLER(void)
 	// SPI Interrupt triggered when Receive buffer Not Empty (RXNE)
 	if ((itflag & SPI_FLAG_RXNE) && (itsource & SPI_IT_RXNE))
 	{
-		PIN_HIGH(chip[1].CS.gpio, chip[1].CS.pin);
+		//PIN_HIGH(chip[1].CS.gpio, chip[1].CS.pin);
 
 		// Grab the received data
 		recv_data = chip[1].SPIx->DR;
@@ -688,9 +688,8 @@ void ADS8634_B_SPI_IRQHANDLER(void)
 				g_adc_buffer_addr[1][chan] = resolve_oversampling(1, chan);
 			}
 		}
-
-		// Set the status so our timer-based interrupt can initiate a new transfer
-		chip[1].status = READY_TO_TX;
+		chip[1].SPIx->DR = 0x00;
+		// chip[1].status = READY_TO_TX;
 	}
 }
 
