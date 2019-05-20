@@ -79,38 +79,37 @@ void init_timekeeper(void)
 
 	//Analog Conditioning
 	//Prescale --> 216MHz / (7+1) = 27MHz
-	//Period --> 27MHz / 27000 = 1kHz
+	//Period --> 27MHz / 9000 = 3kHz
 	i = ANALOG_CONDITIONING_TIM_number;
 	tim_timing[i].priority1 		= 3;
 	tim_timing[i].priority2 		= 2;
-	tim_timing[i].period 			= 27000;
+	tim_timing[i].period 			= 9000;
 	tim_timing[i].prescaler			= 7;
 	tim_timing[i].clock_division 	= 0;
 
 
 	//Hi-res ADC chip A (ADS8634)
 	//Prescale = 0 --> 108MHz / 1 = 108MHz
-	//Period = 3600 --> 108MHz / 3600 = 30kHz
-	//With 3 ADC channels on chip A, 30kHz ==> 10kHz sampling rate per channel 
-	// 10kHz / 10 oversampling = 1kHz raw values updated
+	//Period = 3600 --> 108MHz / 1200 = 90kHz
+	//With 3 ADC channels on chip A, 90kHz ==> 30kHz sampling rate per channel 
+	// 30kHz / 10 oversampling = 3kHz raw values updated
 	i = HIRES_ADC_A_TIM_number;
 	tim_timing[i].priority1 		= 3;
 	tim_timing[i].priority2 		= 2;
-	tim_timing[i].period 			= 3600;
+	tim_timing[i].period 			= 1200;
 	tim_timing[i].prescaler			= 0;
 	tim_timing[i].clock_division 	= 0;
 
 
 	//Hi-res ADC chip B (ADS8634)
-	//Run every 40kHz (25us)
 	//Prescale = 0 --> 108MHz / 1 = 108MHz
-	//Period = 3000 --> 108MHz / 10800 = 40kHz
-	//With 4 ADC channels on chip B, 40kHz ==> 10kHz sampling rate per channel
-	//10kHz / 10 oversampling = 1kHz raw values updated
+	//Period = 1000 --> 108MHz / 900 = 120kHz
+	//With 4 ADC channels on chip B, 120kHz ==> 30kHz sampling rate per channel
+	//30kHz / 10 oversampling = 3kHz raw values updated
 	i = HIRES_ADC_B_TIM_number;
 	tim_timing[i].priority1 		= 3;
 	tim_timing[i].priority2 		= 2;
-	tim_timing[i].period 			= 3000;
+	tim_timing[i].period 			= 900;
 	tim_timing[i].prescaler			= 0;
 	tim_timing[i].clock_division 	= 0;
 
