@@ -1579,7 +1579,7 @@ void read_browse_encoder(void){
 		}	
 
 		else if (ui_mode == PLAY){
-			read_wtsel(enc2);	//updates params.wtsel_enc
+			read_wtsel(enc2);
 		}
 	}
 
@@ -1755,6 +1755,8 @@ void update_num_sphere_filled(uint8_t num_user_filled){
 //			 WT SELECTION
 // ####################################
 
+//Todo: if we ever have more than 127 spheres then we'll need to use uint8_t or int16_t or something for params.wtsel_enc[]
+//or else wrap it properly from +127 to -128 (must wrap to same modulus of number of spheres)
 void read_wtsel(int8_t wtsel)
 {
 	uint8_t i;
@@ -1769,9 +1771,9 @@ void read_wtsel(int8_t wtsel)
 		{
 			for (i = 0; i < NUM_CHANNELS; i++)
 				params.wtsel_enc[i] = wtsel_enc[i];
-			//Todo: if we ever have more than 127 spheres then we'll need to use uint8_t or int16_t or something for params.wtsel_enc[]
-			//or else wrap it properly from +127 to -128 (must wrap to same modulus of number of spheres)
 		}
+
+		start_ongoing_display_sphere_sel();
 	}
 }
 
@@ -1795,6 +1797,8 @@ void read_wtsel_spread(void)
 			if (!params.wtsel_lock[chan])
 				params.wtsel_spread_enc[chan] = _WRAP_I16(params.wtsel_spread_enc[chan] + wtsel_spread, 0, NUM_WTSEL_SPREADS);
 		}
+
+		start_ongoing_display_sphere_sel();
 	}
 }
 

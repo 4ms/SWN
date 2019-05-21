@@ -216,7 +216,8 @@ void update_display_at_encoder_press(void){
 	else if (rotary_pressed(rotm_OCT) && switch_pressed(FINE_BUTTON))
 		start_ongoing_display_scale();
 
-	// if(rotary_pressed(rotm_OCT)){start_ongoing_display_scale();}
+	if (rotary_pressed(rotm_WAVETABLE))
+		start_ongoing_display_sphere_sel();
 }
 
 void update_led_flash(void)
@@ -261,6 +262,11 @@ void update_button_leds(void){
 
 					else if( (led_cont.ongoing_display == ONGOING_DISPLAY_TRANSPOSE) ){
 						set_rgb_color_by_array(&led_cont.button[i], CH_COLOR_MAP[i], lock_brightness);
+					} 
+
+					else if( (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SEL) ){
+						led_cont.button[i].brightness = lock_brightness*4.0;
+						get_wt_color(params.wt_bank[i], &led_cont.button[i]);
 					} 
 
 					else if( (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE) ){		
@@ -755,10 +761,9 @@ void calculate_led_ring(void){
 		}	
 
 
-		// else if (led_cont.ongoing_display == 	ONGOING_DISPLAY_WT_POS_LOCK){		
-		// 	display_wt_pos();
-		// 	flash_wt_lock();
-		// }
+		else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SEL){		
+			display_sphere_sel();
+		}	
 
 		else if (led_cont.ongoing_display == 	ONGOING_DISPLAY_GLOBRIGHT){		
 			display_wt_pos();
@@ -1184,6 +1189,75 @@ void display_sphere_save(void)
 	}
 }
 
+void display_sphere_sel(void)
+{
+	uint8_t i, led, chan, offset;
+
+	uint8_t overlap[NUM_LED_OUTRING][NUM_CHANNELS];
+	uint8_t overlap_num[NUM_LED_OUTRING];
+	static uint8_t overlap_ctr[NUM_LED_OUTRING]={0};
+	uint8_t pos[NUM_CHANNELS];
+
+	uint8_t do_advance_overlap = 0;
+	static uint32_t last_advance_overlap_tmr=0;
+	uint32_t now = HAL_GetTick()/TICKS_PER_MS;
+
+	if ((now - last_advance_overlap_tmr) > 300)
+	{
+		do_advance_overlap = 1;
+		last_advance_overlap_tmr = now;
+	}
+
+	for (i = 0; i < NUM_LED_OUTRING; i++){	
+		led_cont.outring[i].brightness = 0;
+		overlap_num[i] = 0;
+		for (chan=0; chan<NUM_CHANNELS; chan++)
+			overlap[i][chan] = 99;
+	}	
+
+	// Create overlap[led_position][channels_occupying_position] = channel#
+	for (i = 0; i < NUM_CHANNELS; i++)
+	{
+		offset = (params.wt_bank[i] < NUM_FACTORY_SPHERES) ? 0 : NUM_FACTORY_SPHERES;
+
+		pos[i] = rotate_origin((params.wt_bank[i] - offset) % NUM_LED_OUTRING, NUM_LED_OUTRING);
+		led = rotate_origin(i, NUM_CHANNELS);
+
+		get_wt_color(params.wt_bank[i], &led_cont.inring[led]);
+
+		if (params.osc_param_lock[i] && lock_flash_state())
+			led_cont.inring[led].brightness = 0;
+		else
+			led_cont.inring[led].brightness = F_MAX_BRIGHTNESS;
+
+		overlap[ pos[i] ][ overlap_num[pos[i]] ] = i;
+		overlap_num[ pos[i] ]++;
+	}
+
+	for (i = 0; i<NUM_LED_OUTRING; i++)
+	{
+		if (do_advance_overlap) {
+			overlap_ctr[i]++;
+			if (overlap_ctr[i] >= overlap_num[i]) overlap_ctr[i]=0;
+		}
+
+		chan = overlap[i][overlap_ctr[i]];
+		if (chan<=NUM_CHANNELS)  {
+			get_wt_color(params.wt_bank[chan], &led_cont.outring[i]);
+
+			if (params.osc_param_lock[i] && lock_flash_state())
+				led_cont.outring[i].brightness = 0;
+			else
+				led_cont.outring[i].brightness = F_MAX_BRIGHTNESS;
+		}
+
+	}
+
+
+
+}
+
+
 void display_octave(void){
 
 	uint8_t i,j;
@@ -1289,7 +1363,10 @@ void update_ongoing_display_timers(void){
 	// LFO MODE
 	else if (led_cont.ongoing_display == ONGOING_DISPLAY_LFO_MODE)
 		tick_down = 1;
-		
+	
+	else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SEL)
+		tick_down = 1;
+
 	// FX
 	if ( led_cont.ongoing_display == ONGOING_DISPLAY_FX &&  macro_states.all_af_buttons_released )
 		tick_down = 1;
@@ -1390,6 +1467,10 @@ void start_ongoing_display_globright(void){
 	led_cont.ongoing_timeout = GLOBRIGHT_TIMER_LIMIT;
 }
 
+void start_ongoing_display_sphere_sel(void){
+	led_cont.ongoing_display = ONGOING_DISPLAY_SPHERE_SEL;
+	led_cont.ongoing_timeout = SPHERE_SEL_TIMER_LIMIT;
+}
 
 void stop_all_displays(void){
 	led_cont.ongoing_display = 0;
