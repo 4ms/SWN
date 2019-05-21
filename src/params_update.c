@@ -1560,13 +1560,14 @@ void read_browse_encoder(void){
 		if(!rotary_pressed(rotm_PRESET) && new_global_brightness){save_flash_params();new_global_brightness=0;}
 	}
 
-	if (enc2){
-
-		if (ui_mode == WTEDITING){
-			
-			if((macro_states.all_af_buttons_released)){update_sphere_stretch_position(enc2);}
-		
-			else{
+	if (enc2)
+	{
+		if (ui_mode == WTEDITING)
+		{
+			if (macro_states.all_af_buttons_released)
+				update_sphere_stretch_position(enc2);
+			else
+			{
 				for (i=0; i< WT_DIM_SIZE; i++){
 					for (j=0; j< WT_DIM_SIZE; j++){
 						for (k=0; k< WT_DIM_SIZE; k++){

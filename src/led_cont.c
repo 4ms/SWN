@@ -145,7 +145,6 @@ const uint16_t LFO_BANK_COLOR[25][3]={
 	{ 800 	, 1	 	, 0	    }
 };
 
-#define WT_BANK_COLOR_MAX 1024.0
 
 void update_pwm_leds(void);
 
@@ -170,8 +169,6 @@ void init_led_cont_ongoing_display(void)
 {
 	led_cont.ongoing_display	= ONGOING_DISPLAY_NONE;
 	led_cont.ongoing_timeout	= 0;
-	enable_transpose_disp();
-	enable_octave_disp();
 }
 
 void init_led_cont(void)
@@ -205,29 +202,19 @@ void init_led_cont(void)
 
 void update_display_at_encoder_press(void){
 		
-	if(!led_cont.disable_transpose_disp)
+	if (rotary_pressed(rotm_TRANSPOSE))
 	{
-		if (rotary_pressed(rotm_TRANSPOSE))
-		{
-			if (switch_pressed(FINE_BUTTON))
-				start_ongoing_display_finetune();
-			else
-				start_ongoing_display_transpose();
-		}
+		if (switch_pressed(FINE_BUTTON))
+			start_ongoing_display_finetune();
+		else
+			start_ongoing_display_transpose();
 	}
-	else if ((!rotary_pressed(rotm_TRANSPOSE)) && (led_cont.disable_transpose_disp))
-		enable_transpose_disp();
 
-	if(!led_cont.disable_octave_disp)
-	{
-		if (rotary_pressed(rotm_OCT) && !switch_pressed(FINE_BUTTON) && (led_cont.ongoing_display != ONGOING_DISPLAY_SCALE))
-			start_ongoing_display_octave();
+	if (rotary_pressed(rotm_OCT) && !switch_pressed(FINE_BUTTON) && (led_cont.ongoing_display != ONGOING_DISPLAY_SCALE))
+		start_ongoing_display_octave();
 
-		else if (rotary_pressed(rotm_OCT) && switch_pressed(FINE_BUTTON))
-			start_ongoing_display_scale();
-	}
-	else if ((!rotary_pressed(rotm_OCT)) && (led_cont.disable_octave_disp))
-		enable_octave_disp();
+	else if (rotary_pressed(rotm_OCT) && switch_pressed(FINE_BUTTON))
+		start_ongoing_display_scale();
 
 	// if(rotary_pressed(rotm_OCT)){start_ongoing_display_scale();}
 }
@@ -1355,10 +1342,8 @@ void start_ongoing_display_finetune(void){
 
 
 void start_ongoing_display_octave(void){
-	if(!led_cont.disable_octave_disp){
-		led_cont.ongoing_display 	= ONGOING_DISPLAY_OCTAVE;
-		led_cont.ongoing_timeout	= OCTAVE_TIMER_LIMIT;
-	}
+	led_cont.ongoing_display 	= ONGOING_DISPLAY_OCTAVE;
+	led_cont.ongoing_timeout	= OCTAVE_TIMER_LIMIT;
 }
 
 void start_ongoing_display_scale(void){
@@ -1367,10 +1352,8 @@ void start_ongoing_display_scale(void){
 }
 
 void start_ongoing_display_transpose(void){
-	if(!led_cont.disable_transpose_disp){
-		led_cont.ongoing_display	= ONGOING_DISPLAY_TRANSPOSE;
-		led_cont.ongoing_timeout  	= TRANSPOSE_TIMER_LIMIT;	
-	}
+	led_cont.ongoing_display	= ONGOING_DISPLAY_TRANSPOSE;
+	led_cont.ongoing_timeout  	= TRANSPOSE_TIMER_LIMIT;	
 }
 
 void start_ongoing_display_lfo_tovca(void){
@@ -1411,24 +1394,6 @@ void start_ongoing_display_globright(void){
 void stop_all_displays(void){
 	led_cont.ongoing_display = 0;
 	led_cont.ongoing_timeout = 0;
-}
-
-void disable_transpose_disp(void){
-	stop_all_displays();
-	led_cont.disable_transpose_disp = 1;
-}
-
-void enable_transpose_disp(void){
-	led_cont.disable_transpose_disp = 0;
-}
-
-void disable_octave_disp(void){
-	stop_all_displays();
-	led_cont.disable_octave_disp = 1;
-}
-
-void enable_octave_disp(void){
-	led_cont.disable_octave_disp = 0;
 }
 
 uint16_t return_display_timer(void){

@@ -50,8 +50,7 @@ void check_ui_mode_requests(void){
 
 	if (ui_mode == PLAY){
 
-		if 		(key_combo_enter_editing())			{disable_transpose_disp(); disable_octave_disp(); arm_ui = WTEDITING;}
-		//else if (key_combo_enter_immediate_rec())	{disable_transpose_disp(); disable_octave_disp(); arm_ui = WTRECORDING;}
+		if 		(key_combo_enter_editing())			{ arm_ui = WTEDITING;}
 		else if (key_combo_enter_voct_calibrate())	{stop_all_displays(); arm_ui = VOCT_CALIBRATE;} 
 
 		else if (key_combo_reset_to_factory())		{stop_all_displays(); arm_ui = FACTORY_RESET;}
@@ -66,7 +65,7 @@ void check_ui_mode_requests(void){
 		if 		(key_combo_enter_recording())		{arm_ui = WTREC_WAIT;}
 		else if (key_combo_enter_ttone())			{arm_ui = WTTTONE;}
 		else if (key_combo_enter_monitoring())		{arm_ui = WTMONITORING;}
-		else if (key_combo_exit_request())			{disable_transpose_disp(); disable_octave_disp(); arm_ui = WTREC_EXIT;}
+		else if (key_combo_exit_request())			{arm_ui = WTREC_EXIT;}
 	}
 	
 	else if (ui_mode == WTMONITORING){
@@ -74,14 +73,14 @@ void check_ui_mode_requests(void){
 		else if (key_combo_enter_ttone())			{arm_ui = WTTTONE;}
 		else if (key_combo_exit_monitoring())		{arm_ui = WTEDITING;}
 		else if (key_combo_load_request())			{arm_ui = WTLOAD_SELECTING;} //FixMe: is this used?
-		else if (key_combo_exit_request())			{disable_transpose_disp(); disable_octave_disp(); arm_ui = WTREC_EXIT;}
+		else if (key_combo_exit_request())			{arm_ui = WTREC_EXIT;}
 	}
 
 	else if (ui_mode == WTTTONE){
 		if 		(key_combo_enter_recording())		{arm_ui = WTREC_WAIT;}
 		else if (key_combo_enter_monitoring())		{arm_ui = WTMONITORING;}
 		else if (key_combo_load_request())			{arm_ui = WTLOAD_SELECTING;}  //FixMe: is this used?
-		else if (key_combo_exit_request())			{disable_transpose_disp(); disable_octave_disp(); arm_ui = WTREC_EXIT;}
+		else if (key_combo_exit_request())			{arm_ui = WTREC_EXIT;}
 	}
 	
 	else if ((ui_mode == WTREC_WAIT) || (ui_mode == WTRENDERING)){

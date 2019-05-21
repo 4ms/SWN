@@ -146,14 +146,6 @@ void 		start_ongoing_display_fx(void);
 void 		stop_all_displays(void);
 
 
-// ------- disable displays ------
-void 		disable_transpose_disp(void);
-void 		enable_transpose_disp(void);
-void 		disable_octave_disp(void);
-void 		enable_octave_disp(void);
-
-
-
 void 		calculate_led_inring(void);
 void 		set_led_group(uint8_t led_group, uint16_t c_red, uint16_t c_green, uint16_t c_blue);
 uint16_t 	return_display_timer(void);

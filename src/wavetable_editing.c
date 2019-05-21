@@ -208,8 +208,6 @@ void exit_wtediting(void){
 
 	update_all_wt_pos_interp_params();					// re-factor in decimal part of navigation
 	force_all_wt_interp_update();						// re-interpolate, with  wavetables from flash (ui_mode==PLAY)
-	disable_transpose_disp();
-	disable_octave_disp();
 }
 
 
