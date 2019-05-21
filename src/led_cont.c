@@ -327,7 +327,6 @@ void update_button_leds(void){
 							brightness = 0.2;
 							color = ledc_BLUE;
 						}
-
 						set_rgb_color_brightness(&led_cont.button[i], color, brightness);
 					}
 				}
@@ -391,7 +390,6 @@ void update_button_leds(void){
 				brightness = exp_1voct_10_41V[_SCALE_F2U16(brightness, 0.0, 1.0, 2700, 4095)] / 1370.0;
 
 				set_rgb_color_brightness(&led_cont.button[i], fx_colors[i], brightness);
-			
 			}
 			
 			// rec button
@@ -417,7 +415,6 @@ void update_button_leds(void){
 
 				set_rgb_color_brightness(&led_cont.button[i], color, brightness);
 			}
-
 		}
 
 		else if (ui_mode==VOCT_CALIBRATE)
@@ -436,7 +433,6 @@ void update_button_leds(void){
 			set_rgb_color(&led_cont.button[i], color);
 		}
 
-		
 		set_pwm_led(led_button_map[i], &led_cont.button[i]);
 	}
 }
@@ -1168,7 +1164,7 @@ void display_sphere_save(void)
 
 void display_sphere_sel(void)
 {
-	uint8_t i, led, chan, offset;
+	uint8_t i, led, chan;
 
 	uint8_t overlap[NUM_LED_OUTRING][NUM_CHANNELS];
 	uint8_t overlap_num[NUM_LED_OUTRING];
@@ -1195,9 +1191,7 @@ void display_sphere_sel(void)
 	// Create overlap[led_position][channels_occupying_position] = channel#
 	for (i = 0; i < NUM_CHANNELS; i++)
 	{
-		offset = (params.wt_bank[i] < NUM_FACTORY_SPHERES) ? 0 : NUM_FACTORY_SPHERES;
-
-		pos[i] = rotate_origin((params.wt_bank[i] - offset) % NUM_LED_OUTRING, NUM_LED_OUTRING);
+		pos[i] = rotate_origin(calc_params.wtsel[i] % NUM_LED_OUTRING, NUM_LED_OUTRING);
 		led = rotate_origin(i, NUM_CHANNELS);
 
 		get_wt_color(params.wt_bank[i], &led_cont.inring[led]);
