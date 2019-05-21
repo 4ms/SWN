@@ -445,53 +445,31 @@ void update_button_leds(void){
 
 void update_encoder_leds(void){
 
-	uint8_t i;
-	
-	if((led_cont.ongoing_display == ONGOING_DISPLAY_TRANSPOSE) || (led_cont.ongoing_display == ONGOING_DISPLAY_RECORD)){
-		for (i = 0; i < NUM_LED_ROTARIES; i++){	
-			led_cont.encoder[i].brightness 	= F_MAX_BRIGHTNESS;
-			led_cont.encoder[i].c_red 		= colorPalette[c_RED]	[ledc_FUSHIA];
-			led_cont.encoder[i].c_green 	= colorPalette[c_GREEN]	[ledc_FUSHIA];
-			led_cont.encoder[i].c_blue 		= colorPalette[c_BLUE]	[ledc_FUSHIA];
-		}		
-	}
+	uint8_t i, color, set_color;
 
-	else if(led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE){
-		for (i = 0; i < NUM_LED_ROTARIES; i++){	
-			led_cont.encoder[i].brightness 	= F_MAX_BRIGHTNESS;
-			led_cont.encoder[i].c_red 		= colorPalette[c_RED]	[ledc_MED_BLUE];
-			led_cont.encoder[i].c_green 	= colorPalette[c_GREEN]	[ledc_MED_BLUE];
-			led_cont.encoder[i].c_blue 		= colorPalette[c_BLUE]	[ledc_MED_BLUE];
-		}
-	}
+	if (led_cont.ongoing_display == ONGOING_DISPLAY_RECORD)
+		color = ledc_FUSHIA;
 
-	else {
-		for (i = 0; i < NUM_LED_ROTARIES; i++){
-			if(rotary_pressed(i)){
-				led_cont.encoder[i].c_red 		= colorPalette[c_RED]	[ledc_CORAL];
-				led_cont.encoder[i].c_green 	= colorPalette[c_GREEN]	[ledc_CORAL];
-				led_cont.encoder[i].c_blue 		= colorPalette[c_BLUE]	[ledc_CORAL];
-				led_cont.encoder[i].brightness 	= F_MAX_BRIGHTNESS;
-			} 
-			else if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode)){
+	else if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
+		color = ledc_GOLD;
 
-				led_cont.encoder[i].c_red 		= colorPalette[c_RED]	[ledc_GOLD];
-				led_cont.encoder[i].c_green 	= colorPalette[c_GREEN]	[ledc_GOLD];
-				led_cont.encoder[i].c_blue 		= colorPalette[c_BLUE]	[ledc_GOLD];
-				led_cont.encoder[i].brightness 	= F_MAX_BRIGHTNESS;
-			}			
-			else{
+	else if (led_cont.ongoing_display == ONGOING_DISPLAY_TRANSPOSE)
+		color = ledc_FUSHIA;
 
-				led_cont.encoder[i].c_red 		= colorPalette[c_RED]	[ledc_PURPLE];
-				led_cont.encoder[i].c_green 	= colorPalette[c_GREEN]	[ledc_PURPLE];
-				led_cont.encoder[i].c_blue 		= colorPalette[c_BLUE]	[ledc_PURPLE];
-				led_cont.encoder[i].brightness 	= F_MAX_BRIGHTNESS;
-			}
-		}
-	}
+	else if (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE)
+		color = ledc_MED_BLUE;
 
-	for (i = ledrotm_DEPTH; i < NUM_LED_ROTARIES; i++){
-		
+	else
+		color = ledc_PURPLE;
+
+	for (i = ledrotm_DEPTH; i < NUM_LED_ROTARIES; i++)
+	{
+		if (color == ledc_PURPLE && rotary_pressed(i))
+			set_color = ledc_CORAL;
+		else
+			set_color = color;
+
+		set_rgb_color(&led_cont.encoder[i], set_color);
 		set_pwm_led(led_rotary_map[i], &led_cont.encoder[i]);
 	}
 }
