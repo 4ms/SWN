@@ -796,7 +796,7 @@ void display_wtpos_inring(void){
 		scaled_wt_pos[1] = _SCALE_F2U16(calc_params.wt_pos[1][i], 0, 2, 2048, 3900);
 		scaled_wt_pos[2] = _SCALE_F2U16(calc_params.wt_pos[2][i], 0, 2, 2048, 4095);
 
-		j = (i>=NUM_CHANNELS/2) ? (i-NUM_CHANNELS/2) : (i+NUM_CHANNELS/2); //set bottom-left as origin
+		j = rotate_origin(i, NUM_CHANNELS);
 		led_cont.inring[j].c_red 		= 3 * exp_1voct_10_41V[scaled_wt_pos[0]];
 		led_cont.inring[j].c_green 		= 	  exp_1voct_10_41V[scaled_wt_pos[1]];
 		led_cont.inring[j].c_blue 		= 3 * exp_1voct_10_41V[scaled_wt_pos[2]];
@@ -893,7 +893,7 @@ void display_wt_pos(void){
 			scaled_wt_pos[2] = _SCALE_F2U16(folded_wt_pos, 0, 1.5, 2048, 4095);
 		}
 
-		j = (i>=NUM_LED_OUTRING/2) ? (i-NUM_LED_OUTRING/2) : (i+NUM_LED_OUTRING/2); //set bottom-left as origin
+		j = rotate_origin(i, NUM_LED_OUTRING); 
 		led_cont.outring[j].c_red 		= 3 * exp_1voct_10_41V[scaled_wt_pos[0]];
 		led_cont.outring[j].c_green 	= 	  exp_1voct_10_41V[scaled_wt_pos[1]];
 		led_cont.outring[j].c_blue 		= 3 * exp_1voct_10_41V[scaled_wt_pos[2]];
@@ -901,7 +901,7 @@ void display_wt_pos(void){
 	}
 
 	for ( i = 0; i < NUM_CHANNELS; i++){
-		j = (i>=NUM_CHANNELS/2) ? (i-NUM_CHANNELS/2) : (i+NUM_CHANNELS/2); //set bottom-left as origin
+		j = rotate_origin(i, NUM_CHANNELS);
 		led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;
 		get_wt_color(params.wt_bank[i], &led_cont.inring[j]);
 	}
@@ -990,7 +990,7 @@ void display_transpose(void){
 		t_transpose = _CLAMP_I16(calc_params.transpose[i], MIN_TRANSPOSE_WRAP, MAX_TRANSPOSE_WRAP);
 		transpose_pos[i] = (t_transpose - MIN_TRANSPOSE_WRAP)  % NUM_LED_OUTRING;
 
-		j = (i>=NUM_CHANNELS/2) ? (i-NUM_CHANNELS/2) : (i+NUM_CHANNELS/2); //set bottom-left as origin
+		j = rotate_origin(i, NUM_CHANNELS);
 
 		if (params.osc_param_lock[i] && lock_flash_state() ){
 			set_rgb_color(&led_cont.inring[j], ledc_OFF);
@@ -1044,7 +1044,7 @@ void display_finetune (void){
 			else
 				brightness 	= F_MAX_BRIGHTNESS;
 
-			j = (i>=NUM_CHANNELS/2) ? (i-NUM_CHANNELS/2) : (i+NUM_CHANNELS/2); //set bottom-left as origin
+			j = rotate_origin(i, NUM_CHANNELS);
 			set_rgb_color_by_array(&led_cont.inring[j], CH_COLOR_MAP[i], brightness);
 
 			t_finetune = _CLAMP_I16(params.finetune[i], MIN_FINETUNE_WRAP, MAX_FINETUNE_WRAP);
@@ -1124,7 +1124,7 @@ void display_fx(void)
 
 	for (slot_i = 0; slot_i < NUM_LED_OUTRING; slot_i++)
 	{
-		led = (slot_i>=(NUM_LED_OUTRING/2)) ? (slot_i-(NUM_LED_OUTRING/2)) : (slot_i+(NUM_LED_OUTRING/2)); //set bottom-left as origin
+		led = rotate_origin(slot_i, NUM_LED_OUTRING);
 
 		led_color = animate_fx_level(slot_i);
 		set_rgb_color(&led_cont.outring[led], led_color);
@@ -1144,7 +1144,7 @@ void display_preset(void)
 
 	for (slot_i = 0; slot_i < NUM_LED_OUTRING; slot_i++)
 	{
-		led = (slot_i>=(NUM_LED_OUTRING/2)) ? (slot_i-(NUM_LED_OUTRING/2)) : (slot_i+(NUM_LED_OUTRING/2)); //set bottom-left as origin
+		led = rotate_origin(slot_i, NUM_LED_OUTRING);
 
 		preset_i = slot_i + (hover_bank*NUM_LED_OUTRING);
 
@@ -1155,8 +1155,7 @@ void display_preset(void)
 
 	for ( bank_i = 0; bank_i < NUM_CHANNELS; bank_i++)
 	{
-		led = (bank_i>=(NUM_CHANNELS/2)) ? (bank_i-(NUM_CHANNELS/2)) : (bank_i+(NUM_CHANNELS/2)); //set bottom-left as origin
-
+		led = rotate_origin(bank_i, NUM_CHANNELS);
 		if (bank_i==hover_bank)	slot_color = ledc_WHITE;
 		else					slot_color = ledc_OFF;
 
@@ -1175,12 +1174,12 @@ void display_sphere_save(void)
 
 	for (slot_i = 0; slot_i < NUM_LED_OUTRING; slot_i++)
 	{
-		led = (slot_i>=(NUM_LED_OUTRING/2)) ? (slot_i-(NUM_LED_OUTRING/2)) : (slot_i+(NUM_LED_OUTRING/2)); //set bottom-left as origin
+		led = rotate_origin(slot_i, NUM_LED_OUTRING);
 		animate_wt_saving_ledring(slot_i, &led_cont.outring[led]);
 	}
 	for ( bank_i = 0; bank_i < NUM_CHANNELS; bank_i++)
 	{
-		led = (bank_i>=(NUM_CHANNELS/2)) ? (bank_i-(NUM_CHANNELS/2)) : (bank_i+(NUM_CHANNELS/2));
+		led = rotate_origin(bank_i, NUM_CHANNELS);
 
 		if (bank_i==hover_bank)	slot_color = ledc_WHITE;
 		else					slot_color = ledc_OFF;
@@ -1252,9 +1251,6 @@ void display_sphere_sel(void)
 		}
 
 	}
-
-
-
 }
 
 
@@ -1284,7 +1280,8 @@ void display_octave(void){
 	for (i=0; i<NUM_CHANNELS; i++){
 		oct = _CLAMP_I16(params.oct[i], MIN_OCT , MAX_OCT) - MIN_OCT;
 		oct = _CLAMP_I16(oct, 0, NUM_LED_OUTRING-1);
-		j = (i>=NUM_CHANNELS/2) ? (i-NUM_CHANNELS/2) : (i+NUM_CHANNELS/2); //set bottom-left as origin
+
+		j = rotate_origin(i, NUM_CHANNELS);
 		led_cont.inring[j].c_red  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_red;
 		led_cont.inring[j].c_green 	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_green;
 		led_cont.inring[j].c_blue  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_blue;	
