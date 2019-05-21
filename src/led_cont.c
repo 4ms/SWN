@@ -987,7 +987,7 @@ void display_transpose(void){
 
 		j = (i>=NUM_CHANNELS/2) ? (i-NUM_CHANNELS/2) : (i+NUM_CHANNELS/2); //set bottom-left as origin
 
-		if (params.osc_param_lock[i] && led_cont.flash_state ){
+		if (params.osc_param_lock[i] && lock_flash_state() ){
 			set_rgb_color(&led_cont.inring[j], ledc_OFF);
 		} else {
 			num_wraps = (uint32_t)((float)(t_transpose - transpose_pos[i] - MIN_TRANSPOSE_WRAP) / (float)(MAX_TRANSPOSE_WRAP - MIN_TRANSPOSE_WRAP) * 4096.0);
@@ -1034,7 +1034,7 @@ void display_finetune (void){
 		for (i = 0; i < NUM_CHANNELS; i++)
 		{
 			//Inner ring: shows channel color (solid, full brightness = unlocked; flashing=locked)
-			if (params.osc_param_lock[i] && led_cont.flash_state )
+			if (params.osc_param_lock[i] && lock_flash_state() )
 				brightness 	= 0.0;
 			else
 				brightness 	= F_MAX_BRIGHTNESS;
@@ -1077,7 +1077,7 @@ void display_finetune (void){
 		for (i=0; i<NUM_CHANNELS; i++){
 			
 			//Light the inner position if channel is at "0"
-			if ((params.finetune[i]) || (params.osc_param_lock[i] && led_cont.flash_state )){
+			if (params.finetune[i] || ( params.osc_param_lock[i] && lock_flash_state() )){
 				led_cont.inring[i].brightness = 0.1;
 			}
 			else {
@@ -1090,7 +1090,7 @@ void display_finetune (void){
 			detune_pos_i = 9 + params.finetune[i];
 
 			// flash locked channels
-			if (led_cont.flash_state && params.osc_param_lock[i]){
+			if (params.osc_param_lock[i] && lock_flash_state()){
 				led_cont.outring[INDIV_ADJ_OUTRING_MAP[detune_pos_i]].brightness = 0;
 			}
 			else{
