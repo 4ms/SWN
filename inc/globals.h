@@ -46,7 +46,7 @@
 #define FW_MAJOR_VERSION 	1
 #define FW_MINOR_VERSION 	1
 
-// #define ALLOW_LOCKS
+#define ALLOW_LOCKS
 
 //Any firmware version less than these numbers will be considered invalid and a factory reset will be forced
 #define MAX_VALID_MAJOR_FW_VERSION 15
