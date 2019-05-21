@@ -28,6 +28,7 @@
 
 #pragma once
 
+
 /* I2C peripheral configuration defines (control interface of the audio codec) */
 #define LEDDRIVER_I2C                      I2C1
 #define LEDDRIVER_I2C_CLK_ENABLE			__HAL_RCC_I2C1_CLK_ENABLE
@@ -36,6 +37,18 @@
 #define LEDDRIVER_I2C_GPIO                 GPIOB
 #define LEDDRIVER_I2C_SCL_PIN              GPIO_PIN_8
 #define LEDDRIVER_I2C_SDA_PIN              GPIO_PIN_9
+
+#define LEDDRIVER_I2C_DMA_CLK_ENABLE		__HAL_RCC_DMA1_CLK_ENABLE
+#define LEDDRIVER_I2C_DMA					DMA1   
+#define LEDDRIVER_I2C_DMA_INSTANCE_TX		DMA1_Stream6
+#define LEDDRIVER_I2C_DMA_CHANNEL_TX		DMA_CHANNEL_1
+#define LEDDRIVER_I2C_DMA_TX_IRQn			DMA1_Stream6_IRQn
+#define LEDDRIVER_I2C_DMA_TX_IRQHandler		DMA1_Stream6_IRQHandler
+
+#define LEDDRIVER_I2C_EV_IRQn               I2C1_EV_IRQn
+#define LEDDRIVER_I2C_ER_IRQn               I2C1_ER_IRQn
+#define LEDDRIVER_I2C_EV_IRQHandler         I2C1_EV_IRQHandler
+#define LEDDRIVER_I2C_ER_IRQHandler         I2C1_ER_IRQHandler
 
 #define I2C1_SPEED                        800000
 
@@ -47,17 +60,19 @@
 
 #define PCA9685_I2C_BASE_ADDRESS 0b10000000
 
+#define NUM_LEDS_PER_CHIP				16
 
-enum LED_Driver_Errors {
+enum LEDDriverErrors {
 	LEDDRIVER_NO_ERR			= 0,
 	LEDDRIVER_HAL_INIT_ERR		= 1,
 	LEDDRIVER_I2C_XMIT_TIMEOUT	= 2,
 	LEDDRIVER_I2C_XMIT_ERR		= 3,
 	LEDDRIVER_SET_LED_ERR		= 4,
-	LEDDRIVER_BAD_LED_PARAM	    = 5
+	LEDDRIVER_BAD_LED_PARAM	    = 5,
+	LEDDRIVER_DMA_XMIT_ERR		= 6
 };
 
-uint32_t 				LEDDriver_Init(uint8_t numdrivers);
-enum LED_Driver_Errors 	LEDDriver_setRGBLED_RGB(uint8_t led_number, uint16_t c_red, uint16_t c_green, uint16_t c_blue);
-enum LED_Driver_Errors 	LEDDriver_set_single_LED(uint8_t led_element_number, uint16_t brightness);
+uint32_t 				LEDDriver_Init(uint8_t numdrivers, uint8_t *led_image);
+enum LEDDriverErrors 	LEDDriver_setRGBLED_RGB(uint8_t led_number, uint16_t c_red, uint16_t c_green, uint16_t c_blue);
+enum LEDDriverErrors 	LEDDriver_set_single_LED(uint8_t led_element_number, uint16_t brightness);
 uint8_t 				get_red_led_element_id(uint8_t rgb_led_id);

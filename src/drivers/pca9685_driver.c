@@ -30,110 +30,88 @@
 #include "gpio_pins.h"
 #include "drivers/pca9685_driver.h"
 #include "hal_handlers.h"
+#include "i2c_util.h"
 
 I2C_HandleTypeDef pwmleddriver_i2c;
-uint8_t g_num_PCA_chips=0;
+DMA_HandleTypeDef pwmleddriver_dmatx;
 
 const uint32_t LEDDRIVER_LONG_TIMEOUT = (4000); //4000 = 500ms
+uint8_t g_num_driver_chips;
+uint8_t g_cur_chip_num = 0;
+uint8_t *tx_buffer_start;
+uint8_t *tx_buffer;
+enum LEDDriverErrors g_led_error;
 
 //Private:
-enum LED_Driver_Errors LEDDriver_writeregister(uint8_t driverAddr, uint8_t RegisterAddr, uint8_t RegisterValue);
-enum LED_Driver_Errors LEDDriver_Reset(uint8_t driverAddr);
+enum LEDDriverErrors LEDDriver_writeregister(uint8_t driverAddr, uint8_t RegisterAddr, uint8_t RegisterValue);
+enum LEDDriverErrors LEDDriver_reset_chip(uint8_t driverAddr);
+void LEDDriver_GPIO_Init(void);
+enum LEDDriverErrors LEDDriver_I2C_Init(void)
+enum LEDDriverErrors LEDDriver_I2C_DMA_Init();
+void LED_driver_tx_complete(DMA_HandleTypeDef *_hdma);
 
 
-void LEDDriver_GPIO_Init(void)
+uint32_t LEDDriver_init_dma(uint8_t numdrivers, uint8_t *led_image)
 {
-	GPIO_InitTypeDef gpio;
+	uint8_t driverAddr;
+	enum LEDDriverErrors err;
 
-	LEDDRIVER_I2C_GPIO_CLOCK_ENABLE();
-	LEDDRIVER_I2C_CLK_ENABLE();
+	g_num_driver_chips = numdrivers;
+	g_cur_chip_num = 0;
+	tx_buffer_start = led_image;
+	tx_buffer = tx_buffer_start;
 
-	//I2C pins SDA SCL
-	gpio.Mode 		= GPIO_MODE_AF_OD;
-	gpio.Pull 		= GPIO_PULLUP;
-	gpio.Speed 		= GPIO_SPEED_FREQ_VERY_HIGH;
-	gpio.Alternate 	= LEDDRIVER_I2C_GPIO_AF;
-	gpio.Pin 		= LEDDRIVER_I2C_SCL_PIN | LEDDRIVER_I2C_SDA_PIN;
-	HAL_GPIO_Init(LEDDRIVER_I2C_GPIO, &gpio);
-}
+	LEDDriver_GPIO_Init();
+	err = LEDDriver_I2C_Init();
+	if (err) return err;
 
-
-struct i2cTimingReg{
-	uint8_t PRESC; 			//top 4 bits: (PRESC + 1) * tI2CCLK = tPRESC
-							//bottom 4 bits is ignored
-
-	uint8_t SCLDEL_SDADEL; 	//top 4 bits: SCLDEL * tPRESC = SCL Delay between SDA edge and SCL rising edge
-							//bottom 4 bits: = SDADEL * tPRESC = SDA Delay between SCL falling edge and SDA edge
-
-	uint8_t SCLH;			//SCL high period = (SCLH+1) * tPRESC
-	uint8_t SCLL;			//SCL low period = (SCLL+1) * tPRESC
-};
-uint32_t set_i2c_timing(struct i2cTimingReg *t)
-{
-	return ((t->PRESC) << 24) | ((t->SCLDEL_SDADEL) << 16) | ((t->SCLH) << 8) | ((t->SCLL) << 0);
-}
-
-enum LED_Driver_Errors LEDDriver_I2C_Init(void)
-{
-	struct i2cTimingReg timing;
-	uint32_t timrg;
-
-	timing.PRESC = (1<<4);	// tPRESC = 27MHz
-	timing.SCLH = 17;		// 27MHz / 34 = 794kHz
-	timing.SCLL = 17;		// 34 = 17 + 17
-	timing.SCLDEL_SDADEL = 0b00010001;
-	timrg = set_i2c_timing(&timing);
-	pwmleddriver_i2c.Init.Timing = timrg;
-
-	pwmleddriver_i2c.Instance = LEDDRIVER_I2C;
-	pwmleddriver_i2c.Init.OwnAddress1		 	= 0x34;
-	pwmleddriver_i2c.Init.AddressingMode 		= I2C_ADDRESSINGMODE_7BIT;
-	pwmleddriver_i2c.Init.DualAddressMode 		= I2C_DUALADDRESS_DISABLE;
-	pwmleddriver_i2c.Init.OwnAddress2 			= 0;
-	pwmleddriver_i2c.Init.OwnAddress2Masks		= I2C_OA2_NOMASK;
-	pwmleddriver_i2c.Init.GeneralCallMode 		= I2C_GENERALCALL_DISABLE;
-	pwmleddriver_i2c.Init.NoStretchMode 		= I2C_NOSTRETCH_DISABLE;
-
-	if (HAL_I2C_Init(&pwmleddriver_i2c) != HAL_OK)					
-		return LEDDRIVER_HAL_INIT_ERR;
-
-	return LEDDRIVER_NO_ERR;
-}
-
-
-uint32_t LEDDRIVER_TIMEOUT_UserCallback(void)
-{
-	/* nothing */
-	return 1;
-}
-
-enum LED_Driver_Errors LEDDriver_writeregister(uint8_t driverAddr, uint8_t RegisterAddr, uint8_t RegisterValue){
-
-	//Assemble 2-byte data 
-	uint8_t data[2];
-	uint32_t timeout = LEDDRIVER_LONG_TIMEOUT;
-
-	data[0] = RegisterAddr;
-	data[1] = RegisterValue;
-
-	HAL_StatusTypeDef 	err;
-
-	driverAddr = PCA9685_I2C_BASE_ADDRESS | (driverAddr << 1);
-
-	while(timeout-- && ((err = HAL_I2C_Master_Transmit(&pwmleddriver_i2c, driverAddr, data, 2, LEDDRIVER_LONG_TIMEOUT)) != HAL_OK) )		
-	{
-		if (HAL_I2C_GetError(&pwmleddriver_i2c) != HAL_I2C_ERROR_AF)
-			return LEDDRIVER_I2C_XMIT_ERR;
+	for (driverAddr=0; driverAddr<g_num_driver_chips; driverAddr++){
+		err = LEDDriver_reset_chip(driverAddr);
+		if (err) return (err | ((driverAddr+1)<<4));
 	}
 
-	//possible values for err are HAL_ERROR, HAL_BUSY, HAL_TIMEOUT, HAL_OK
-	return (err==HAL_OK) ? LEDDRIVER_NO_ERR : LEDDRIVER_I2C_XMIT_TIMEOUT;
+	LEDDriver_I2C_DMA_Init();
+
+	return 0;
 }
 
-//returns led element number of the red element of the given RGB LED id (green is red + 1, blue = red + 2)
-uint8_t get_red_led_element_id(uint8_t rgb_led_id)
+uint32_t LEDDriver_init_direct(uint8_t numdrivers)
 {
-	return (rgb_led_id*3) + (rgb_led_id/5);
+	uint8_t driverAddr;
+	enum LEDDriverErrors err;
+
+	g_num_driver_chips = numdrivers;
+
+	LEDDriver_GPIO_Init();
+	err = LEDDriver_I2C_Init();
+	if (err) return err;
+
+	for (driverAddr=0; driverAddr<g_num_driver_chips; driverAddr++){
+		err = LEDDriver_reset_chip(driverAddr);
+		if (err) return (err | ((driverAddr+1)<<4));
+	}
+
+	return 0;
+}
+
+enum LEDDriverErrors LEDDriver_reset_chip(uint8_t driverAddr)
+{
+	enum LEDDriverErrors err;
+
+	err = LEDDriver_writeregister(driverAddr, PCA9685_MODE1, 0b00000000); // clear sleep mode
+	if (err) return err;
+	HAL_Delay(1); //was 20 nop's
+
+	err = LEDDriver_writeregister(driverAddr, PCA9685_MODE1, 0b10000000); //start reset mode
+	if (err) return err;
+	HAL_Delay(1); //was 20 nop's
+
+	err = LEDDriver_writeregister(driverAddr, PCA9685_MODE1, 0b00100000);	//auto increment
+	if (err) return err;
+	err = LEDDriver_writeregister(driverAddr, PCA9685_MODE2, 0b00010001);	// INVERT=1, OUTDRV=0, OUTNE=01
+	if (err) return err;
+
+	return LEDDRIVER_NO_ERR;
 }
 
 
@@ -145,12 +123,13 @@ uint8_t get_red_led_element_id(uint8_t rgb_led_id)
 // led_element_number==16 is PWM pin 0 of PCA9685 chip with address 1
 // ...
 // 
-enum LED_Driver_Errors LEDDriver_set_single_LED(uint8_t led_element_number, uint16_t brightness){ 
+enum LEDDriverErrors LEDDriver_set_single_LED(uint8_t led_element_number, uint16_t brightness)
+{ 
 	uint8_t driver_addr;
 	uint8_t data[5]; //2 bytes for on time + 2 bytes for off time + 1 byte for LED address
 	HAL_StatusTypeDef 	err;
 
-	if (led_element_number < (g_num_PCA_chips*16))
+	if (led_element_number < (NUM_PCA9685_CHIPS*16))
 	{
 		driver_addr = (led_element_number/16);
 		led_element_number = led_element_number - (driver_addr * 16);
@@ -176,7 +155,6 @@ enum LED_Driver_Errors LEDDriver_set_single_LED(uint8_t led_element_number, uint
 
 }
 
-//
 // Sets color of an RGB LED
 // Assumes 5 RGB LEDs per driver chip, in positions 0-14
 // Example:
@@ -186,17 +164,16 @@ enum LED_Driver_Errors LEDDriver_set_single_LED(uint8_t led_element_number, uint
 // led_number==5 refers to PWM pins 0,1,2 of PCA9685 chip with address 1
 // ..
 // led_number==9 refers to PWM pins 12,13,14 of PCA9685 chip with address 1
-// ...
 //
 // Note: This function never changes PWM pin 15
 //
-enum LED_Driver_Errors LEDDriver_setRGBLED_RGB(uint8_t led_number, uint16_t c_red, uint16_t c_green, uint16_t c_blue){ 
+enum LEDDriverErrors LEDDriver_setRGBLED_RGB(uint8_t led_number, uint16_t c_red, uint16_t c_green, uint16_t c_blue){ 
 
 	uint8_t driverAddr;
 	uint8_t data[13]; //(3 colors * (2 bytes for on time + 2 bytes for off time)) + 1 byte for LED address
 	volatile HAL_StatusTypeDef 	err;
 
-	if (led_number < (g_num_PCA_chips*5))
+	if (led_number < (NUM_PCA9685_CHIPS*5))
 	{
 		driverAddr = (led_number/5);
 		led_number = led_number - (driverAddr * 5);
@@ -231,40 +208,146 @@ enum LED_Driver_Errors LEDDriver_setRGBLED_RGB(uint8_t led_number, uint16_t c_re
 	return LEDDRIVER_NO_ERR;
 }
 
-enum LED_Driver_Errors LEDDriver_Reset(uint8_t driverAddr)
+enum LEDDriverErrors LEDDriver_writeregister(uint8_t driverAddr, uint8_t RegisterAddr, uint8_t RegisterValue)
 {
-	enum LED_Driver_Errors err;
 
-	err = LEDDriver_writeregister(driverAddr, PCA9685_MODE1, 0b00000000); // clear sleep mode
-	if (err) return err;
-	HAL_Delay(1); //was 20 nop's
+	//Assemble 2-byte data 
+	uint8_t data[2];
+	uint32_t timeout = LEDDRIVER_LONG_TIMEOUT;
 
-	err = LEDDriver_writeregister(driverAddr, PCA9685_MODE1, 0b10000000); //start reset mode
-	if (err) return err;
-	HAL_Delay(1); //was 20 nop's
+	data[0] = RegisterAddr;
+	data[1] = RegisterValue;
 
-	err = LEDDriver_writeregister(driverAddr, PCA9685_MODE1, 0b00100000);	//auto increment
-	if (err) return err;
-	err = LEDDriver_writeregister(driverAddr, PCA9685_MODE2, 0b00010001);	// INVERT=1, OUTDRV=0, OUTNE=01
-	if (err) return err;
+	HAL_StatusTypeDef 	err;
+
+	driverAddr = PCA9685_I2C_BASE_ADDRESS | (driverAddr << 1);
+
+	while(timeout-- && ((err = HAL_I2C_Master_Transmit(&pwmleddriver_i2c, driverAddr, data, 2, LEDDRIVER_LONG_TIMEOUT)) != HAL_OK) )		
+	{
+		if (HAL_I2C_GetError(&pwmleddriver_i2c) != HAL_I2C_ERROR_AF)
+			return LEDDRIVER_I2C_XMIT_ERR;
+	}
+
+	//possible values for err are HAL_ERROR, HAL_BUSY, HAL_TIMEOUT, HAL_OK
+	return (err==HAL_OK) ? LEDDRIVER_NO_ERR : LEDDRIVER_I2C_XMIT_TIMEOUT;
+}
+
+//returns led element number of the red element of the given RGB LED id (green is red + 1, blue = red + 2)
+uint8_t get_red_led_element_id(uint8_t rgb_led_id) {
+	return (rgb_led_id*3) + (rgb_led_id/5);
+}
+
+void LEDDriver_GPIO_Init(void)
+{
+	GPIO_InitTypeDef gpio;
+
+	LEDDRIVER_I2C_GPIO_CLOCK_ENABLE();
+	LEDDRIVER_I2C_CLK_ENABLE();
+
+	//I2C pins SDA SCL
+	gpio.Mode 		= GPIO_MODE_AF_OD;
+	gpio.Pull 		= GPIO_PULLUP;
+	gpio.Speed 		= GPIO_SPEED_FREQ_VERY_HIGH;
+	gpio.Alternate 	= LEDDRIVER_I2C_GPIO_AF;
+	gpio.Pin 		= LEDDRIVER_I2C_SCL_PIN | LEDDRIVER_I2C_SDA_PIN;
+	HAL_GPIO_Init(LEDDRIVER_I2C_GPIO, &gpio);
+}
+
+enum LEDDriverErrors LEDDriver_I2C_Init(void)
+{
+	struct i2cTimingReg timing;
+	uint32_t timrg;
+
+	timing.PRESC = (1<<4);	// tPRESC = 27MHz
+	timing.SCLH = 17;		// 27MHz / 34 = 794kHz
+	timing.SCLL = 17;		// 34 = 17 + 17
+	timing.SCLDEL_SDADEL = 0b00010001;
+	timrg = set_i2c_timing(&timing);
+	pwmleddriver_i2c.Init.Timing = timrg;
+
+	pwmleddriver_i2c.Instance = LEDDRIVER_I2C;
+	pwmleddriver_i2c.Init.OwnAddress1		 	= 0x34;
+	pwmleddriver_i2c.Init.AddressingMode 		= I2C_ADDRESSINGMODE_7BIT;
+	pwmleddriver_i2c.Init.DualAddressMode 		= I2C_DUALADDRESS_DISABLE;
+	pwmleddriver_i2c.Init.OwnAddress2 			= 0;
+	pwmleddriver_i2c.Init.OwnAddress2Masks		= I2C_OA2_NOMASK;
+	pwmleddriver_i2c.Init.GeneralCallMode 		= I2C_GENERALCALL_DISABLE;
+	pwmleddriver_i2c.Init.NoStretchMode 		= I2C_NOSTRETCH_DISABLE;
+
+	if (HAL_I2C_Init(&pwmleddriver_i2c) != HAL_OK)					
+		return LEDDRIVER_HAL_INIT_ERR;
 
 	return LEDDRIVER_NO_ERR;
 }
 
-uint32_t LEDDriver_Init(uint8_t numdrivers){
+enum LEDDriverErrors LEDDriver_I2C_DMA_Init(void)
+{
+	LEDDRIVER_I2C_DMA_CLK_ENABLE();
 
-	uint8_t driverAddr;
-	enum LED_Driver_Errors err;
+	pwmleddriver_dmatx.Instance                 = LEDDRIVER_I2C_DMA_INSTANCE_TX;
+	pwmleddriver_dmatx.Init.Channel             = LEDDRIVER_I2C_DMA_CHANNEL_TX;               
+	pwmleddriver_dmatx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+	pwmleddriver_dmatx.Init.PeriphInc           = DMA_PINC_DISABLE;
+	pwmleddriver_dmatx.Init.MemInc              = DMA_MINC_ENABLE;
+	pwmleddriver_dmatx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	pwmleddriver_dmatx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+	pwmleddriver_dmatx.Init.Mode                = DMA_NORMAL; //DMA_CIRCULAR
+	pwmleddriver_dmatx.Init.Priority            = DMA_PRIORITY_LOW;
+	pwmleddriver_dmatx.Init.FIFOMode 			= DMA_FIFOMODE_DISABLE;
+	pwmleddriver_dmatx.Init.FIFOThreshold 		= DMA_FIFO_THRESHOLD_FULL;
+	pwmleddriver_dmatx.Init.MemBurst 			= DMA_MBURST_SINGLE;
+	pwmleddriver_dmatx.Init.PeriphBurst 		= DMA_PBURST_SINGLE;
 
-	LEDDriver_GPIO_Init();
-	err = LEDDriver_I2C_Init();
-	if (err) return err;
+	HAL_DMA_DeInit(&pwmleddriver_dmatx);
+	HAL_DMA_Init(&pwmleddriver_dmatx);   
 
-	for (driverAddr=0;driverAddr<numdrivers;driverAddr++){
-		err = LEDDriver_Reset(driverAddr);
-		if (err) return (err | ((driverAddr+1)<<4));
-	}
-	g_num_PCA_chips = numdrivers;
+	__HAL_LINKDMA(&pwmleddriver_i2c, hdmatx, pwmleddriver_dmatx);
 
-	return 0;
+	HAL_NVIC_SetPriority(LEDDRIVER_I2C_DMA_TX_IRQn, 3, 1);
+	HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_DMA_TX_IRQn);
+
+	// HAL_NVIC_SetPriority(LEDDRIVER_I2C_ER_IRQn, 3, 2);
+	// HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_ER_IRQn);
+	// HAL_NVIC_SetPriority(LEDDRIVER_I2C_EV_IRQn, 3, 3);
+	// HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_EV_IRQn);
+
+	HAL_DMA_RegisterCallback(&pwmleddriver_dmatx, HAL_DMA_XFER_CPLT_CB_ID, LED_driver_tx_complete);
+
+    if (HAL_I2C_Master_Transmit_DMA(&pwmleddriver_i2c, PCA9685_I2C_BASE_ADDRESS, tx_buffer, NUM_LEDS_PER_CHIP*4+1) != HAL_OK)
+    	return LEDDRIVER_DMA_XMIT_ERR;
+
+    return LEDDRIVER_NO_ERR;
 }
+
+void LED_driver_tx_complete(DMA_HandleTypeDef *_hdma)
+{
+	uint16_t driver_addr;
+
+	//error check
+
+	if (g_cur_chip_num++ >= g_num_driver_chips)
+		 g_cur_chip_num = 0;
+
+	tx_buffer = tx_buffer_start + g_cur_chip_num*(NUM_LEDS_PER_CHIP*4 + 1);
+
+	driver_addr = PCA9685_I2C_BASE_ADDRESS | (g_cur_chip_num << 1);
+
+    if (HAL_I2C_Master_Transmit_DMA(&pwmleddriver_i2c, driver_addr, tx_buffer, NUM_LEDS_PER_CHIP*4+1) != HAL_OK)
+    	g_led_error = LEDDRIVER_DMA_XMIT_ERR;
+}
+
+
+void LEDDRIVER_I2C_DMA_TX_IRQHandler()
+{
+	// uint8_t driverAddr;
+ // 	uint32_t tmpisr;
+
+	// DMA_Base_Registers *regs = (DMA_Base_Registers *)pwmleddriver_i2c.hdmatx->StreamBaseAddress;
+
+ //  	tmpisr = regs->ISR;
+
+	HAL_DMA_IRQHandler(pwmleddriver_i2c.hdmatx);
+}
+
+
+

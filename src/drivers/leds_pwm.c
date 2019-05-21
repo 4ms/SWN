@@ -9,29 +9,30 @@
 #include "flash_params.h"
 #include "gpio_pins.h"
 #include "math.h"
-
-#include "flash_params.h" 
-extern SystemCalibrations *system_calibrations;
-
-
 #include "system_settings.h"
-extern o_systemSettings system_settings; // system_settings.global_brightness
+#include "flash_params.h" 
 
-o_rgb_led	cached_rgb_led[NUM_LED_IDs];	//Saved state to reference if an LED should be updated or not
 extern SystemCalibrations *system_calibrations;
+extern o_systemSettings system_settings;
+o_rgb_led	cached_rgb_led[NUM_LED_IDs];
 
+struct LEDRamImage {
+	uint8_t start_command;
+	uint32_t leds[NUM_LEDS_PER_CHIP];
+};
+
+struct LEDRamImage pwmleds[NUM_PWM_LED_CHIPS];
+
+// uint32_t pwmleds[NUM_PWM_LED_CHIPS][NUM_LEDS_PER_CHIP+1];
 
 void pwm_leds_display_off(void){	LED_RING_ON();	}
 void pwm_leds_display_on(void){		LED_RING_OFF();	}
 
 void init_pwm_leds(void)
 {
-	uint8_t i;
+	uint8_t i, j;
 
 	pwm_leds_display_off();
-
-	//Initialize I2C communication with the LED PWM driver chips 
-	LEDDriver_Init(10);
 
 	//Turn off all PWM LEDs to start
 	for (i=0;i<NUM_LED_IDs;i++)
@@ -40,9 +41,17 @@ void init_pwm_leds(void)
 		cached_rgb_led[i].c_green 		= 0;
 		cached_rgb_led[i].c_blue 		= 0;
 		cached_rgb_led[i].brightness 	= F_MAX_BRIGHTNESS;
-
-		LEDDriver_setRGBLED_RGB(i,0,0,0);
 	}
+
+	for (i=0;i<NUM_PWM_LED_CHIPS;i++)
+	{
+		pwmleds[i].start_command = PCA9685_LED0;
+		
+		for (j=0;j<NUM_LEDS_PER_CHIP;j++)
+			pwmleds[i].leds[j] = 0;
+	}
+
+	LEDDriver_Init(NUM_PWM_LED_CHIPS, (uint8_t *)pwmleds);
 
 	pwm_leds_display_on();
 }
@@ -93,6 +102,7 @@ void set_pwm_led_direct(uint8_t led_id, uint16_t c_red, uint16_t c_green, uint16
 	LEDDriver_setRGBLED_RGB(led_id, c_red, c_green, c_blue);
 }
 
+//Todo: cached_brightness needs to be an array if there is more than one single_element_led_id allowed
 void set_single_pwm_led(uint8_t single_element_led_id, uint16_t brightness)
 {
 	static float cached_brightness;
