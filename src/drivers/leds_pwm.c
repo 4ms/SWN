@@ -48,7 +48,7 @@ void init_pwm_leds(void)
 		pwmleds[i].start_command = PCA9685_LED0;
 		
 		for (j=0;j<NUM_LEDS_PER_CHIP;j++)
-			pwmleds[i].leds[j] = 0;
+			pwmleds[i].leds[j] = 0x11115050;
 	}
 
 	LEDDriver_init_dma(NUM_PWM_LED_CHIPS, (uint8_t *)pwmleds);

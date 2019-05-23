@@ -48,6 +48,7 @@ enum LEDDriverErrors LEDDriver_reset_chip(uint8_t driverAddr);
 void LEDDriver_GPIO_Init(void);
 enum LEDDriverErrors LEDDriver_I2C_Init(void);
 enum LEDDriverErrors LEDDriver_I2C_DMA_Init();
+enum LEDDriverErrors LEDDriver_I2C_IT_Init();
 void LED_driver_tx_complete(DMA_HandleTypeDef *_hdma);
 
 
@@ -70,6 +71,7 @@ uint32_t LEDDriver_init_dma(uint8_t numdrivers, uint8_t *led_image)
 		if (err) return (err | ((driverAddr+1)<<4));
 	}
 
+	err = LEDDriver_I2C_Init();
 	err = LEDDriver_I2C_DMA_Init();
 
 	return err;
@@ -261,6 +263,8 @@ enum LEDDriverErrors LEDDriver_I2C_Init(void)
 	struct i2cTimingReg timing;
 	uint32_t timrg;
 
+	HAL_I2C_DeInit(&pwmleddriver_i2c);
+
 	timing.PRESC = (1<<4);	// tPRESC = 27MHz
 	timing.SCLH = 17;		// 27MHz / 34 = 794kHz
 	timing.SCLL = 17;		// 34 = 17 + 17
@@ -309,17 +313,21 @@ enum LEDDriverErrors LEDDriver_I2C_DMA_Init(void)
 	HAL_NVIC_SetPriority(LEDDRIVER_I2C_DMA_TX_IRQn, 3, 1);
 	HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_DMA_TX_IRQn);
 
-	// HAL_NVIC_SetPriority(LEDDRIVER_I2C_ER_IRQn, 3, 2);
-	// HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_ER_IRQn);
-	// HAL_NVIC_SetPriority(LEDDRIVER_I2C_EV_IRQn, 3, 3);
-	// HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_EV_IRQn);
+	HAL_NVIC_SetPriority(LEDDRIVER_I2C_ER_IRQn, 3, 2);
+	HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_ER_IRQn);
+	HAL_NVIC_SetPriority(LEDDRIVER_I2C_EV_IRQn, 3, 3);
+	HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_EV_IRQn);
 
-	HAL_DMA_RegisterCallback(&pwmleddriver_dmatx, HAL_DMA_XFER_CPLT_CB_ID, LED_driver_tx_complete);
+	//HAL_DMA_RegisterCallback(&pwmleddriver_dmatx, HAL_DMA_XFER_CPLT_CB_ID, LED_driver_tx_complete);
 
-    if (HAL_I2C_Master_Transmit_DMA(&pwmleddriver_i2c, PCA9685_I2C_BASE_ADDRESS, leddriver_buffer, NUM_LEDS_PER_CHIP*4+1) != HAL_OK)
-    {	return LEDDRIVER_DMA_XMIT_ERR;}
+	if (HAL_I2C_Master_Transmit_DMA(&pwmleddriver_i2c, PCA9685_I2C_BASE_ADDRESS, leddriver_buffer, NUM_LEDS_PER_CHIP*4+1) != HAL_OK)
+		return LEDDRIVER_DMA_XMIT_ERR;
 
-	HAL_DMA_RegisterCallback(&pwmleddriver_dmatx, HAL_DMA_XFER_CPLT_CB_ID, LED_driver_tx_complete);
+    while (HAL_I2C_GetState(&pwmleddriver_i2c) != HAL_I2C_STATE_READY)
+    {
+    } 
+
+	//HAL_DMA_RegisterCallback(&pwmleddriver_dmatx, HAL_DMA_XFER_CPLT_CB_ID, LED_driver_tx_complete);
 
     return LEDDRIVER_NO_ERR;
 }
@@ -340,33 +348,47 @@ void LED_driver_tx_complete(DMA_HandleTypeDef *_hdma)
     if (HAL_I2C_Master_Transmit_DMA(&pwmleddriver_i2c, driver_addr, leddriver_buffer, NUM_LEDS_PER_CHIP*4+1) != HAL_OK)
     {	g_led_error = LEDDRIVER_DMA_XMIT_ERR;}
 
-	HAL_DMA_RegisterCallback(&pwmleddriver_dmatx, HAL_DMA_XFER_CPLT_CB_ID, LED_driver_tx_complete);
+	//HAL_DMA_RegisterCallback(&pwmleddriver_dmatx, HAL_DMA_XFER_CPLT_CB_ID, LED_driver_tx_complete);
 
 }
 
 
+
+/*
 void LEDDRIVER_I2C_DMA_TX_IRQHandler()
 {
  	uint32_t tmpisr;
 
 
-  	tmpisr = LEDDRIVER_I2C_DMA->LISR;
+  	tmpisr = LEDDRIVER_I2C_DMA->HISR;
 
 	// if ((tmpisr & CODEC_SAI_RX_DMA_FLAG_TC) && __HAL_DMA_GET_IT_SOURCE(&hdma_sai2a_rx, DMA_IT_TC))
 	// {
 
 	if ((tmpisr & (DMA_FLAG_TCIF0_4 << pwmleddriver_i2c.hdmatx->StreamIndex)) != RESET)
 	{
-		if(__HAL_DMA_GET_IT_SOURCE(pwmleddriver_i2c->hdmatx, DMA_IT_TC) != RESET)
+		if(__HAL_DMA_GET_IT_SOURCE(pwmleddriver_i2c.hdmatx, DMA_IT_TC) != RESET)
 		{
 		  	LED_driver_tx_complete(pwmleddriver_i2c.hdmatx);
-			LEDDRIVER_I2C_DMA->LIFCR = DMA_FLAG_TCIF0_4 << pwmleddriver_i2c.hdmatx->StreamIndex;
+			LEDDRIVER_I2C_DMA->HIFCR = DMA_FLAG_TCIF0_4 << pwmleddriver_i2c.hdmatx->StreamIndex;
 		}
 	}
 
 
 	// HAL_DMA_IRQHandler(pwmleddriver_i2c.hdmatx);
 }
+*/
 
+void I2C1_EV_IRQHandler(void)
+{
+  HAL_I2C_EV_IRQHandler(&pwmleddriver_i2c);
+
+}
+
+void I2C1_ER_IRQHandler(void)
+{
+  HAL_I2C_ER_IRQHandler(&pwmleddriver_i2c);
+
+}
 
 
