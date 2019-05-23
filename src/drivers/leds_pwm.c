@@ -56,14 +56,15 @@ void init_pwm_leds(void)
 static inline int32_t _USAT12(int32_t x) {asm("ssat %[dst], #12, %[src]" : [dst] "=r" (x) : [src] "r" (x)); return x;}
 
 static inline uint8_t best_write_buf(uint8_t chip_num) { 
-	uint8_t leddriver_cur_buf = LEDDriver_get_cur_buf();
-	uint8_t opposite_buf = 1-leddriver_cur_buf;
+	return 0;
+	// uint8_t leddriver_cur_buf = LEDDriver_get_cur_buf();
+	// uint8_t opposite_buf = 1-leddriver_cur_buf;
 
-	if (LEDDriver_get_cur_chip() < 5)
-		return opposite_buf;
-	else {
-		return (chip_num<5) ? leddriver_cur_buf : opposite_buf;
-	}
+	// if (LEDDriver_get_cur_chip() < 5)
+	// 	return opposite_buf;
+	// else {
+	// 	return (chip_num<5) ? leddriver_cur_buf : opposite_buf;
+	// }
 }
 
 void set_pwm_led(uint8_t led_id, const o_rgb_led *rgbled)
@@ -99,11 +100,13 @@ void set_pwm_led_direct(uint8_t led_id, uint16_t c_red, uint16_t c_green, uint16
 
 void set_single_pwm_led(uint8_t single_element_led_id, uint16_t brightness)
 {
-	uint8_t led_element = get_red_led_element_id(single_element_led_id) % NUM_LEDS_PER_CHIP;
-	uint8_t chip_num = get_chip_num(single_element_led_id);
+	uint8_t led_element = single_element_led_id % NUM_LEDS_PER_CHIP;
+	uint8_t chip_num = single_element_led_id / NUM_LEDS_PER_CHIP;
 	uint8_t buf = best_write_buf(chip_num);
+	uint32_t b;
+	b = (float)brightness * system_settings.global_brightness;
+	b = _USAT12(b);
 
-
-	pwmleds[buf][chip_num][led_element] = _USAT12(brightness);
+	pwmleds[buf][chip_num][led_element] = b << 16;
 
 }

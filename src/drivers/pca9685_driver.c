@@ -294,22 +294,11 @@ enum LEDDriverErrors LEDDriver_I2C_Init(void)
 	return LEDDRIVER_NO_ERR;
 }
 
-// enum LEDDriverErrors LEDDriver_I2C_IT_Init(void)
-// {
-// 	HAL_NVIC_SetPriority(LEDDRIVER_I2C_ER_IRQn, 3, 2);
-// 	HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_ER_IRQn);
-// 	HAL_NVIC_SetPriority(LEDDRIVER_I2C_EV_IRQn, 3, 3);
-// 	HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_EV_IRQn);
-
-// 	if (HAL_I2C_Master_Transmit_IT(&pwmleddriver_i2c, PCA9685_I2C_BASE_ADDRESS, leddriver_buffer, NUM_LEDS_PER_CHIP*4+1) != HAL_OK)
-// 		return LEDDRIVER_IT_XMIT_ERR;
-// 	else 
-// 		return LEDDRIVER_NO_ERR;
-// }
-
 
 enum LEDDriverErrors LEDDriver_I2C_DMA_Init(void)
 {
+	HAL_StatusTypeDef err;
+
 	LEDDRIVER_I2C_DMA_CLK_ENABLE();
 
 	pwmleddriver_dmatx.Instance                 = LEDDRIVER_I2C_DMA_INSTANCE_TX;
@@ -336,40 +325,42 @@ enum LEDDriverErrors LEDDriver_I2C_DMA_Init(void)
 
 	HAL_NVIC_SetPriority(LEDDRIVER_I2C_ER_IRQn, 3, 2);
 	HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_ER_IRQn);
-	HAL_NVIC_SetPriority(LEDDRIVER_I2C_EV_IRQn, 3, 3);
+	HAL_NVIC_SetPriority(LEDDRIVER_I2C_EV_IRQn, 1, 0);
 	HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_EV_IRQn);
 
 	//HAL_DMA_RegisterCallback(&pwmleddriver_dmatx, HAL_DMA_XFER_CPLT_CB_ID, LED_driver_tx_complete);
 	// HAL_I2C_RegisterCallback(&pwmleddriver_i2c, HAL_I2C_MASTER_TX_COMPLETE_CB_ID, LED_driver_MasterTxCpltCallback);
 
-	if (HAL_I2C_Mem_Write_DMA(&pwmleddriver_i2c, PCA9685_I2C_BASE_ADDRESS, PCA9685_LED0, I2C_MEMADD_SIZE_8BIT, leddriver_buffer, NUM_LEDS_PER_CHIP*4) != HAL_OK)
+	err = HAL_I2C_Mem_Write_DMA(&pwmleddriver_i2c, PCA9685_I2C_BASE_ADDRESS, PCA9685_LED0, I2C_MEMADD_SIZE_8BIT, leddriver_buffer, NUM_LEDS_PER_CHIP*4);
+	if (err != HAL_OK)
 		return LEDDRIVER_DMA_XMIT_ERR;
 
     return LEDDRIVER_NO_ERR;
 }
 
-
-
-// void LEDDriver_swap_buffer(void)
+// void HAL_I2C_AbortCpltCallback(I2C_HandleTypeDef *hi2c)
 // {
-// 	leddriver_cur_buf = 1-leddriver_cur_buf;
+// 	__BKPT();
 // }
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
+	HAL_StatusTypeDef err;
+
 	uint16_t driver_addr;
 	if (++g_cur_chip_num >= g_num_driver_chips)
 	{
 		g_cur_chip_num = 0;
-		leddriver_cur_buf = 1-leddriver_cur_buf;
+		//leddriver_cur_buf = 1-leddriver_cur_buf;
 	}
 
 	leddriver_buffer = leddriver_buffer_start[leddriver_cur_buf] + g_cur_chip_num*(NUM_LEDS_PER_CHIP*4);
 
 	driver_addr = PCA9685_I2C_BASE_ADDRESS | (g_cur_chip_num << 1);
 
-	if (HAL_I2C_Mem_Write_DMA(&pwmleddriver_i2c, driver_addr, PCA9685_LED0, I2C_MEMADD_SIZE_8BIT, leddriver_buffer, NUM_LEDS_PER_CHIP*4) != HAL_OK)
-   		g_led_error = LEDDRIVER_DMA_XMIT_ERR;
+	err = HAL_I2C_Mem_Write_DMA(&pwmleddriver_i2c, driver_addr, PCA9685_LED0, I2C_MEMADD_SIZE_8BIT, leddriver_buffer, NUM_LEDS_PER_CHIP*4);
+	if (err != HAL_OK)
+  		g_led_error = LEDDRIVER_DMA_XMIT_ERR;
 
 }
 
