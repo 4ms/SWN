@@ -69,13 +69,20 @@ enum LEDDriverErrors {
 	LEDDRIVER_I2C_XMIT_ERR		= 3,
 	LEDDRIVER_SET_LED_ERR		= 4,
 	LEDDRIVER_BAD_LED_PARAM	    = 5,
-	LEDDRIVER_DMA_XMIT_ERR		= 6
+	LEDDRIVER_DMA_XMIT_ERR		= 6,
+	LEDDRIVER_IT_XMIT_ERR		= 7
 };
 
-uint32_t 				LEDDriver_init_dma(uint8_t numdrivers, uint8_t *led_image);
+uint8_t LEDDriver_get_cur_buf(void);
+uint8_t LEDDriver_get_cur_chip(void);
+
+uint32_t 				LEDDriver_init_dma(uint8_t numdrivers, uint8_t *led_image1, uint8_t *led_image2);
 uint32_t 				LEDDriver_init_direct(uint8_t numdrivers);
 enum LEDDriverErrors 	LEDDriver_setRGBLED_RGB(uint8_t led_number, uint16_t c_red, uint16_t c_green, uint16_t c_blue);
 enum LEDDriverErrors 	LEDDriver_set_single_LED(uint8_t led_element_number, uint16_t brightness);
 
 uint8_t 				get_red_led_element_id(uint8_t rgb_led_id);
 uint8_t 				get_chip_num(uint8_t rgb_led_id);
+
+void 					HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c);
+
