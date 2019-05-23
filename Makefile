@@ -55,7 +55,8 @@ FPU = -mfpu=fpv5-d16
 FLOAT-ABI = -mfloat-abi=hard 
 MCU = $(CPU) -mthumb -mlittle-endian $(FPU) $(FLOAT-ABI) 
 
-ARCH_CFLAGS = -DARM_MATH_CM7 -D'__FPU_PRESENT=1' -DUSE_HAL_DRIVER -DSTM32F765xx
+ARCH_CFLAGS = -DARM_MATH_CM7 -D'__FPU_PRESENT=1' -DUSE_HAL_DRIVER -DSTM32F765xx 
+#-D'USE_HAL_I2C_REGISTER_CALLBACKS=1'
 
 OPTIMIZED_CFLAGS = -g2 -O3 -fno-common
 
@@ -149,7 +150,8 @@ LFLAGS  = $(MCU) -v --specs=nano.specs -T $(LDSCRIPT)  -lc -lrdimon
 # build/src/drivers/switch_driver.o: CFLAGS = $(C0FLAGS)
 #
 # PWM LEDs
-build/src/drivers/pca9685_driver.o: CFLAGS = $(C0FLAGS)
+# build/src/drivers/pca9685_driver.o: CFLAGS = $(C0FLAGS)
+# build/stm32/periph/src/stm32f7xx_hal_i2c.o: CFLAGS = $(C0FLAGS)
 # build/src/drivers/leds_pwm.o: CFLAGS = $(C0FLAGS)
 #
 # PWM Timer outputs
