@@ -149,7 +149,7 @@ LFLAGS  = $(MCU) -v --specs=nano.specs -T $(LDSCRIPT)  -lc -lrdimon
 # build/src/drivers/switch_driver.o: CFLAGS = $(C0FLAGS)
 #
 # PWM LEDs
-# build/src/drivers/pca9685_driver.o: CFLAGS = $(C0FLAGS)
+build/src/drivers/pca9685_driver.o: CFLAGS = $(C0FLAGS)
 # build/src/drivers/leds_pwm.o: CFLAGS = $(C0FLAGS)
 #
 # PWM Timer outputs

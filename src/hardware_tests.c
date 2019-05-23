@@ -181,7 +181,7 @@ void test_pwm_leds(void)
 
 	// First test: I2C
 	//
-	uint32_t led_pwm_chip_err = LEDDriver_Init(10);
+	uint32_t led_pwm_chip_err = LEDDriver_init_direct(10);
 	while (led_pwm_chip_err) {
 		all_sliders_on();
 		HAL_Delay(800);

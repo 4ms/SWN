@@ -72,7 +72,10 @@ enum LEDDriverErrors {
 	LEDDRIVER_DMA_XMIT_ERR		= 6
 };
 
-uint32_t 				LEDDriver_Init(uint8_t numdrivers, uint8_t *led_image);
+uint32_t 				LEDDriver_init_dma(uint8_t numdrivers, uint8_t *led_image);
+uint32_t 				LEDDriver_init_direct(uint8_t numdrivers);
 enum LEDDriverErrors 	LEDDriver_setRGBLED_RGB(uint8_t led_number, uint16_t c_red, uint16_t c_green, uint16_t c_blue);
 enum LEDDriverErrors 	LEDDriver_set_single_LED(uint8_t led_element_number, uint16_t brightness);
+
 uint8_t 				get_red_led_element_id(uint8_t rgb_led_id);
+uint8_t 				get_chip_num(uint8_t rgb_led_id);

@@ -51,7 +51,7 @@ void init_pwm_leds(void)
 			pwmleds[i].leds[j] = 0;
 	}
 
-	LEDDriver_Init(NUM_PWM_LED_CHIPS, (uint8_t *)pwmleds);
+	LEDDriver_init_dma(NUM_PWM_LED_CHIPS, (uint8_t *)pwmleds);
 
 	pwm_leds_display_on();
 }
@@ -86,7 +86,13 @@ void set_pwm_led(uint8_t led_id, const o_rgb_led *rgbled)
 		g = _USAT12(g);
 		b = _USAT12(b);
 
-		LEDDriver_setRGBLED_RGB(led_id, r, g, b);
+		//LEDDriver_setRGBLED_RGB(led_id, r, g, b);
+		uint8_t red_led_element = get_red_led_element_id(led_id) % 16;
+		uint8_t chip_num = get_chip_num(led_id);
+
+		pwmleds[chip_num].leds[red_led_element] = r;
+		pwmleds[chip_num].leds[red_led_element+1] = g;
+		pwmleds[chip_num].leds[red_led_element+2] = b;
 
 		// DEBUG1_ON;
 		// led_err = LEDDriver_setRGBLED_RGB(led_id, r, g, b);
@@ -99,7 +105,10 @@ void set_pwm_led(uint8_t led_id, const o_rgb_led *rgbled)
 //Do not use this except for hardware testing, it is very inefficient!
 void set_pwm_led_direct(uint8_t led_id, uint16_t c_red, uint16_t c_green, uint16_t c_blue)
 {
-	LEDDriver_setRGBLED_RGB(led_id, c_red, c_green, c_blue);
+	// uint8_t red_led_element = get_red_led_element_id(led_id) % 16;
+	// uint8_t chip_num = get_chip_num(led_id);
+	// pwmleds[chip_num].leds[red_led_element] = r;
+	//LEDDriver_setRGBLED_RGB(led_id, c_red, c_green, c_blue);
 }
 
 //Todo: cached_brightness needs to be an array if there is more than one single_element_led_id allowed
@@ -108,7 +117,7 @@ void set_single_pwm_led(uint8_t single_element_led_id, uint16_t brightness)
 	static float cached_brightness;
 
 	if (fabs(cached_brightness - brightness)>0.01) {
-		LEDDriver_set_single_LED(single_element_led_id, brightness);
+	//	LEDDriver_set_single_LED(single_element_led_id, brightness);
 		cached_brightness = brightness;
 	}
 }
