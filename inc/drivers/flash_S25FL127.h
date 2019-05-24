@@ -108,15 +108,18 @@ enum sFlashErrors{
 	sFLASH_PROG_ERROR 		= (1<<1),
 	sFLASH_SPI_INIT_ERROR 	= (1<<2),
 	sFLASH_SPI_DMA_INIT_ERROR = (1<<3),
-	sFLASH_SPI_DMA_RX_ERROR = (1<<4)
+	sFLASH_SPI_DMA_RX_ERROR = (1<<4),
+	sFLASH_SPI_DMA_TX_ERROR = (1<<5),
 };
 
 enum sFlashStates {
-	sFLASH_NOTBUSY = 0,
-	sFLASH_WRITING = 1,
-	sFLASH_READING = 2,
-	sFLASH_ERASING = 3,
-	sFLASH_ERROR = 4
+	sFLASH_NOTBUSY,
+	sFLASH_WRITECMD,
+	sFLASH_WRITING,
+	sFLASH_READCMD,
+	sFLASH_READING,
+	sFLASH_ERASING,
+	sFLASH_ERROR 
 };
 
 //Initialize
@@ -134,7 +137,7 @@ void sFLASH_erase_chip(void);
 //Reading and writing
 void sFLASH_write_buffer(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
 void sFLASH_read_buffer(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
-void sFLASH_read_buffer_DMA(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
+void sFLASH_read_buffer_DMA(uint8_t* rxBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
 
 
 //Sector/address utilities

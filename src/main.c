@@ -62,14 +62,10 @@
 #include "calibrate_voct.h"
 #include "params_lfo.h"
 #include "led_color_adjust.h"
-
-// wt recorder intialisation routines
+#include "sphere.h"
 #include "wavetable_recording.h" 
 #include "wavetable_editing.h"
 #include "wavetable_saving.h"
-
-
-// Temporary inclusions for testing
 #include "analog_conditioning.h"
 #include "UI_conditioning.h"
 #include "drivers/flash_S25FL127.h"
@@ -142,19 +138,6 @@ int main(void)
 	
 	//External FLASH
 	sFLASH_init();
-
-	//dma flash test:
-	DEBUG0_ON;
-	uint8_t	read_data[4];
-	uint32_t addr = sFLASH_get_sector_addr(16);
-	sFLASH_read_buffer_DMA(read_data, addr, 4);
-	DEBUG0_OFF;
-	DEBUG1_ON;
-	while (get_flash_state() != sFLASH_NOTBUSY)
-	{
-		;
-	}
-	DEBUG1_OFF;
 
 	//Initialize param values (do not start updating them yet)
 	init_wt_osc();
@@ -235,11 +218,9 @@ int main(void)
 
 	init_preset_manager();
 
-
 	//Show Firmware version
 	display_firmware_version();
 	HAL_Delay(4000);
-
 
 	//Start updating oscillator parameters and wavetable
 	start_osc_updates();

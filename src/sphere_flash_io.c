@@ -100,7 +100,7 @@ void load_extflash_wavetable(uint8_t wt_num, o_waveform *waveform, uint8_t x, ui
 
 	addr += WT_NAME_MONITOR_CHARSIZE;
 
-	sFLASH_read_buffer((uint8_t *)(waveform->wave), addr, WT_TABLELEN*BYTEDEPTH);
+	sFLASH_read_buffer_DMA((uint8_t *)(waveform->wave), addr, WT_TABLELEN*BYTEDEPTH);
 }
 
 // Write to flash
@@ -137,25 +137,25 @@ enum SphereTypes read_spheretype(uint32_t wt_num)
 {
 	uint32_t addr = get_wt_addr(wt_num);
 	uint32_t sz;
-	char	read_data[4];
+	static char	read_sphere_type_data[4];
 
 	pause_timer_IRQ(WT_INTERP_TIM_number);
 
 	sz = 4;
-	sFLASH_read_buffer((uint8_t *)read_data, addr, sz);
+	sFLASH_read_buffer((uint8_t *)read_sphere_type_data, addr, sz);
 
 	resume_timer_IRQ(WT_INTERP_TIM_number);
 
-	if (   read_data[0] == user_sphere_signature[0] 
-		&& read_data[1] == user_sphere_signature[1] 
-		&& read_data[2] == user_sphere_signature[2] 
-		&& read_data[3] == user_sphere_signature[3] )
+	if (   read_sphere_type_data[0] == user_sphere_signature[0] 
+		&& read_sphere_type_data[1] == user_sphere_signature[1] 
+		&& read_sphere_type_data[2] == user_sphere_signature[2] 
+		&& read_sphere_type_data[3] == user_sphere_signature[3] )
 		return SPHERE_TYPE_USER;
 	else
-	if (   read_data[0] == factory_sphere_signature[0] 
-		&& read_data[1] == factory_sphere_signature[1] 
-		&& read_data[2] == factory_sphere_signature[2] 
-		&& read_data[3] == factory_sphere_signature[3] )
+	if (   read_sphere_type_data[0] == factory_sphere_signature[0] 
+		&& read_sphere_type_data[1] == factory_sphere_signature[1] 
+		&& read_sphere_type_data[2] == factory_sphere_signature[2] 
+		&& read_sphere_type_data[3] == factory_sphere_signature[3] )
 		return SPHERE_TYPE_FACTORY;
 	else
 		return SPHERE_TYPE_EMPTY;
@@ -167,7 +167,7 @@ void quick_clear_user_spheres(void)
 {
 	uint32_t addr;
 	uint32_t sz;
-	char	read_data[4];
+	static char	read_data[4];
 	uint8_t wt_num;
 
 	pause_timer_IRQ(WT_INTERP_TIM_number);

@@ -81,10 +81,10 @@ S25FL127Chip *flash_chip = &s_flash_chip;
 
 static DMA_HandleTypeDef spiflash_dma_tx;
 static DMA_HandleTypeDef spiflash_dma_rx;
-SPI_HandleTypeDef	spi_s24fl127;
+SPI_HandleTypeDef	spi_s25fl127;
 
 enum sFlashErrors sflash_error=0;
-enum sFlashStates sflash_state=0;
+volatile enum sFlashStates sflash_state=0;
 
 //
 // Config: Uncomment exactly one line below to set the mode
@@ -194,7 +194,7 @@ void sFLASH_WaitForWriteEnd(void);
 void sFLASH_bitbang_init(void);
 
 void sFLASH_SPI_init(void);
-void sFLASH_SPI_GPIO_init(uint8_t manual_CS_pin);
+void sFLASH_SPI_GPIO_init(uint32_t nss_mode);
 void sFLASH_SPI_start(void);
 void sFLASH_SPI_stop(void);
 
@@ -278,7 +278,7 @@ void sFLASH_bitbang_init(void)
 	HAL_GPIO_Init(flash_chip->MISO.gpio, &gpio);  
 }
 
-void sFLASH_SPI_GPIO_init(uint8_t manual_CS_pin)
+void sFLASH_SPI_GPIO_init(uint32_t nss_mode)
 {
 	GPIO_InitTypeDef gpio;
 
@@ -310,40 +310,44 @@ void sFLASH_SPI_GPIO_init(uint8_t manual_CS_pin)
 	// Assume GPIO RCC is enabled already, or if not do it here:
 	//		__HAL_RCC_GPIOx_CLK_ENABLE()
 
-	gpio.Mode 	= GPIO_MODE_AF_PP;
 	gpio.Speed 	= GPIO_SPEED_FREQ_VERY_HIGH;
 	gpio.Pull  	= GPIO_PULLDOWN;
 
 
 	// SPI SCK pin configuration
+	gpio.Mode 		= GPIO_MODE_AF_PP;
 	gpio.Pin 		= flash_chip->SCK.pin;
 	gpio.Alternate 	= flash_chip->SCK.af;
 	HAL_GPIO_Init(flash_chip->SCK.gpio, &gpio);
 
 	// SPI  MOSI pin configuration
+	gpio.Mode 		= GPIO_MODE_AF_PP;
 	gpio.Pin 		= flash_chip->MOSI.pin;
 	gpio.Alternate 	= flash_chip->MOSI.af;
 	HAL_GPIO_Init(flash_chip->MOSI.gpio, &gpio);
 
 	// SPI  MISO pin configuration
+	gpio.Mode 		= GPIO_MODE_AF_PP;
 	gpio.Pin 		= flash_chip->MISO.pin;
 	gpio.Alternate 	= flash_chip->MISO.af;
 	HAL_GPIO_Init(flash_chip->MISO.gpio, &gpio);  
 
 	// SPI  CS pin configuration
-	if (manual_CS_pin)
+	if (nss_mode == SPI_NSS_SOFT)
 	{
 		gpio.Mode 		= GPIO_MODE_OUTPUT_PP;
 		gpio.Speed 		= GPIO_SPEED_FREQ_VERY_HIGH;
-		gpio.Pull  		= GPIO_NOPULL;
+		gpio.Pull  		= GPIO_PULLUP;
 		gpio.Pin 		= flash_chip->CS.pin;
 		HAL_GPIO_Init(flash_chip->CS.gpio, &gpio);
 
 		//Deselect the chip: CS high
 		PIN_HIGH(flash_chip->CS.gpio, flash_chip->CS.pin);
 	} 
-	else
+	else if (nss_mode == SPI_NSS_HARD_OUTPUT)
 	{
+		gpio.Mode 		= GPIO_MODE_AF_PP;
+		gpio.Pull  		= GPIO_PULLUP;
 		gpio.Pin 		= flash_chip->CS.pin;
 		gpio.Alternate 	= flash_chip->CS.af;
 		HAL_GPIO_Init(flash_chip->CS.gpio, &gpio);  
@@ -353,22 +357,24 @@ void sFLASH_SPI_GPIO_init(uint8_t manual_CS_pin)
 
 void sFLASH_SPI_init(void)
 {
-	sFLASH_SPI_GPIO_init(0);
+	uint32_t nss_mode = SPI_NSS_SOFT;
+	
+	sFLASH_SPI_GPIO_init(nss_mode);
 
-	spi_s24fl127.Instance               = flash_chip->SPIx;
-	spi_s24fl127.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-	spi_s24fl127.Init.Direction         = SPI_DIRECTION_2LINES;
-	spi_s24fl127.Init.CLKPhase          = SPI_PHASE_1EDGE;
-	spi_s24fl127.Init.CLKPolarity       = SPI_POLARITY_LOW;
-	spi_s24fl127.Init.DataSize          = SPI_DATASIZE_8BIT;
-	spi_s24fl127.Init.FirstBit          = SPI_FIRSTBIT_MSB;
-	spi_s24fl127.Init.TIMode            = SPI_TIMODE_DISABLE;
-	spi_s24fl127.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
-	spi_s24fl127.Init.CRCPolynomial     = 7;
-	spi_s24fl127.Init.NSS               = SPI_NSS_SOFT;
-	spi_s24fl127.Init.Mode 				= SPI_MODE_MASTER;
+	spi_s25fl127.Instance               = flash_chip->SPIx;
+	spi_s25fl127.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+	spi_s25fl127.Init.Direction         = SPI_DIRECTION_2LINES;
+	spi_s25fl127.Init.CLKPhase          = SPI_PHASE_1EDGE;
+	spi_s25fl127.Init.CLKPolarity       = SPI_POLARITY_LOW;
+	spi_s25fl127.Init.DataSize          = SPI_DATASIZE_8BIT;
+	spi_s25fl127.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+	spi_s25fl127.Init.TIMode            = SPI_TIMODE_DISABLE;
+	spi_s25fl127.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+	spi_s25fl127.Init.CRCPolynomial     = 7;
+	spi_s25fl127.Init.NSS               = nss_mode;
+	spi_s25fl127.Init.Mode 				= SPI_MODE_MASTER;
 
-	if (HAL_SPI_Init(&spi_s24fl127) != HAL_OK) 
+	if (HAL_SPI_Init(&spi_s25fl127) != HAL_OK) 
 		sflash_error |= sFLASH_SPI_INIT_ERROR;
 }
 
@@ -387,25 +393,27 @@ void sFLASH_SPI_start(void)
 
 void sFLASH_SPIDMA_init(void)
 {
-	sFLASH_SPI_GPIO_init(1);
+	uint32_t nss_mode = SPI_NSS_SOFT;
 
-	spi_s24fl127.Instance               = flash_chip->SPIx;
-	spi_s24fl127.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-	spi_s24fl127.Init.Direction         = SPI_DIRECTION_2LINES;
-	spi_s24fl127.Init.CLKPhase          = SPI_PHASE_1EDGE;
-	spi_s24fl127.Init.CLKPolarity       = SPI_POLARITY_LOW;
-	spi_s24fl127.Init.DataSize          = SPI_DATASIZE_8BIT;
-	spi_s24fl127.Init.FirstBit          = SPI_FIRSTBIT_MSB;
-	spi_s24fl127.Init.TIMode            = SPI_TIMODE_DISABLE;
-	spi_s24fl127.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
-	spi_s24fl127.Init.CRCPolynomial     = 7;
-	spi_s24fl127.Init.NSS               = SPI_NSS_HARD_OUTPUT;
-	spi_s24fl127.Init.Mode 				= SPI_MODE_MASTER;
+	sFLASH_SPI_GPIO_init(nss_mode);
 
-	if (HAL_SPI_Init(&spi_s24fl127) != HAL_OK)
+	spi_s25fl127.Instance               = flash_chip->SPIx;
+	spi_s25fl127.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+	spi_s25fl127.Init.Direction         = SPI_DIRECTION_2LINES;
+	spi_s25fl127.Init.CLKPhase          = SPI_PHASE_1EDGE;
+	spi_s25fl127.Init.CLKPolarity       = SPI_POLARITY_LOW;
+	spi_s25fl127.Init.DataSize          = SPI_DATASIZE_8BIT;
+	spi_s25fl127.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+	spi_s25fl127.Init.TIMode            = SPI_TIMODE_DISABLE;
+	spi_s25fl127.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+	spi_s25fl127.Init.CRCPolynomial     = 7;
+	spi_s25fl127.Init.NSS               = nss_mode;
+	spi_s25fl127.Init.Mode 				= SPI_MODE_MASTER;
+
+	if (HAL_SPI_Init(&spi_s25fl127) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_INIT_ERROR;
 
-	__HAL_RCC_DMA2_CLK_ENABLE();
+	DMAx_CLK_ENABLE();
 
     spiflash_dma_tx.Instance                 = SPIx_TX_DMA_STREAM;
     spiflash_dma_tx.Init.Channel             = SPIx_TX_DMA_CHANNEL;
@@ -422,7 +430,7 @@ void sFLASH_SPIDMA_init(void)
     spiflash_dma_tx.Init.Priority            = DMA_PRIORITY_LOW;
 
     HAL_DMA_Init(&spiflash_dma_tx);
-    __HAL_LINKDMA(&spi_s24fl127, hdmatx, spiflash_dma_tx);
+    __HAL_LINKDMA(&spi_s25fl127, hdmatx, spiflash_dma_tx);
 
     spiflash_dma_rx.Instance                 = SPIx_RX_DMA_STREAM;
     spiflash_dma_rx.Init.Channel             = SPIx_RX_DMA_CHANNEL;
@@ -439,47 +447,73 @@ void sFLASH_SPIDMA_init(void)
     spiflash_dma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
 
     HAL_DMA_Init(&spiflash_dma_rx);
-    __HAL_LINKDMA(&spi_s24fl127, hdmarx, spiflash_dma_rx);
+    __HAL_LINKDMA(&spi_s25fl127, hdmarx, spiflash_dma_rx);
 
-    HAL_NVIC_SetPriority(SPIx_DMA_TX_IRQn, 1, 2);
+    HAL_NVIC_SetPriority(SPIx_DMA_TX_IRQn, 0, 3);
     HAL_NVIC_EnableIRQ(SPIx_DMA_TX_IRQn);
 
-    HAL_NVIC_SetPriority(SPIx_DMA_RX_IRQn, 1, 1);
+    HAL_NVIC_SetPriority(SPIx_DMA_RX_IRQn, 0, 3);
     HAL_NVIC_EnableIRQ(SPIx_DMA_RX_IRQn);
-
 
 }
 
 #ifdef FLASH_S25FL127_MODE_SPIDMA
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+	deselect_chip();
+	sflash_state = sFLASH_NOTBUSY;
+}
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	if (sflash_state == sFLASH_WRITING)
+		deselect_chip();
+	sflash_state = sFLASH_NOTBUSY;
+}
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	if (sflash_state == sFLASH_READING)
+		deselect_chip();
 	sflash_state = sFLASH_NOTBUSY;
 }
 void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
+	deselect_chip();
 	sflash_state = sFLASH_ERROR;
 }
 void SPIx_DMA_RX_IRQHandler(void)
 {
-  HAL_DMA_IRQHandler(spi_s24fl127.hdmarx);
+  HAL_DMA_IRQHandler(spi_s25fl127.hdmarx);
 }
 void SPIx_DMA_TX_IRQHandler(void)
 {
-  HAL_DMA_IRQHandler(spi_s24fl127.hdmatx);
+  HAL_DMA_IRQHandler(spi_s25fl127.hdmatx);
 }
 void SPIx_IRQHandler(void)
 {
-  HAL_SPI_IRQHandler(&spi_s24fl127);
+  HAL_SPI_IRQHandler(&spi_s25fl127);
 }
 #endif
 
-void sFLASH_read_buffer_DMA(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
+uint8_t read_cmd[4];
+void sFLASH_read_buffer_DMA(uint8_t* rxBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
 {
 	HAL_StatusTypeDef err;
 
-	sflash_state = sFLASH_READING;
+	read_cmd[0] = sFLASH_CMD_READ;
+	read_cmd[1] = (ReadAddr & 0xFF0000) >> 16;
+	read_cmd[2] = (ReadAddr& 0xFF00) >> 8;
+	read_cmd[3] = ReadAddr & 0xFF;
 
-	err = HAL_SPI_Receive_DMA(&spi_s24fl127, (uint8_t *)pBuffer, NumByteToRead);
+	sflash_state = sFLASH_READCMD;
+	select_chip();
+	err = HAL_SPI_Transmit_DMA(&spi_s25fl127, read_cmd, 4);
+	if (err != HAL_OK)
+		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
+
+	while (sflash_state != sFLASH_NOTBUSY)  { ; }
+
+	sflash_state = sFLASH_READING;
+	err = HAL_SPI_Receive_DMA(&spi_s25fl127, rxBuffer, NumByteToRead);
 	if (err != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_RX_ERROR;
 }
@@ -677,6 +711,7 @@ void sFLASH_write_buffer(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteT
 // ReadAddr: FLASH's internal address to read from.
 // NumByteToRead: number of bytes to read from the FLASH.
 //
+#ifdef FLASH_S25FL127_MODE_SPI
 void sFLASH_read_buffer(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
 {
   select_chip();
@@ -695,7 +730,15 @@ void sFLASH_read_buffer(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToR
 
   deselect_chip();
 }
+#endif
 
+#ifdef FLASH_S25FL127_MODE_SPIDMA
+void sFLASH_read_buffer(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
+{
+	sFLASH_read_buffer_DMA(pBuffer, ReadAddr, NumByteToRead);
+	while (get_flash_state() != sFLASH_NOTBUSY) {;}
+}
+#endif
 
 uint32_t sFLASH_ReadID(void)
 {
@@ -796,6 +839,30 @@ uint8_t sFLASH_SendByte(uint8_t byte)
 }
 #endif
 
+#ifdef FLASH_S25FL127_MODE_SPIDMA
+uint8_t sFLASH_SendByte(uint8_t byte)
+{
+	// uint8_t recd;
+
+	// //Send the byte
+	// *(__IO uint8_t *)&(flash_chip->SPIx)->DR = byte;
+
+	
+	// //Wait for TX buffer to be empty
+	// while (!((flash_chip->SPIx->SR) & SPI_FLAG_TXE)) {;} // while (SPI_I2S_GetFlagStatus(sFLASH_SPI, SPI_I2S_FLAG_TXE) == RESET);
+
+	
+	// //Wait for RX buffer to be not empty
+	// // while (!((flash_chip->SPIx->SR) & SPI_FLAG_RXNE)) {;} // while (SPI_I2S_GetFlagStatus(sFLASH_SPI, SPI_I2S_FLAG_RXNE) == RESET);
+
+	// while (((flash_chip->SPIx->SR) & SPI_SR_BSY)) {;}
+
+	// recd = *(__IO uint8_t *)&(flash_chip->SPIx)->DR;
+
+	// //Return the received data
+	// return(recd);
+}
+#endif
 
 //
 // Enables the write access to the FLASH.
@@ -949,7 +1016,7 @@ uint32_t sFLASH_test_sector(uint32_t test_start)
 	i=sFLASH_SPI_PAGESIZE;
 	while (i--)
 	{
-		rd = sFLASH_ReadByte();
+		rd = sFLASH_SendByte(sFLASH_DUMMY_BYTE);
 
 		if (rd != ((0+i) & 0xFF))
 			bad_bytes++;

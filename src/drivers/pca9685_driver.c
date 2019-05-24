@@ -52,7 +52,8 @@ enum LEDDriverErrors LEDDriver_I2C_DMA_Init();
 enum LEDDriverErrors LEDDriver_I2C_IT_Init();
 void LED_driver_tx_complete(DMA_HandleTypeDef *_hdma);
 
-
+//Todo: Remove led_image2 and associated double-buffering stuff after it's 100% confirmed we 
+//don't need double-buffering
 uint32_t LEDDriver_init_dma(uint8_t numdrivers, uint8_t *led_image1, uint8_t *led_image2)
 {
 	uint8_t driverAddr;
@@ -219,11 +220,10 @@ enum LEDDriverErrors LEDDriver_writeregister(uint8_t driverAddr, uint8_t Registe
 	//Assemble 2-byte data 
 	uint8_t data[2];
 	uint32_t timeout = LEDDRIVER_LONG_TIMEOUT;
+	HAL_StatusTypeDef err;
 
 	data[0] = RegisterAddr;
 	data[1] = RegisterValue;
-
-	HAL_StatusTypeDef 	err;
 
 	driverAddr = PCA9685_I2C_BASE_ADDRESS | (driverAddr << 1);
 
@@ -328,9 +328,6 @@ enum LEDDriverErrors LEDDriver_I2C_DMA_Init(void)
 	HAL_NVIC_SetPriority(LEDDRIVER_I2C_EV_IRQn, 1, 0);
 	HAL_NVIC_EnableIRQ(LEDDRIVER_I2C_EV_IRQn);
 
-	//HAL_DMA_RegisterCallback(&pwmleddriver_dmatx, HAL_DMA_XFER_CPLT_CB_ID, LED_driver_tx_complete);
-	// HAL_I2C_RegisterCallback(&pwmleddriver_i2c, HAL_I2C_MASTER_TX_COMPLETE_CB_ID, LED_driver_MasterTxCpltCallback);
-
 	err = HAL_I2C_Mem_Write_DMA(&pwmleddriver_i2c, PCA9685_I2C_BASE_ADDRESS, PCA9685_LED0, I2C_MEMADD_SIZE_8BIT, leddriver_buffer, NUM_LEDS_PER_CHIP*4);
 	if (err != HAL_OK)
 		return LEDDRIVER_DMA_XMIT_ERR;
@@ -338,10 +335,6 @@ enum LEDDriverErrors LEDDriver_I2C_DMA_Init(void)
     return LEDDRIVER_NO_ERR;
 }
 
-// void HAL_I2C_AbortCpltCallback(I2C_HandleTypeDef *hi2c)
-// {
-// 	__BKPT();
-// }
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
@@ -364,21 +357,15 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 
 }
 
-
 void LEDDRIVER_I2C_DMA_TX_IRQHandler()
 {
 	HAL_DMA_IRQHandler(pwmleddriver_i2c.hdmatx);
 }
-
-
 void I2C1_EV_IRQHandler(void)
 {
 	HAL_I2C_EV_IRQHandler(&pwmleddriver_i2c);
 }
-
 void I2C1_ER_IRQHandler(void)
 {
 	HAL_I2C_ER_IRQHandler(&pwmleddriver_i2c);
 }
-
-
