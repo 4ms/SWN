@@ -75,15 +75,22 @@
 #include "hal_handlers.h"
 #include "gpio_pins.h"
 
+
 S25FL127Chip s_flash_chip;
 S25FL127Chip *flash_chip = &s_flash_chip; 
 
+static DMA_HandleTypeDef spiflash_dma_tx;
+static DMA_HandleTypeDef spiflash_dma_rx;
+SPI_HandleTypeDef	spi_s24fl127;
+
 enum sFlashErrors sflash_error=0;
+enum sFlashStates sflash_state=0;
 
 //
 // Config: Uncomment exactly one line below to set the mode
 // #define FLASH_S25FL127_MODE_BITBANG
-#define FLASH_S25FL127_MODE_SPI
+// #define FLASH_S25FL127_MODE_SPI
+#define FLASH_S25FL127_MODE_SPIDMA
 
 //
 // Config: Comment or uncomment to enable QuadSPI mode (only available in bitbang, not in SPI)
@@ -141,7 +148,32 @@ void create_flash_chip(void){
 }
 #endif
 
-SPI_HandleTypeDef	spi_s24fl127;
+#ifdef FLASH_S25FL127_MODE_SPIDMA
+void create_flash_chip(void);
+void create_flash_chip(void){
+	flash_chip = &s_flash_chip;
+	flash_chip->SPIx 				= SPI3;
+
+	flash_chip->SCK.pin				= GPIO_PIN_10;
+	flash_chip->SCK.gpio 			= GPIOC;
+	flash_chip->SCK.af				= GPIO_AF6_SPI3;
+
+	flash_chip->MISO.pin			= GPIO_PIN_11;
+	flash_chip->MISO.gpio			= GPIOC;
+	flash_chip->MISO.af				= GPIO_AF6_SPI3;
+
+	flash_chip->MOSI.pin			= GPIO_PIN_12;
+	flash_chip->MOSI.gpio 			= GPIOC;
+	flash_chip->MOSI.af				= GPIO_AF6_SPI3;
+
+	flash_chip->CS.pin				= GPIO_PIN_15;
+	flash_chip->CS.gpio 			= GPIOA;
+	flash_chip->CS.af				= GPIO_AF6_SPI3;
+}
+#endif
+
+
+
 
 //
 // Private functions:
@@ -162,9 +194,11 @@ void sFLASH_WaitForWriteEnd(void);
 void sFLASH_bitbang_init(void);
 
 void sFLASH_SPI_init(void);
-void sFLASH_SPI_GPIO_init(void);
+void sFLASH_SPI_GPIO_init(uint8_t manual_CS_pin);
 void sFLASH_SPI_start(void);
 void sFLASH_SPI_stop(void);
+
+void sFLASH_SPIDMA_init(void);
 
 uint32_t sFLASH_align2sector(uint32_t addr);
 
@@ -177,6 +211,8 @@ static inline void deselect_chip(void)	{  PIN_HIGH(flash_chip->CS.gpio, flash_ch
 //delays about 32ns for every value of x
 #define delay_32ns(x) do {  register unsigned int i;  for (i = 0; i < x; ++i)   __asm__ __volatile__ ("nop\n\t":::"memory"); } while (0)
 
+
+enum sFlashStates get_flash_state(void) { return sflash_state; }
 
 void sFLASH_init(void)
 {
@@ -193,8 +229,11 @@ void sFLASH_init(void)
 			sFLASH_SPI_start();
 	#endif
 
-}
+	#ifdef FLASH_S25FL127_MODE_SPIDMA
+		sFLASH_SPIDMA_init();
+	#endif
 
+}
 
 void sFLASH_bitbang_init(void)
 {
@@ -239,7 +278,7 @@ void sFLASH_bitbang_init(void)
 	HAL_GPIO_Init(flash_chip->MISO.gpio, &gpio);  
 }
 
-void sFLASH_SPI_GPIO_init(void)
+void sFLASH_SPI_GPIO_init(uint8_t manual_CS_pin)
 {
 	GPIO_InitTypeDef gpio;
 
@@ -269,9 +308,7 @@ void sFLASH_SPI_GPIO_init(void)
 	#endif
 
 	// Assume GPIO RCC is enabled already, or if not do it here:
-	//
 	//		__HAL_RCC_GPIOx_CLK_ENABLE()
-	// etc...
 
 	gpio.Mode 	= GPIO_MODE_AF_PP;
 	gpio.Speed 	= GPIO_SPEED_FREQ_VERY_HIGH;
@@ -294,20 +331,29 @@ void sFLASH_SPI_GPIO_init(void)
 	HAL_GPIO_Init(flash_chip->MISO.gpio, &gpio);  
 
 	// SPI  CS pin configuration
-	gpio.Mode 		= GPIO_MODE_OUTPUT_PP;
-	gpio.Speed 		= GPIO_SPEED_FREQ_VERY_HIGH;
-	gpio.Pull  		= GPIO_NOPULL;
-	gpio.Pin 		= flash_chip->CS.pin;
-	HAL_GPIO_Init(flash_chip->CS.gpio, &gpio);
+	if (manual_CS_pin)
+	{
+		gpio.Mode 		= GPIO_MODE_OUTPUT_PP;
+		gpio.Speed 		= GPIO_SPEED_FREQ_VERY_HIGH;
+		gpio.Pull  		= GPIO_NOPULL;
+		gpio.Pin 		= flash_chip->CS.pin;
+		HAL_GPIO_Init(flash_chip->CS.gpio, &gpio);
 
-	//Deselect the chip: CS high
-	PIN_HIGH(flash_chip->CS.gpio, flash_chip->CS.pin);
+		//Deselect the chip: CS high
+		PIN_HIGH(flash_chip->CS.gpio, flash_chip->CS.pin);
+	} 
+	else
+	{
+		gpio.Pin 		= flash_chip->CS.pin;
+		gpio.Alternate 	= flash_chip->CS.af;
+		HAL_GPIO_Init(flash_chip->CS.gpio, &gpio);  
+	}
 }
 
 
 void sFLASH_SPI_init(void)
 {
-	sFLASH_SPI_GPIO_init();
+	sFLASH_SPI_GPIO_init(0);
 
 	spi_s24fl127.Instance               = flash_chip->SPIx;
 	spi_s24fl127.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
@@ -337,6 +383,107 @@ void sFLASH_SPI_start(void)
 	// Enable the SPI peripheral 
 	flash_chip->SPIx->CR1 |= SPI_CR1_SPE;
 }
+
+
+void sFLASH_SPIDMA_init(void)
+{
+	sFLASH_SPI_GPIO_init(1);
+
+	spi_s24fl127.Instance               = flash_chip->SPIx;
+	spi_s24fl127.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+	spi_s24fl127.Init.Direction         = SPI_DIRECTION_2LINES;
+	spi_s24fl127.Init.CLKPhase          = SPI_PHASE_1EDGE;
+	spi_s24fl127.Init.CLKPolarity       = SPI_POLARITY_LOW;
+	spi_s24fl127.Init.DataSize          = SPI_DATASIZE_8BIT;
+	spi_s24fl127.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+	spi_s24fl127.Init.TIMode            = SPI_TIMODE_DISABLE;
+	spi_s24fl127.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+	spi_s24fl127.Init.CRCPolynomial     = 7;
+	spi_s24fl127.Init.NSS               = SPI_NSS_HARD_OUTPUT;
+	spi_s24fl127.Init.Mode 				= SPI_MODE_MASTER;
+
+	if (HAL_SPI_Init(&spi_s24fl127) != HAL_OK)
+		sflash_error |= sFLASH_SPI_DMA_INIT_ERROR;
+
+	__HAL_RCC_DMA2_CLK_ENABLE();
+
+    spiflash_dma_tx.Instance                 = SPIx_TX_DMA_STREAM;
+    spiflash_dma_tx.Init.Channel             = SPIx_TX_DMA_CHANNEL;
+    spiflash_dma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+    spiflash_dma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+    spiflash_dma_tx.Init.MemBurst            = DMA_MBURST_SINGLE;
+    spiflash_dma_tx.Init.PeriphBurst         = DMA_MBURST_SINGLE;
+    spiflash_dma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+    spiflash_dma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    spiflash_dma_tx.Init.MemInc              = DMA_MINC_ENABLE;
+    spiflash_dma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    spiflash_dma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    spiflash_dma_tx.Init.Mode                = DMA_NORMAL;
+    spiflash_dma_tx.Init.Priority            = DMA_PRIORITY_LOW;
+
+    HAL_DMA_Init(&spiflash_dma_tx);
+    __HAL_LINKDMA(&spi_s24fl127, hdmatx, spiflash_dma_tx);
+
+    spiflash_dma_rx.Instance                 = SPIx_RX_DMA_STREAM;
+    spiflash_dma_rx.Init.Channel             = SPIx_RX_DMA_CHANNEL;
+    spiflash_dma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+    spiflash_dma_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+    spiflash_dma_rx.Init.MemBurst            = DMA_MBURST_SINGLE;
+    spiflash_dma_rx.Init.PeriphBurst         = DMA_MBURST_SINGLE;
+    spiflash_dma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+    spiflash_dma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    spiflash_dma_rx.Init.MemInc              = DMA_MINC_ENABLE;
+    spiflash_dma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    spiflash_dma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    spiflash_dma_rx.Init.Mode                = DMA_NORMAL;
+    spiflash_dma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
+
+    HAL_DMA_Init(&spiflash_dma_rx);
+    __HAL_LINKDMA(&spi_s24fl127, hdmarx, spiflash_dma_rx);
+
+    HAL_NVIC_SetPriority(SPIx_DMA_TX_IRQn, 1, 2);
+    HAL_NVIC_EnableIRQ(SPIx_DMA_TX_IRQn);
+
+    HAL_NVIC_SetPriority(SPIx_DMA_RX_IRQn, 1, 1);
+    HAL_NVIC_EnableIRQ(SPIx_DMA_RX_IRQn);
+
+
+}
+
+#ifdef FLASH_S25FL127_MODE_SPIDMA
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	sflash_state = sFLASH_NOTBUSY;
+}
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
+{
+	sflash_state = sFLASH_ERROR;
+}
+void SPIx_DMA_RX_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(spi_s24fl127.hdmarx);
+}
+void SPIx_DMA_TX_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(spi_s24fl127.hdmatx);
+}
+void SPIx_IRQHandler(void)
+{
+  HAL_SPI_IRQHandler(&spi_s24fl127);
+}
+#endif
+
+void sFLASH_read_buffer_DMA(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
+{
+	HAL_StatusTypeDef err;
+
+	sflash_state = sFLASH_READING;
+
+	err = HAL_SPI_Receive_DMA(&spi_s24fl127, (uint8_t *)pBuffer, NumByteToRead);
+	if (err != HAL_OK)
+		sflash_error |= sFLASH_SPI_DMA_RX_ERROR;
+}
+
 
 
 //
@@ -570,39 +717,6 @@ uint32_t sFLASH_ReadID(void)
 }
 
 //
-// Initiates a read data byte (READ) sequence from the Flash.
-// This is done by driving the /CS line low to select the device, then the READ
-// instruction is transmitted followed by 3 bytes address. This function exit
-// and keep the /CS line low, so the Flash still being selected. With this
-// technique the whole content of the Flash is read with a single READ instruction.
-// ReadAddr: FLASH's internal address to read from.
-//
-void sFLASH_StartReadSequence(uint32_t ReadAddr)
-{
-	select_chip();
-
-	sFLASH_SendByte(sFLASH_CMD_READ);
-
-	sFLASH_SendByte((ReadAddr & 0xFF0000) >> 16);
-	sFLASH_SendByte((ReadAddr& 0xFF00) >> 8);
-	sFLASH_SendByte(ReadAddr & 0xFF);
-}
-
-//
-// Reads a byte from the SPI Flash.
-// This function must be used only if the Start_Read_Sequence function has been previously called.
-//
-uint8_t sFLASH_ReadByte(void)
-{
-	return (sFLASH_SendByte(sFLASH_DUMMY_BYTE));
-}
-
-void sFLASH_EndReadSequence(void)
-{
-	deselect_chip();
-}
-
-//
 // Sends a byte through the SPI interface and returns the byte received from the SPI bus
 //
 #ifdef FLASH_S25FL127_MODE_SPI
@@ -636,49 +750,49 @@ uint8_t sFLASH_SendByte(uint8_t byte)
 #ifdef FLASH_S25FL127_MODE_BITBANG
 uint8_t sFLASH_SendByte(uint8_t byte)
 {
-		uint16_t recv=0;
-		uint8_t bit_read=0;
-		uint8_t i;
+	uint16_t recv=0;
+	uint8_t bit_read=0;
+	uint8_t i;
 
-		//Setup: Clock low
+	//Setup: Clock low
+	PIN_LOW(flash_chip->SCK.gpio, flash_chip->SCK.pin);
+
+	//HAL_Delay(1);
+	delay_32ns(100);
+
+	for(i=0;i<8;i++)
+	{
+		//Setup DIN with next bit to send, MSB first
+		if (byte & (1<<7)) 		PIN_HIGH(flash_chip->MOSI.gpio, flash_chip->MOSI.pin);
+		else					PIN_LOW(flash_chip->MOSI.gpio, flash_chip->MOSI.pin);
+		byte  <<= 1;
+
+		//tSU = min 1.5ns 
+		delay_32ns(2);
+		//HAL_Delay(1);
+
+		//Clock high
+		PIN_HIGH(flash_chip->SCK.gpio, flash_chip->SCK.pin);
+
+		//tH = min 10ns 
+		delay_32ns(10);
+		//HAL_Delay(1);
+
+		//Read DOUT, MSB first
+		bit_read = PIN_READ(flash_chip->MISO.gpio, flash_chip->MISO.pin);
+		recv = (recv << 1) | bit_read;
+
+		//Clock low
 		PIN_LOW(flash_chip->SCK.gpio, flash_chip->SCK.pin);
 
+		//tL Clock Low to Output Valid = 8ns max
+		delay_32ns(8);
 		//HAL_Delay(1);
-		delay_32ns(100);
 
-		for(i=0;i<8;i++)
-		{
-			//Setup DIN with next bit to send, MSB first
-			if (byte & (1<<7)) 		PIN_HIGH(flash_chip->MOSI.gpio, flash_chip->MOSI.pin);
-			else					PIN_LOW(flash_chip->MOSI.gpio, flash_chip->MOSI.pin);
-			byte  <<= 1;
+	//	delay_32ns(2);
+	}
 
-			//tSU = min 1.5ns 
-			delay_32ns(2);
-			//HAL_Delay(1);
-
-			//Clock high
-			PIN_HIGH(flash_chip->SCK.gpio, flash_chip->SCK.pin);
-
-			//tH = min 10ns 
-			delay_32ns(10);
-			//HAL_Delay(1);
-
-			//Read DOUT, MSB first
-			bit_read = PIN_READ(flash_chip->MISO.gpio, flash_chip->MISO.pin);
-			recv = (recv << 1) | bit_read;
-
-			//Clock low
-			PIN_LOW(flash_chip->SCK.gpio, flash_chip->SCK.pin);
-
-			//tL Clock Low to Output Valid = 8ns max
-			delay_32ns(8);
-			//HAL_Delay(1);
-
-		//	delay_32ns(2);
-		}
-
-		return recv;
+	return recv;
 }
 #endif
 

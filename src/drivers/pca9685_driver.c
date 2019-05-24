@@ -132,7 +132,7 @@ enum LEDDriverErrors LEDDriver_set_single_LED(uint8_t led_element_number, uint16
 { 
 	uint8_t driver_addr;
 	uint8_t data[5]; //2 bytes for on time + 2 bytes for off time + 1 byte for LED address
-	HAL_StatusTypeDef 	err;
+	HAL_StatusTypeDef err;
 
 	if (led_element_number < (g_num_driver_chips*16))
 	{

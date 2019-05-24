@@ -28,6 +28,18 @@ typedef struct S25FL127Chip
 
 } S25FL127Chip;
 
+//todo put this in a structure
+#define DMAx_CLK_ENABLE()                __HAL_RCC_DMA1_CLK_ENABLE()
+#define SPIx_TX_DMA_STREAM               DMA1_Stream5 //or 7
+#define SPIx_RX_DMA_STREAM               DMA1_Stream2 //or 0
+#define SPIx_TX_DMA_CHANNEL              DMA_CHANNEL_0
+#define SPIx_RX_DMA_CHANNEL              DMA_CHANNEL_0
+#define SPIx_DMA_TX_IRQn                 DMA1_Stream5_IRQn
+#define SPIx_DMA_RX_IRQn                 DMA1_Stream2_IRQn
+#define SPIx_DMA_TX_IRQHandler           DMA1_Stream5_IRQHandler
+#define SPIx_DMA_RX_IRQHandler           DMA1_Stream2_IRQHandler
+
+
 
 //Chip commands:
 
@@ -94,15 +106,25 @@ enum sFlashErrors{
 	sFLASH_NO_ERROR			= 0,
 	sFLASH_ERASE_ERROR 		= (1<<0),
 	sFLASH_PROG_ERROR 		= (1<<1),
-	sFLASH_SPI_INIT_ERROR 	= (1<<2)
+	sFLASH_SPI_INIT_ERROR 	= (1<<2),
+	sFLASH_SPI_DMA_INIT_ERROR = (1<<3),
+	sFLASH_SPI_DMA_RX_ERROR = (1<<4)
 };
 
+enum sFlashStates {
+	sFLASH_NOTBUSY = 0,
+	sFLASH_WRITING = 1,
+	sFLASH_READING = 2,
+	sFLASH_ERASING = 3,
+	sFLASH_ERROR = 4
+};
 
 //Initialize
 void sFLASH_init(void);
 
 //Chip status
 uint8_t sFLASH_is_chip_ready(void);
+enum sFlashStates get_flash_state(void);
 
 //Erasing
 void sFLASH_erase_sector(uint32_t SectorAddr);
@@ -112,6 +134,7 @@ void sFLASH_erase_chip(void);
 //Reading and writing
 void sFLASH_write_buffer(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
 void sFLASH_read_buffer(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
+void sFLASH_read_buffer_DMA(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
 
 
 //Sector/address utilities

@@ -142,7 +142,20 @@ int main(void)
 	
 	//External FLASH
 	sFLASH_init();
-	
+
+	//dma flash test:
+	DEBUG0_ON;
+	uint8_t	read_data[4];
+	uint32_t addr = sFLASH_get_sector_addr(16);
+	sFLASH_read_buffer_DMA(read_data, addr, 4);
+	DEBUG0_OFF;
+	DEBUG1_ON;
+	while (get_flash_state() != sFLASH_NOTBUSY)
+	{
+		;
+	}
+	DEBUG1_OFF;
+
 	//Initialize param values (do not start updating them yet)
 	init_wt_osc();
 	init_params();
