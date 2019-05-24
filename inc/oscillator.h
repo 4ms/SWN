@@ -34,10 +34,10 @@
 #include "globals.h"
 
 
-enum WtInterpStatusStates {
-	WT_INTERP_DONE,
-	WT_INTERP_REQUEST,
-	WT_INTERP_FORCE
+enum WtInterpRequests {
+	WT_INTERP_REQ_NONE,
+	WT_INTERP_REQ_REFRESH,
+	WT_INTERP_REQ_FORCE
 };
 
 
@@ -50,7 +50,7 @@ typedef struct o_wt_osc{
 	uint8_t						buffer_sel				[NUM_CHANNELS]		;
 
 	// Status of interpolation and crossfade
-	enum WtInterpStatusStates	wt_interp_status		[NUM_CHANNELS]		;
+	enum WtInterpRequests		wt_interp_request		[NUM_CHANNELS]		;
 	float 						wt_xfade				[NUM_CHANNELS]		;
 
 	// Position within sphere, calculated directly from calc_params.wt_pos[DIM][chan]

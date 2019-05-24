@@ -1628,10 +1628,24 @@ void read_load_save_encoder(void){
 		handle_wt_saving_events(enc);
 }
 
+enum WTFlashLoadQueueStates{
+	WT_FLASH_NO_ACTION,
+	WT_FLASH_LOAD_0,
+	WT_FLASH_LOAD_1,
+	WT_FLASH_LOAD_2,
+	WT_FLASH_LOAD_3,
+	WT_FLASH_LOAD_4,
+	WT_FLASH_LOAD_5,
+	WT_FLASH_LOAD_6,
+	WT_FLASH_LOAD_7,
+	WT_FLASH_LOAD_8,
+	WT_FLASH_INTERP,
 
-void update_wt_interp(void){
+};
+void update_wt_interp(void)
+{
 	int8_t chan;
-	uint8_t x0,y0,z0,x1,y1,z1;
+	uint8_t x[2],y[2],z[2];
 	
 	static int16_t	*p_waveform[NUM_CHANNELS][8]; // addresses for 8x waveforms used for interpolation
 	static uint8_t	old_x0[NUM_CHANNELS] = {0xFF};	
@@ -1639,38 +1653,51 @@ void update_wt_interp(void){
 	static uint8_t	old_z0[NUM_CHANNELS] = {0xFF};	
 	static uint8_t	old_bank[NUM_CHANNELS] = {0xFF};
 
-	for (chan = 0; chan < NUM_CHANNELS; chan++){
-		
-		if (wt_osc.wt_interp_status[chan] != WT_INTERP_DONE){
+	static enum WTFlashLoadQueueStates state[NUM_CHANNELS] = {WT_FLASH_NO_ACTION};
 
-			x0 = wt_osc.m0[0][chan];
-			y0 = wt_osc.m0[1][chan];
-			z0 = wt_osc.m0[2][chan];
+	for (chan = 0; chan < NUM_CHANNELS; chan++)
+	{
+		if (wt_osc.wt_interp_request[chan] == WT_INTERP_REQ_NONE)
+			continue;
 
-			x1 = wt_osc.m1[0][chan];
-			y1 = wt_osc.m1[1][chan];
-			z1 = wt_osc.m1[2][chan];
-	
-			if ( (wt_osc.wt_interp_status[chan] == WT_INTERP_FORCE) || (x0 != old_x0[chan]) || (y0 != old_y0[chan]) || (z0 != old_z0[chan]) || (params.wt_bank[chan] != old_bank[chan])){
+		x[0] = wt_osc.m0[0][chan];
+		y[0] = wt_osc.m0[1][chan];
+		z[0] = wt_osc.m0[2][chan];
 
-				old_x0[chan] = x0;	old_y0[chan] = y0;	old_z0[chan] = z0;	old_bank[chan] = params.wt_bank[chan];
+		if ( 	(wt_osc.wt_interp_request[chan] == WT_INTERP_REQ_REFRESH)
+				&& (state[chan] == WT_FLASH_NO_ACTION)
+				&& (x[0] == old_x0[chan]) && (y[0] == old_y0[chan]) && (z[0] == old_z0[chan])
+				&& (params.wt_bank[chan] == old_bank[chan])
+			)
+		{
+			interp_wt(chan, p_waveform[chan]);
+		}
+		else
+		{
+			old_x0[chan] = x[0];
+			old_y0[chan] = y[0];
+			old_z0[chan] = z[0];
+			old_bank[chan] = params.wt_bank[chan];
 
-				// FROM FLASH
-				if(ui_mode == PLAY){
+			x[1] = wt_osc.m1[0][chan];
+			y[1] = wt_osc.m1[1][chan];
+			z[1] = wt_osc.m1[2][chan];
 
-					//It'd be cleaner to do this:		
-					//load_extflash_wavetable(params.wt_bank[chan], waveform[chan], wt_osc.m0[chan], wt_osc.m1[chan]);
-					//But we'd have to refactor m0 and m1 as [NUM_CHANNELS][NUM_WT_DIM] instead of [NUM_WT_DIM][NUM_CHANNELS]
-					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][0][0][0]), x0, y0, z0);
-					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][0][0][1]), x0, y0, z1);
-					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][0][1][0]), x0, y1, z0);
-					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][0][1][1]), x0, y1, z1);
-					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][1][0][0]), x1, y0, z0);
-					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][1][0][1]), x1, y0, z1);
-					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][1][1][0]), x1, y1, z0);
-					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][1][1][1]), x1, y1, z1);
-					
+			if (ui_mode == PLAY)
+			{
+				if (get_flash_state() != sFLASH_NOTBUSY)
+					continue;
 
+				state[chan]++;
+
+				if (state[chan] < WT_FLASH_INTERP) {
+					uint8_t s = state[chan]-1;
+					uint8_t sb0 = s&1;
+					uint8_t sb1 = (s&2)>>1;
+					uint8_t sb2 = (s&4)>>2;
+					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][sb2][sb1][sb0]), x[sb2], y[sb1], z[sb0]);
+				}
+				else {
 					p_waveform[chan][0] = waveform[chan][0][0][0].wave;
 					p_waveform[chan][1] = waveform[chan][1][0][0].wave;
 					p_waveform[chan][2] = waveform[chan][0][1][0].wave;
@@ -1679,22 +1706,24 @@ void update_wt_interp(void){
 					p_waveform[chan][5] = waveform[chan][1][0][1].wave;
 					p_waveform[chan][6] = waveform[chan][0][1][1].wave;
 					p_waveform[chan][7] = waveform[chan][1][1][1].wave;
-				}
-
-				// FROM SRAM
-				else if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode)) {
-					p_waveform[chan][0] =  spherebuf.data[x0][y0][z0].wave;
-					p_waveform[chan][1] =  spherebuf.data[x1][y0][z0].wave;
-					p_waveform[chan][2] =  spherebuf.data[x0][y1][z0].wave;
-					p_waveform[chan][3] =  spherebuf.data[x1][y1][z0].wave;
-					p_waveform[chan][4] =  spherebuf.data[x0][y0][z1].wave;
-					p_waveform[chan][5] =  spherebuf.data[x1][y0][z1].wave;
-					p_waveform[chan][6] =  spherebuf.data[x0][y1][z1].wave;
-					p_waveform[chan][7] =  spherebuf.data[x1][y1][z1].wave;
+					state[chan] = WT_FLASH_NO_ACTION;
+					interp_wt(chan, p_waveform[chan]);
 				}
 			}
 
-			interp_wt(chan, p_waveform[chan]);
+			else if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
+			{
+				p_waveform[chan][0] =  spherebuf.data[x[0]][y[0]][z[0]].wave;
+				p_waveform[chan][1] =  spherebuf.data[x[1]][y[0]][z[0]].wave;
+				p_waveform[chan][2] =  spherebuf.data[x[0]][y[1]][z[0]].wave;
+				p_waveform[chan][3] =  spherebuf.data[x[1]][y[1]][z[0]].wave;
+				p_waveform[chan][4] =  spherebuf.data[x[0]][y[0]][z[1]].wave;
+				p_waveform[chan][5] =  spherebuf.data[x[1]][y[0]][z[1]].wave;
+				p_waveform[chan][6] =  spherebuf.data[x[0]][y[1]][z[1]].wave;
+				p_waveform[chan][7] =  spherebuf.data[x[1]][y[1]][z[1]].wave;
+				state[chan] = WT_FLASH_NO_ACTION;
+				interp_wt(chan, p_waveform[chan]);
+			}
 		}
 	}
 }
@@ -1713,17 +1742,6 @@ void interp_wt(uint8_t chan, int16_t *p_waveform[8]){
 	}
 	else{
 	    while (i < WT_TABLELEN){ 
-	    	//344us
-	    	// xfade0 = _CROSSFADE(*(p_waveform[0]+i), *(p_waveform[1]+i), wt_osc.m_frac[0][chan]);
-	    	// xfade1 = _CROSSFADE(*(p_waveform[2]+i), *(p_waveform[3]+i), wt_osc.m_frac[0][chan]);
-	    	// yfade0 = _CROSSFADE(xfade0, xfade1, wt_osc.m_frac[1][chan]);
-
-	    	// xfade0 = _CROSSFADE(*(p_waveform[4]+i), *(p_waveform[5]+i), wt_osc.m_frac[0][chan]);
-	    	// xfade1 = _CROSSFADE(*(p_waveform[6]+i), *(p_waveform[7]+i), wt_osc.m_frac[0][chan]);
-	    	// yfade1 = _CROSSFADE(xfade0, xfade1, wt_osc.m_frac[1][chan]);
-
-	    	// wt_osc.mc[1 - wt_osc.buffer_sel[chan]][chan][i] = _CROSSFADE(yfade0, yfade1, wt_osc.m_frac[2][chan]);
-
 	    	//100us
 	        wt_osc.mc[1 - wt_osc.buffer_sel[chan]][chan][i] =
 	            ( 
@@ -1743,12 +1761,12 @@ void interp_wt(uint8_t chan, int16_t *p_waveform[8]){
 	}
 	wt_osc.buffer_sel[chan] 		= 1 - wt_osc.buffer_sel[chan];
 	wt_osc.wt_xfade[chan] 			= 1.0;
-	wt_osc.wt_interp_status[chan] 	= WT_INTERP_DONE;
+	wt_osc.wt_interp_request[chan] 	= WT_INTERP_REQ_NONE;
 
 }
 
 void req_wt_interp_update (uint8_t chan){
-	wt_osc.wt_interp_status[chan] = WT_INTERP_REQUEST;
+	wt_osc.wt_interp_request[chan] = WT_INTERP_REQ_REFRESH;
 }
 
 
@@ -1762,7 +1780,7 @@ void force_all_wt_interp_update (void){
 }
 
 void force_wt_interp_update (uint8_t chan){
-	wt_osc.wt_interp_status[chan] = WT_INTERP_FORCE;
+	wt_osc.wt_interp_request[chan] = WT_INTERP_REQ_FORCE;
 }
 
 
