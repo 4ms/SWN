@@ -13,7 +13,7 @@
 #include "drivers/codec_sai.h"
 #include "drivers/pca9685_driver.h"
 #include "drivers/mono_led_driver.h"
-#include "drivers/flash_S25FL127.h"
+#include "drivers/flashram_spidma.h"
 #include "drivers/rotary_driver.h"
 #include "drivers/ads8634_driver.h"
 #include "adc_interface.h"

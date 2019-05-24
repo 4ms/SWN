@@ -68,7 +68,7 @@
 #include "wavetable_saving.h"
 #include "analog_conditioning.h"
 #include "UI_conditioning.h"
-#include "drivers/flash_S25FL127.h"
+#include "drivers/flashram_spidma.h"
 
 
 

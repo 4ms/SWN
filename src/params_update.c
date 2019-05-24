@@ -64,8 +64,8 @@
 #include "ui_modes.h"
 #include "oscillator.h"
 #include "wavetable_saving_UI.h"
+#include "drivers/flashram_spidma.h"
 #include "wavetable_play_export.h"
-
 
 extern o_wt_osc wt_osc;
 extern enum UI_Modes ui_mode;
@@ -1664,7 +1664,7 @@ void update_wt_interp(void)
 		y[0] = wt_osc.m0[1][chan];
 		z[0] = wt_osc.m0[2][chan];
 
-		if ( 	(wt_osc.wt_interp_request[chan] == WT_INTERP_REQ_REFRESH)
+		if ((wt_osc.wt_interp_request[chan] == WT_INTERP_REQ_REFRESH)
 				&& (state[chan] == WT_FLASH_NO_ACTION)
 				&& (x[0] == old_x0[chan]) && (y[0] == old_y0[chan]) && (z[0] == old_z0[chan])
 				&& (params.wt_bank[chan] == old_bank[chan])

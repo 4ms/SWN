@@ -47,7 +47,7 @@ extern	o_switch 	hwSwitch[NUM_SWITCHES];						//switch position = note when mute
 
 const float F_SCALING_BROWSE 			= 0.070;
 const float F_SCALING_FINE_BROWSE 		= 0.005;
-const float F_SCALING_BROWSE_FADE_STEP = 0.040;
+const float F_SCALING_BROWSE_FADE_STEP  = 0.040;
 const float VELOCITY 					= 120.0;
 
 

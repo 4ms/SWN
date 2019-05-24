@@ -30,7 +30,7 @@
 #include "preset_manager_undo.h"
 #include "globals.h"
 #include "gpio_pins.h"
-#include "drivers/flash_S25FL127.h"
+#include "drivers/flashram_spidma.h"
 #include "math_util.h"
 #include "UI_conditioning.h"
 #include "hardware_controls.h"

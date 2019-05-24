@@ -123,7 +123,7 @@ LFLAGS  = $(MCU) -v --specs=nano.specs -T $(LDSCRIPT)  -lc -lrdimon
 # build/src/system_mode.o: CFLAGS = $(C0FLAGS)
 # build/src/led_color_adjust.o: CFLAGS = $(C0FLAGS)
 #
-# build/src/preset_manager.o: CFLAGS = $(C0FLAGS)
+build/src/preset_manager.o: CFLAGS = $(C0FLAGS)
 # build/src/preset_manager_UI.o: CFLAGS = $(C0FLAGS)
 # build/src/preset_manager_undo.o: CFLAGS = $(C0FLAGS)
 #
@@ -159,6 +159,7 @@ LFLAGS  = $(MCU) -v --specs=nano.specs -T $(LDSCRIPT)  -lc -lrdimon
 #
 # External Flash
 # build/src/drivers/flash_S25FL127.o: CFLAGS = $(C0FLAGS)
+build/src/drivers/flashram_spidma.o: CFLAGS = $(C0FLAGS)
 # build/src/sphere_flash_io.o: CFLAGS = $(C0FLAGS)
 
 
