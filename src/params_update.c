@@ -1660,6 +1660,7 @@ void update_wt_interp(void)
 		if (wt_osc.wt_interp_request[chan] == WT_INTERP_REQ_NONE)
 			continue;
 
+
 		x[0] = wt_osc.m0[0][chan];
 		y[0] = wt_osc.m0[1][chan];
 		z[0] = wt_osc.m0[2][chan];
@@ -1674,11 +1675,6 @@ void update_wt_interp(void)
 		}
 		else
 		{
-			old_x0[chan] = x[0];
-			old_y0[chan] = y[0];
-			old_z0[chan] = z[0];
-			old_bank[chan] = params.wt_bank[chan];
-
 			x[1] = wt_osc.m1[0][chan];
 			y[1] = wt_osc.m1[1][chan];
 			z[1] = wt_osc.m1[2][chan];
@@ -1698,6 +1694,12 @@ void update_wt_interp(void)
 					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][sb2][sb1][sb0]), x[sb2], y[sb1], z[sb0]);
 				}
 				else {
+					old_x0[chan] = x[0];
+					old_y0[chan] = y[0];
+					old_z0[chan] = z[0];
+					old_bank[chan] = params.wt_bank[chan];
+
+
 					p_waveform[chan][0] = waveform[chan][0][0][0].wave;
 					p_waveform[chan][1] = waveform[chan][1][0][0].wave;
 					p_waveform[chan][2] = waveform[chan][0][1][0].wave;
