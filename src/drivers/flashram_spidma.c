@@ -53,6 +53,8 @@ void sFLASH_write_enable(void);
 void sFLASH_WaitForWriteEnd(void);
 void sFLASH_SPI_GPIO_init(uint32_t nss_mode);
 void sFLASH_SPIDMA_init(void);
+void sFLASH_write_page_DMA(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes);
+void sFLASH_write_page(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes);
 
 static inline void select_chip(void);
 static inline void select_chip(void)	{  PIN_LOW(flash_chip->CS.gpio, flash_chip->CS.pin);	} //CS Low
@@ -64,7 +66,6 @@ enum sFlashStates get_flash_state(void) { return sflash_state; }
 #define delay_32ns(x) do {  register unsigned int i;  for (i = 0; i < x; ++i)   __asm__ __volatile__ ("nop\n\t":::"memory"); } while (0)
 
 static uint8_t g_cmd[4];
-static uint8_t g_data[4];
 
 //
 // READING
@@ -101,21 +102,34 @@ void sFLASH_read_buffer_DMA(uint8_t* rxBuffer, uint32_t read_addr, uint16_t num_
 //
 
 // writes, and then waits until write DMA is done
-void sFLASH_write_buffer(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes)
+// void sFLASH_write_buffer(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes)
+// {
+// 	sFLASH_write_buffer_DMA(txBuffer, write_addr, num_bytes);
+// 	while (get_flash_state() != sFLASH_NOTBUSY) {;}
+// 	while (!sFLASH_is_chip_ready()) {;}
+// }
+
+void sFLASH_write_page(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes)
 {
-	sFLASH_write_buffer_DMA(txBuffer, write_addr, num_bytes);
+	if (!num_bytes) return;
+	sFLASH_write_page_DMA(txBuffer, write_addr, num_bytes);
 	while (get_flash_state() != sFLASH_NOTBUSY) {;}
 	while (!sFLASH_is_chip_ready()) {;}
 }
 
-void sFLASH_write_buffer_DMA(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes)
+void sFLASH_write_page_DMA(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes)
 {
-	g_cmd[0] = sFLASH_CMD_WRITE;
-	g_cmd[1] = write_addr  >> 16;
-	g_cmd[2] = write_addr >> 8;
-	g_cmd[3] = write_addr & 0xFF;
+	if (num_bytes > sFLASH_SPI_PAGESIZE) {
+		num_bytes = sFLASH_SPI_PAGESIZE;
+		sflash_error |= sFLASH_SPI_PAGE_OF_WARN;
+	}
 
 	sFLASH_write_enable();
+
+	g_cmd[0] = sFLASH_CMD_WRITE;
+	g_cmd[1] = write_addr >> 16;
+	g_cmd[2] = write_addr >> 8;
+	g_cmd[3] = write_addr & 0xFF;
 
 	sflash_state = sFLASH_WRITECMD;
 	select_chip();
@@ -129,13 +143,83 @@ void sFLASH_write_buffer_DMA(uint8_t* txBuffer, uint32_t write_addr, uint16_t nu
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
 }
 
+void sFLASH_write_buffer(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes)
+{
+	uint8_t page_num = 0, single_num = 0, page_offset = 0, count = 0, temp = 0;
+
+	page_offset = write_addr % sFLASH_SPI_PAGESIZE;
+	count = sFLASH_SPI_PAGESIZE - page_offset;
+	page_num =  num_bytes / sFLASH_SPI_PAGESIZE;
+	single_num = num_bytes % sFLASH_SPI_PAGESIZE;
+
+	if (page_offset == 0) // write_addr is sFLASH_SPI_PAGESIZE aligned
+	{
+		if (page_num == 0) // num_bytes < sFLASH_SPI_PAGESIZE
+		{
+			sFLASH_write_page(txBuffer, write_addr, num_bytes);
+		}
+		else // num_bytes > sFLASH_SPI_PAGESIZE 
+		{
+			while (page_num--)
+			{
+				sFLASH_write_page(txBuffer, write_addr, sFLASH_SPI_PAGESIZE);
+				write_addr +=  sFLASH_SPI_PAGESIZE;
+				txBuffer += sFLASH_SPI_PAGESIZE;
+			}
+
+			sFLASH_write_page(txBuffer, write_addr, single_num);
+		}
+	}
+	else // write_addr is not sFLASH_SPI_PAGESIZE aligned 
+	{
+		if (page_num == 0) // num_bytes < sFLASH_SPI_PAGESIZE
+		{
+			if (single_num > count) // (num_bytes + write_addr) > sFLASH_SPI_PAGESIZE
+			{
+				temp = single_num - count;
+
+				sFLASH_write_page(txBuffer, write_addr, count);
+				write_addr +=  count;
+				txBuffer += count;
+
+				sFLASH_write_page(txBuffer, write_addr, temp);
+			}
+			else
+			{
+				sFLASH_write_page(txBuffer, write_addr, num_bytes);
+			}
+		}
+		else // num_bytes > sFLASH_SPI_PAGESIZE
+		{
+			num_bytes -= count;
+			page_num =  num_bytes / sFLASH_SPI_PAGESIZE;
+			single_num = num_bytes % sFLASH_SPI_PAGESIZE;
+
+			sFLASH_write_page(txBuffer, write_addr, count);
+			write_addr +=  count;
+			txBuffer += count;
+
+			while (page_num--)
+			{
+				sFLASH_write_page(txBuffer, write_addr, sFLASH_SPI_PAGESIZE);
+				write_addr +=  sFLASH_SPI_PAGESIZE;
+				txBuffer += sFLASH_SPI_PAGESIZE;
+			}
+
+			if (single_num != 0)
+			{
+				sFLASH_write_page(txBuffer, write_addr, single_num);
+			}
+		}
+	}
+}
+
+uint8_t write_enable_cmd = sFLASH_CMD_WREN;
 void sFLASH_write_enable(void)
 {
-	g_cmd[0] = sFLASH_CMD_WREN;
-
 	sflash_state = sFLASH_WRITECMD;
 	select_chip();
-	if (HAL_SPI_Transmit_DMA(&flashram_spi, g_cmd, 1) != HAL_OK)
+	if (HAL_SPI_Transmit_DMA(&flashram_spi, &write_enable_cmd, 1) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
 
 	while (sflash_state != sFLASH_NOTBUSY)  { ; }
@@ -197,26 +281,21 @@ void sFLASH_erase_chip(void)
 //
 // Queries chip for Write In Progress (WIP) status
 //
+uint8_t read_sr_cmd[2] = {sFLASH_CMD_RDSR, sFLASH_DUMMY_BYTE};
+uint8_t sr_data[2];
+
 uint8_t sFLASH_is_chip_ready(void)
 {
-	g_cmd[0] = sFLASH_CMD_RDSR;
-	g_cmd[1] = sFLASH_DUMMY_BYTE;
-
 	sflash_state = sFLASH_READCMD;
 
 	select_chip();
-	if (HAL_SPI_TransmitReceive_DMA(&flashram_spi, g_cmd, g_data, 2) != HAL_OK)
+	if (HAL_SPI_TransmitReceive_DMA(&flashram_spi, read_sr_cmd, sr_data, 2) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
-
-	// while (sflash_state != sFLASH_NOTBUSY)  { ; }
-
-	// if (HAL_SPI_Receive_DMA(&flashram_spi, g_data, 1); != HAL_OK)
-	// 	sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
 
 	while (sflash_state != sFLASH_NOTBUSY)  { ; }
 	deselect_chip();
 
-	if (g_data[1] & sFLASH_WIP_FLAG)
+	if (sr_data[1] & sFLASH_WIP_FLAG)
 		return 0; //WIP is set ==> not ready
 	else
 		return 1; //WIP is cleared ==> ready
@@ -228,13 +307,10 @@ uint8_t sFLASH_is_chip_ready(void)
 //
 void sFLASH_wait_for_chip_ready(void)
 {	
-	g_cmd[0] = sFLASH_CMD_RDSR;
-	g_data[0] = 0;
-
 	sflash_state = sFLASH_READCMD;
 
 	select_chip();	
-	if (HAL_SPI_Transmit_DMA(&flashram_spi, g_cmd, 1) != HAL_OK)
+	if (HAL_SPI_Transmit_DMA(&flashram_spi, read_sr_cmd, 1) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
 	while (sflash_state != sFLASH_NOTBUSY)  { ; }
 
@@ -242,16 +318,16 @@ void sFLASH_wait_for_chip_ready(void)
 	do
 	{
 		// Send a dummy byte to generate the clock needed by the FLASH 
-		if (HAL_SPI_Receive_DMA(&flashram_spi, g_data, 1) != HAL_OK)
+		if (HAL_SPI_Receive_DMA(&flashram_spi, sr_data, 1) != HAL_OK)
 			sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
 
-		if (g_data[0] & sFLASH_E_ERR_FLAG) 
+		if (sr_data[0] & sFLASH_E_ERR_FLAG) 
 			sflash_error |= sFLASH_ERASE_ERROR;
 
-		if (g_data[0] & sFLASH_P_ERR_FLAG) 
+		if (sr_data[0] & sFLASH_P_ERR_FLAG) 
 			sflash_error |= sFLASH_PROG_ERROR;
 	}
-	while ((g_data[0] & sFLASH_WIP_FLAG) == SET); // Write in progress 
+	while ((sr_data[0] & sFLASH_WIP_FLAG) == SET); // Write in progress 
 
 	deselect_chip();
 }
@@ -493,21 +569,23 @@ uint32_t sFLASH_test_sector(uint32_t test_start)
 {
 	uint32_t i;
 	uint32_t bad_bytes=0;
-	uint8_t num_bytes = 4;
+	uint16_t num_bytes = sFLASH_SPI_PAGESIZE;
 
 	test_start = sFLASH_align2sector(test_start);
 
 	for (i=0; i<num_bytes; i++)
 		test_bytes[i] = (5+i) & 0xFF;
 
-	//sFLASH_erase_sector(test_start);
+	sFLASH_erase_sector(test_start);
 
-	sFLASH_write_buffer_DMA(test_bytes, test_start, num_bytes);
+	sFLASH_write_buffer(test_bytes, test_start, num_bytes);
 
 	for (i=0; i<num_bytes; i++)
 		test_bytes[i] = 0;
 
-	sFLASH_wait_for_chip_ready();
+//	while(!sFLASH_is_chip_ready() );
+
+	//sFLASH_wait_for_chip_ready();
 
 	//Read back the page using low-level commands
 	sFLASH_read_buffer(test_bytes, test_start, num_bytes);

@@ -72,6 +72,7 @@ enum sFlashErrors{
 	sFLASH_SPI_DMA_INIT_ERROR = (1<<3),
 	sFLASH_SPI_DMA_RX_ERROR = (1<<4),
 	sFLASH_SPI_DMA_TX_ERROR = (1<<5),
+	sFLASH_SPI_PAGE_OF_WARN = (1<<6),
 };
 
 enum sFlashStates {
@@ -98,7 +99,6 @@ void sFLASH_erase_chip(void);
 
 //Reading and writing
 void sFLASH_write_buffer(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes);
-void sFLASH_write_buffer_DMA(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes);
 void sFLASH_read_buffer(uint8_t* rxBuffer, uint32_t read_addr, uint16_t num_bytes);
 void sFLASH_read_buffer_DMA(uint8_t* rxBuffer, uint32_t read_addr, uint16_t num_bytes);
 

@@ -139,10 +139,8 @@ int main(void)
 	//External FLASH
 	sFLASH_init();
 
-	uint32_t bad_bytes;
-
 	//Test first sector before Wavetables
-	bad_bytes = sFLASH_test_sector( sFLASH_get_sector_addr(PRESET_SECTOR_START - 3) );
+	// sFLASH_test_sector( sFLASH_get_sector_addr(PRESET_SECTOR_START) );
 
 	//Initialize param values (do not start updating them yet)
 	init_wt_osc();

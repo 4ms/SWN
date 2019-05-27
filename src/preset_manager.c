@@ -46,6 +46,8 @@ o_preset_manager		preset_mgr;
 char	preset_signature[4] = {'P', 'R', '9', '\0'};
 static uint8_t cached_preset[4 + sizeof(o_params) + sizeof(o_lfos)]; //must be global or static because SPIDMA read/writes to it
 
+static char	read_data[4];
+
 
 //Todo: pack presets in more tightly:
 //each sector contains 28 presets. next sector is blank for double buffering
@@ -200,7 +202,6 @@ void clear_all_presets(void)
 {
 	uint8_t preset_num;
 	uint32_t addr;
-	static char	read_data[4];
 	uint8_t sz;
 
 	pause_timer_IRQ(WT_INTERP_TIM_number);
@@ -234,7 +235,6 @@ uint8_t check_preset_filled(uint32_t preset_num)
 {
 	uint32_t addr = get_preset_addr(preset_num);
 	uint32_t sz;
-	static char	read_data[4];
 
 	sz = 4;
 	sFLASH_read_buffer((uint8_t *)read_data, addr, sz);

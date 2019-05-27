@@ -32,6 +32,7 @@
 #include "spheres_internal.h"
 
 #include "drivers/flash_S25FL127.h"
+#include "drivers/flashram_spidma.h"
 #include "math_util.h"
 #include "timekeeper.h"
 
