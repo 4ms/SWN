@@ -80,8 +80,8 @@ void sFLASH_read_buffer(uint8_t* rxBuffer, uint32_t read_addr, uint16_t num_byte
 void sFLASH_read_buffer_DMA(uint8_t* rxBuffer, uint32_t read_addr, uint16_t num_bytes)
 {
 	g_cmd[0] = sFLASH_CMD_READ;
-	g_cmd[1] = (read_addr & 0xFF0000) >> 16;
-	g_cmd[2] = (read_addr& 0xFF00) >> 8;
+	g_cmd[1] = read_addr >> 16;
+	g_cmd[2] = read_addr >> 8;
 	g_cmd[3] = read_addr & 0xFF;
 
 	sflash_state = sFLASH_READCMD;
@@ -112,9 +112,11 @@ void sFLASH_write_buffer(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_by
 void sFLASH_write_buffer_DMA(uint8_t* txBuffer, uint32_t write_addr, uint16_t num_bytes)
 {
 	g_cmd[0] = sFLASH_CMD_WRITE;
-	g_cmd[1] = (write_addr & 0xFF0000) >> 16;
-	g_cmd[2] = (write_addr& 0xFF00) >> 8;
+	g_cmd[1] = write_addr  >> 16;
+	g_cmd[2] = write_addr >> 8;
 	g_cmd[3] = write_addr & 0xFF;
+
+	sFLASH_write_enable();
 
 	sflash_state = sFLASH_WRITECMD;
 
@@ -165,8 +167,11 @@ void sFLASH_erase_sector_background(uint32_t SectorAddr)
 	else
 		g_cmd[0] = sFLASH_CMD_SE;
 
-	g_cmd[1] = (aligned_addr & 0xFF0000) >> 16;
-	g_cmd[2] = (aligned_addr & 0xFF00) >> 8;
+	// g_cmd[1] = (aligned_addr & 0xFF0000) >> 16;
+	// g_cmd[2] = (aligned_addr & 0xFF00) >> 8;
+	// g_cmd[3] = aligned_addr & 0xFF;
+	g_cmd[1] = aligned_addr >> 16;
+	g_cmd[2] = aligned_addr >> 8;
 	g_cmd[3] = aligned_addr & 0xFF;
 
 	select_chip();
@@ -282,6 +287,12 @@ void create_flash_chip(void)
 	flash_chip->CS.pin				= GPIO_PIN_15;
 	flash_chip->CS.gpio 			= GPIOA;
 	flash_chip->CS.af				= GPIO_AF6_SPI3;
+
+	flash_chip->IO2.pin				= GPIO_PIN_11;
+	flash_chip->IO2.gpio 			= GPIOA;
+
+	flash_chip->IO3.pin				= GPIO_PIN_12;
+	flash_chip->IO3.gpio 			= GPIOA;
 }
 
 void sFLASH_SPIDMA_init(void)
@@ -423,6 +434,18 @@ void sFLASH_SPI_GPIO_init(uint32_t nss_mode)
 		gpio.Alternate 	= flash_chip->CS.af;
 		HAL_GPIO_Init(flash_chip->CS.gpio, &gpio);  
 	}
+
+	gpio.Mode 		= GPIO_MODE_OUTPUT_PP;
+	gpio.Speed 		= GPIO_SPEED_FREQ_HIGH;
+	gpio.Pull  		= GPIO_PULLUP;
+
+	gpio.Pin 		= flash_chip->IO2.pin;
+	HAL_GPIO_Init(flash_chip->IO2.gpio, &gpio);
+	PIN_HIGH(flash_chip->IO2.gpio, flash_chip->IO2.pin);
+
+	gpio.Pin 		= flash_chip->IO3.pin;
+	HAL_GPIO_Init(flash_chip->IO3.gpio, &gpio);
+	PIN_HIGH(flash_chip->IO3.gpio, flash_chip->IO3.pin);
 }
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
@@ -465,11 +488,11 @@ void SPIx_IRQHandler(void)
 //
 // TESTS
 //
+uint8_t test_bytes[sFLASH_SPI_PAGESIZE];
 uint32_t sFLASH_test_sector(uint32_t test_start)
 {
 	uint32_t i;
 	uint32_t bad_bytes=0;
-	uint8_t test_bytes[sFLASH_SPI_PAGESIZE];
 
 	test_start = sFLASH_align2sector(test_start);
 
@@ -502,7 +525,6 @@ uint32_t sFLASH_test_sector(uint32_t test_start)
 		if (test_bytes[i] != ((0+i) & 0xFF) )
 			bad_bytes++;
 	}
-	deselect_chip();
 
 	return bad_bytes;
 }
