@@ -85,7 +85,6 @@ void sFLASH_read_buffer_DMA(uint8_t* rxBuffer, uint32_t read_addr, uint16_t num_
 	g_cmd[3] = read_addr & 0xFF;
 
 	sflash_state = sFLASH_READCMD;
-
 	select_chip();
 	if (HAL_SPI_Transmit_DMA(&flashram_spi, g_cmd, 4) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
@@ -119,7 +118,6 @@ void sFLASH_write_buffer_DMA(uint8_t* txBuffer, uint32_t write_addr, uint16_t nu
 	sFLASH_write_enable();
 
 	sflash_state = sFLASH_WRITECMD;
-
 	select_chip();
 	if (HAL_SPI_Transmit_DMA(&flashram_spi, g_cmd, 4) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
@@ -135,6 +133,7 @@ void sFLASH_write_enable(void)
 {
 	g_cmd[0] = sFLASH_CMD_WREN;
 
+	sflash_state = sFLASH_WRITECMD;
 	select_chip();
 	if (HAL_SPI_Transmit_DMA(&flashram_spi, g_cmd, 1) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
@@ -167,13 +166,11 @@ void sFLASH_erase_sector_background(uint32_t SectorAddr)
 	else
 		g_cmd[0] = sFLASH_CMD_SE;
 
-	// g_cmd[1] = (aligned_addr & 0xFF0000) >> 16;
-	// g_cmd[2] = (aligned_addr & 0xFF00) >> 8;
-	// g_cmd[3] = aligned_addr & 0xFF;
 	g_cmd[1] = aligned_addr >> 16;
 	g_cmd[2] = aligned_addr >> 8;
 	g_cmd[3] = aligned_addr & 0xFF;
 
+	sflash_state = sFLASH_ERASING;
 	select_chip();
 	if (HAL_SPI_Transmit_DMA(&flashram_spi, g_cmd, 4) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
@@ -188,6 +185,7 @@ void sFLASH_erase_chip(void)
 
 	g_cmd[0] = sFLASH_CMD_BE;
 
+	sflash_state = sFLASH_ERASING;
 	select_chip();
 	if (HAL_SPI_Transmit_DMA(&flashram_spi, g_cmd, 1) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
@@ -204,8 +202,9 @@ uint8_t sFLASH_is_chip_ready(void)
 	g_cmd[0] = sFLASH_CMD_RDSR;
 	g_cmd[1] = sFLASH_DUMMY_BYTE;
 
-	select_chip();
+	sflash_state = sFLASH_READCMD;
 
+	select_chip();
 	if (HAL_SPI_TransmitReceive_DMA(&flashram_spi, g_cmd, g_data, 2) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
 
@@ -232,8 +231,9 @@ void sFLASH_wait_for_chip_ready(void)
 	g_cmd[0] = sFLASH_CMD_RDSR;
 	g_data[0] = 0;
 
-	select_chip();
+	sflash_state = sFLASH_READCMD;
 
+	select_chip();	
 	if (HAL_SPI_Transmit_DMA(&flashram_spi, g_cmd, 1) != HAL_OK)
 		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
 	while (sflash_state != sFLASH_NOTBUSY)  { ; }
@@ -493,41 +493,30 @@ uint32_t sFLASH_test_sector(uint32_t test_start)
 {
 	uint32_t i;
 	uint32_t bad_bytes=0;
+	uint8_t num_bytes = 4;
 
 	test_start = sFLASH_align2sector(test_start);
 
-	sFLASH_erase_sector(test_start);
+	for (i=0; i<num_bytes; i++)
+		test_bytes[i] = (5+i) & 0xFF;
 
-	sFLASH_write_enable();
+	//sFLASH_erase_sector(test_start);
 
-	g_cmd[0] = sFLASH_CMD_WRITE;
-	g_cmd[1] = (test_start & 0xFF0000) >> 16;
-	g_cmd[2] = (test_start & 0xFF00) >> 8;
-	g_cmd[3] = test_start & 0xFF;
+	sFLASH_write_buffer_DMA(test_bytes, test_start, num_bytes);
 
-	for (i=0; i<sFLASH_SPI_PAGESIZE; i++)
-		test_bytes[i] = (0+i) & 0xFF;
-
-	select_chip();
-	if (HAL_SPI_Transmit_DMA(&flashram_spi, test_bytes, sFLASH_SPI_PAGESIZE) != HAL_OK)
-		sflash_error |= sFLASH_SPI_DMA_TX_ERROR;
-
-	while (sflash_state != sFLASH_NOTBUSY)  { ; }
-	deselect_chip();
+	for (i=0; i<num_bytes; i++)
+		test_bytes[i] = 0;
 
 	sFLASH_wait_for_chip_ready();
 
 	//Read back the page using low-level commands
-	sFLASH_read_buffer(test_bytes, test_start, sFLASH_SPI_PAGESIZE);
+	sFLASH_read_buffer(test_bytes, test_start, num_bytes);
 
-	for (i=0; i<sFLASH_SPI_PAGESIZE; i++)
+	for (i=0; i<num_bytes; i++)
 	{
-		if (test_bytes[i] != ((0+i) & 0xFF) )
+		if (test_bytes[i] != ((5+i) & 0xFF) )
 			bad_bytes++;
 	}
 
 	return bad_bytes;
 }
-
-
-
