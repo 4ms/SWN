@@ -115,7 +115,7 @@ void save_user_sphere(uint8_t sphere_num){
 	uint8_t dim2 = 0;
 	uint8_t dim3 = 0;
 
-	o_waveform formatted_sphere[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE];
+	static o_waveform formatted_sphere[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE];
 
 	// SWAP X/Z TO MATCH .h FILE FORMATTING
 	while(dim3<WT_DIM_SIZE){
@@ -139,11 +139,13 @@ void save_user_sphere(uint8_t sphere_num){
 
 
 void clear_user_spheres_from_flash(void){
-	uint8_t i;
-	o_waveform sphere_data[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE]={0};
+	quick_clear_user_spheres();
 
-	for (i=0; i< MAX_TOTAL_SPHERES; i++){
-		save_sphere_to_flash(NUM_FACTORY_SPHERES + i, SPHERE_TYPE_EMPTY, (int16_t*)sphere_data);
-	}
-	update_number_of_user_spheres_filled();
+	// uint8_t i;
+	// o_waveform sphere_data[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE]={0};
+
+	// for (i=0; i< MAX_TOTAL_SPHERES; i++){
+	// 	save_sphere_to_flash(NUM_FACTORY_SPHERES + i, SPHERE_TYPE_EMPTY, (int16_t*)sphere_data);
+	// }
+	// update_number_of_user_spheres_filled();
 }

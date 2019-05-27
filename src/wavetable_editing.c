@@ -46,6 +46,7 @@
 #include "led_colors.h"
 #include "sphere_flash_io.h"
 #include "params_wt_browse.h"
+#include "flashram_spidma.h"
 
 extern const float BROWSE_TABLE[ NUM_WAVEFORMS_IN_SPHERE ][ NUM_WT_DIMENSIONS ];
 extern enum UI_Modes ui_mode;
@@ -220,7 +221,7 @@ void copy_current_sphere_to_recbuf(void){
 	uint32_t pos;
 	uint8_t	wt_browse;
 	int16_t *ptr;
-	o_waveform tmp_waveform;
+	static o_waveform tmp_waveform;
 
 	// uint8_t already_loaded_from_flash;
 	// uint8_t dim1=0;
@@ -259,6 +260,8 @@ void copy_current_sphere_to_recbuf(void){
 		
 		// else {
 			load_extflash_wavetable(params.wt_bank[0], &tmp_waveform, BROWSE_TABLE[wt_browse][0],BROWSE_TABLE[wt_browse][1],BROWSE_TABLE[wt_browse][2]);
+			while (get_flash_state() != sFLASH_NOTBUSY) 
+				{;}
 			ptr = tmp_waveform.wave;
 		// }
 
