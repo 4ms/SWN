@@ -43,7 +43,8 @@ extern	o_lfos   		lfos;				//  526 Bytes
 
 o_preset_manager		preset_mgr;
 
-const char	preset_signature[4] = {'P', 'R', '9', '\0'};
+char	preset_signature[4] = {'P', 'R', '9', '\0'};
+static uint8_t cached_preset[4 + sizeof(o_params) + sizeof(o_lfos)]; //must be global or static because SPIDMA read/writes to it
 
 
 //Todo: pack presets in more tightly:
@@ -95,7 +96,6 @@ void store_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 	uint32_t addr = get_preset_addr(preset_num);
 	uint32_t other_preset_addr;
 	uint32_t sz;
-	uint8_t cached_preset[4 + sizeof(o_params) + sizeof(o_lfos)];
 
 	pause_timer_IRQ(OSC_TIM_number);
 	pause_timer_IRQ(WT_INTERP_TIM_number);
@@ -170,7 +170,6 @@ void clear_preset(uint32_t preset_num)
 	//Write over the preset
 	uint32_t addr = get_preset_addr(preset_num);
 	uint32_t other_preset_addr;
-	uint8_t cached_preset[4 + sizeof(o_params) + sizeof(o_lfos)];
 
 	pause_timer_IRQ(WT_INTERP_TIM_number);
 
@@ -201,7 +200,7 @@ void clear_all_presets(void)
 {
 	uint8_t preset_num;
 	uint32_t addr;
-	char	read_data[4];
+	static char	read_data[4];
 	uint8_t sz;
 
 	pause_timer_IRQ(WT_INTERP_TIM_number);
@@ -235,7 +234,7 @@ uint8_t check_preset_filled(uint32_t preset_num)
 {
 	uint32_t addr = get_preset_addr(preset_num);
 	uint32_t sz;
-	char	read_data[4];
+	static char	read_data[4];
 
 	sz = 4;
 	sFLASH_read_buffer((uint8_t *)read_data, addr, sz);

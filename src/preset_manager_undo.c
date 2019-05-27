@@ -84,9 +84,8 @@ void swap_undo_buffer_with_slot(uint8_t preset_num)
 	uint8_t *src;
 	uint8_t *dst;
 
-	o_params 	t_params;		
-//	o_led_cont	t_led_cont;	
-	o_lfos   	t_lfos;	
+	static o_params 	t_params;		
+	static o_lfos   	t_lfos;	
 
 	recall_preset(preset_num, &t_params, &t_lfos);
 	store_preset(preset_num, &preset_undo_params, &preset_undo_lfos);
