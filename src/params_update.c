@@ -1647,6 +1647,7 @@ void update_wt_interp(void)
 	int8_t chan;
 	uint8_t x[2],y[2],z[2];
 	
+	static uint8_t loadx[2][NUM_CHANNELS]={0}, loady[2][NUM_CHANNELS]={0}, loadz[2][NUM_CHANNELS]={0};
 	static int16_t	*p_waveform[NUM_CHANNELS][8]; // addresses for 8x waveforms used for interpolation
 	static uint8_t	old_x0[NUM_CHANNELS] = {0xFF};	
 	static uint8_t	old_y0[NUM_CHANNELS] = {0xFF};	
@@ -1660,14 +1661,12 @@ void update_wt_interp(void)
 		if (wt_osc.wt_interp_request[chan] == WT_INTERP_REQ_NONE)
 			continue;
 
+		//Todo: If wt_osc.m0[][chan] changes while a
 
-		x[0] = wt_osc.m0[0][chan];
-		y[0] = wt_osc.m0[1][chan];
-		z[0] = wt_osc.m0[2][chan];
 
 		if ((wt_osc.wt_interp_request[chan] == WT_INTERP_REQ_REFRESH)
 				&& (state[chan] == WT_FLASH_NO_ACTION)
-				&& (x[0] == old_x0[chan]) && (y[0] == old_y0[chan]) && (z[0] == old_z0[chan])
+				&& (wt_osc.m0[0][chan] == old_x0[chan]) && (wt_osc.m0[1][chan] == old_y0[chan]) && (wt_osc.m0[2][chan] == old_z0[chan])
 				&& (params.wt_bank[chan] == old_bank[chan])
 			)
 		{
@@ -1675,14 +1674,20 @@ void update_wt_interp(void)
 		}
 		else
 		{
-			x[1] = wt_osc.m1[0][chan];
-			y[1] = wt_osc.m1[1][chan];
-			z[1] = wt_osc.m1[2][chan];
-
 			if (ui_mode == PLAY)
 			{
 				if (get_flash_state() != sFLASH_NOTBUSY)
 					continue;
+
+				if (state[chan]==WT_FLASH_NO_ACTION)
+				{
+					loadx[0][chan] = wt_osc.m0[0][chan];
+					loady[0][chan] = wt_osc.m0[1][chan];
+					loadz[0][chan] = wt_osc.m0[2][chan];
+					loadx[1][chan] = wt_osc.m1[0][chan];
+					loady[1][chan] = wt_osc.m1[1][chan];
+					loadz[1][chan] = wt_osc.m1[2][chan];
+				}
 
 				state[chan]++;
 
@@ -1691,14 +1696,13 @@ void update_wt_interp(void)
 					uint8_t sb0 = s&1;
 					uint8_t sb1 = (s&2)>>1;
 					uint8_t sb2 = (s&4)>>2;
-					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][sb2][sb1][sb0]), x[sb2], y[sb1], z[sb0]);
+					load_extflash_wavetable(params.wt_bank[chan], &(waveform[chan][sb2][sb1][sb0]), loadx[sb2][chan], loady[sb1][chan], loadz[sb0][chan]);
 				}
 				else {
-					old_x0[chan] = x[0];
-					old_y0[chan] = y[0];
-					old_z0[chan] = z[0];
+					old_x0[chan] = loadx[0][chan];
+					old_y0[chan] = loady[0][chan];
+					old_z0[chan] = loadz[0][chan];
 					old_bank[chan] = params.wt_bank[chan];
-
 
 					p_waveform[chan][0] = waveform[chan][0][0][0].wave;
 					p_waveform[chan][1] = waveform[chan][1][0][0].wave;
@@ -1715,6 +1719,13 @@ void update_wt_interp(void)
 
 			else if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
 			{
+				x[0] = wt_osc.m0[0][chan];
+				y[0] = wt_osc.m0[1][chan];
+				z[0] = wt_osc.m0[2][chan];
+				x[1] = wt_osc.m1[0][chan];
+				y[1] = wt_osc.m1[1][chan];
+				z[1] = wt_osc.m1[2][chan];
+
 				p_waveform[chan][0] =  spherebuf.data[x[0]][y[0]][z[0]].wave;
 				p_waveform[chan][1] =  spherebuf.data[x[1]][y[0]][z[0]].wave;
 				p_waveform[chan][2] =  spherebuf.data[x[0]][y[1]][z[0]].wave;
