@@ -85,7 +85,7 @@ void handle_wt_saving_events(int16_t enc_turn)
 	if (user_sphere_mgr.animation_ctr)
 	{
 		user_sphere_mgr.animation_ctr += elapsed_time;
-		if (user_sphere_mgr.animation_ctr >= SPHERE_ANIMATION_TIME)
+		if (user_sphere_mgr.animation_ctr >= SPHERE_SAVE_ANIMATION_TIME)
 		{
 			exit_wt_saving();
 			stop_all_displays();
@@ -187,13 +187,13 @@ void animate_wt_saving_ledring(uint8_t slot_i, o_rgb_led *rgb)
 
 	if (user_sphere_mgr.animation_ctr > 0)
 	{
-		if (user_sphere_mgr.animation_ctr > SPHERE_ANIMATION_TIME)
-			user_sphere_mgr.animation_ctr = SPHERE_ANIMATION_TIME;
+		if (user_sphere_mgr.animation_ctr > SPHERE_SAVE_ANIMATION_TIME)
+			user_sphere_mgr.animation_ctr = SPHERE_SAVE_ANIMATION_TIME;
 		
 		if (slot_i==hover_slot)
 			set_rgb_color(rgb, (now & 0x040) ? ledc_OFF : slot_color);			//Flash slot light gold if it's the one being saved into
 
-		else if (slot_i<(user_sphere_mgr.animation_ctr/(SPHERE_ANIMATION_TIME/NUM_LED_OUTRING)))
+		else if (slot_i<(user_sphere_mgr.animation_ctr/(SPHERE_SAVE_ANIMATION_TIME/NUM_LED_OUTRING)))
 			set_rgb_color(rgb, ring_animation_color);									//Turn on lights, one at a time
 
 		else

@@ -32,7 +32,7 @@
 #include "led_colors.h"
 #include "sphere.h"
 
-#define SPHERE_ANIMATION_TIME (18*40)
+#define SPHERE_SAVE_ANIMATION_TIME (18*40)
 
 enum WTSavingMgrStates{
 	WTS_INACTIVE,
