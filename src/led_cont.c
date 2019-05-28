@@ -99,16 +99,15 @@ extern const enum colorCodes fx_colors[NUM_FX];
 extern const float 	exp_1voct_10_41V[4096];
 
 const uint16_t CH_COLOR_MAP[6][3] = {
-										{ 1		, 600	, 954	},
-										{ 1		, 12	, 954	},
-										{ 941  	, 366	, 954	},
-										{ 941 	, 35 	, 947	},
-										{ 954 	, 176	, 21 	},
-										{ 800 	, 1	 	, 50	}	
-									};
+	{ 1		, 600	, 954	},
+	{ 1		, 12	, 954	},
+	{ 941  	, 366	, 954	},
+	{ 941 	, 35 	, 947	},
+	{ 954 	, 176	, 21 	},
+	{ 800 	, 1	 	, 50	}	
+};
 
-const uint16_t LFO_BANK_COLOR[25][3]={
-
+const uint16_t LFO_BANK_COLOR[25][3]= {
 	{ 1		, 600	, 954	},				// Shades of Blue
 	{ 1		, 318	, 947	},
 	{ 1		, 94 	, 950	},
@@ -198,8 +197,6 @@ void init_led_cont(void)
 	}
 }
 
-
-
 void update_display_at_encoder_press(void)
 {
 	if (rotary_pressed(rotm_TRANSPOSE))
@@ -224,7 +221,6 @@ void update_led_flash(void)
 {
 	led_cont.flash_state = (HAL_GetTick()/TICKS_PER_MS) & 0x080; //128ms flash period
 }
-
 
 void update_button_leds(void){
 
@@ -331,7 +327,6 @@ void update_button_leds(void){
 					}
 				}
 
-
 				else { //no ongoing_display
 
 					if (params.key_sw[i] == ksw_MUTE)
@@ -432,12 +427,9 @@ void update_button_leds(void){
 			}
 			set_rgb_color(&led_cont.button[i], color);
 		}
-
 		set_pwm_led(led_button_map[i], &led_cont.button[i]);
 	}
 }
-
-
 
 void update_encoder_leds(void){
 
@@ -469,7 +461,6 @@ void update_encoder_leds(void){
 		set_pwm_led(led_rotary_map[i], &led_cont.encoder[i]);
 	}
 }
-
 
 void update_mono_leds(void){
 	uint8_t i;
@@ -508,17 +499,8 @@ void update_mono_leds(void){
 	}
 }
 
-
-
-
-
-// ##############################
-//		    ARRAY / LFO
-// ##############################
-
-
-void update_array_leds(void){
-
+void update_array_leds(void)
+{
 	uint8_t 	i;
 	uint8_t		color;
 	enum VoctCalStates voct_state;
@@ -605,8 +587,8 @@ void update_audioin_led(void)
 
 }
 
-void calculate_lfocv_led(void){
-
+void calculate_lfocv_led(void)
+{
 	if ( 	(params.key_sw[0] == ksw_MUTE) ||
 			(params.key_sw[1] == ksw_MUTE) ||
 			(params.key_sw[2] == ksw_MUTE) ||
@@ -636,8 +618,8 @@ void calculate_lfocv_led(void){
 		led_cont.array[GLO_CLK].brightness = 0;
 }
 
-
-void calculate_lfo_leds(void){
+void calculate_lfo_leds(void)
+{
 	uint8_t chan=0;
 	float brightness;
 
@@ -654,15 +636,8 @@ void calculate_lfo_leds(void){
 	}
 }
 
-
-
-// ############################################################
-//	     				    LED RINGS
-// ############################################################
-
-
-void update_LED_rings(void){
-
+void update_LED_rings(void)
+{
 	uint8_t i;
 	
 	calculate_led_ring();
@@ -703,50 +678,46 @@ void calculate_led_ring(void){
 			display_wtpos_inring();
 		}
 	}
-	else if (ui_mode==VOCT_CALIBRATE){
-		
+	else if (ui_mode==VOCT_CALIBRATE) {
 		turn_outring_off();
 
 		for (i = 0; i < NUM_LED_INRING; i++){
 			set_rgb_color(&led_cont.inring[i], ledc_OFF);
 		}
 	}
-	else if (led_cont.ongoing_display){
-	 	
-		if(led_cont.ongoing_display == ONGOING_DISPLAY_TRANSPOSE){	
-			display_transpose();
-		}
-		
-		else if (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE){
-			display_finetune();
-		}
-
-		else if (led_cont.ongoing_display == ONGOING_DISPLAY_OCTAVE){		
-			display_octave();
-		}		
-
-		else if (led_cont.ongoing_display == ONGOING_DISPLAY_PRESET){		
-			display_preset();
-		}	
-
-
-		else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SEL){		
-			display_sphere_sel();
-		}	
-
-		else if (led_cont.ongoing_display == 	ONGOING_DISPLAY_GLOBRIGHT){		
-			display_wt_pos();
-			flash_wt_lock();
-		}	
-	}
 	else {
-		display_wt_pos();
-		flash_wt_lock();
+	 	switch (led_cont.ongoing_display)
+	 	{
+			case ONGOING_DISPLAY_TRANSPOSE:	
+				display_transpose();
+				break;
+
+			case ONGOING_DISPLAY_FINETUNE:
+				display_finetune();
+				break;
+
+			case ONGOING_DISPLAY_OCTAVE:		
+				display_octave();
+				break;
+
+			case ONGOING_DISPLAY_PRESET:		
+				display_preset();
+				break;
+
+			case ONGOING_DISPLAY_SPHERE_SEL:		
+				display_sphere_sel();
+				break;
+
+			default:
+				display_wt_pos();
+				flash_wt_lock();
+				break;
+		}	
 	}
 }
 
-void turn_outring_off(void){
-	
+void turn_outring_off(void)
+{
 	uint8_t i;
 
 	for (i =0; i< NUM_LED_OUTRING; i++){
@@ -754,8 +725,8 @@ void turn_outring_off(void){
 	}
 }
 
-void display_wtpos_inring(void){
-
+void display_wtpos_inring(void)
+{
 	uint8_t 	i, j;
 	uint16_t 	scaled_wt_pos[3];
 
@@ -773,17 +744,19 @@ void display_wtpos_inring(void){
 	}
 }
 
-void flash_wt_lock(void){
+void flash_wt_lock(void)
+{
+	uint8_t chan, led;
 
-	uint8_t chan;
-
-	for ( chan = 0; chan < NUM_CHANNELS; chan++){
-
-		if (led_cont.flash_state && params.wt_pos_lock[chan]){
-			led_cont.outring[chan * 3    ].brightness = 0;
-			led_cont.outring[chan * 3 + 1].brightness = 0;
-			led_cont.outring[chan * 3 + 2].brightness = 0;
-			led_cont.inring[chan].brightness = 0;
+	for ( chan = 0; chan < NUM_CHANNELS; chan++)
+	{
+		led = rotate_origin(chan, NUM_CHANNELS);
+		if (params.osc_param_lock[chan] && lock_flash_state())
+		{
+			led_cont.outring[led * 3    ].brightness = 0;
+			led_cont.outring[led * 3 + 1].brightness = 0;
+			led_cont.outring[led * 3 + 2].brightness = 0;
+			led_cont.inring[led].brightness = 0;
 		}
 	}
 }
@@ -841,17 +814,18 @@ void get_wt_color(uint8_t wt_num, o_rgb_led *rgb)
 	}
 }
 
-void display_wt_pos(void){
+void display_wt_pos(void)
+{
 	uint8_t i, j;
 	int8_t chan =-1;
 	float folded_wt_pos;
 	uint16_t scaled_wt_pos[3];
 
-	for ( i = 0 ; i < NUM_LED_OUTRING ; i++){
-	
-		if (!i || !(i%3)){
+	for ( i = 0 ; i < NUM_LED_OUTRING ; i++)
+	{
+		if (!i || !(i%3))
+		{
 			chan++;
-
 			folded_wt_pos 	 =_FOLD_F(calc_params.wt_pos[0][chan], 1.5);
 			scaled_wt_pos[0] = _SCALE_F2U16(folded_wt_pos, 0, 1.5, 2048, 4095);
 
@@ -869,15 +843,13 @@ void display_wt_pos(void){
 		led_cont.outring[j].brightness 	= F_MAX_BRIGHTNESS; 
 	}
 
-	for ( i = 0; i < NUM_CHANNELS; i++){
+	for ( i = 0; i < NUM_CHANNELS; i++)
+	{
 		j = rotate_origin(i, NUM_CHANNELS);
 		led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;
 		get_wt_color(params.wt_bank[i], &led_cont.inring[j]);
 	}
 }
-
-
-
 
 void display_firmware_version(void)
 {
@@ -909,7 +881,6 @@ void display_firmware_version(void)
 
 	if (system_calibrations->major_firmware_version > 0) {
 		j = system_calibrations->major_firmware_version - 1;
-		// j = (i>=3) ? (i-3) : (i+3); //set bottom-left as origin
 		set_rgb_color(&led_cont.inring[j], ledc_RED);
 	}
 
@@ -925,8 +896,8 @@ void display_firmware_version(void)
 
 }
 
-
-void display_transpose(void){
+void display_transpose(void)
+{
 	uint8_t i, j, chan;
 	int32_t t_transpose;
 	int8_t transpose_pos[NUM_CHANNELS];
@@ -940,13 +911,13 @@ void display_transpose(void){
 	static uint32_t last_advance_overlap_tmr=0;
 	uint32_t now = HAL_GetTick()/TICKS_PER_MS;
 
-	if ((now - last_advance_overlap_tmr) > 300)
-	{
+	if ((now - last_advance_overlap_tmr) > 300) {
 		do_advance_overlap = 1;
 		last_advance_overlap_tmr = now;
 	}
 
-	for (i = 0; i < NUM_LED_OUTRING; i++){	
+	for (i = 0; i < NUM_LED_OUTRING; i++)
+	{	
 		led_cont.outring[i].brightness = 0;
 		overlap_num[i] = 0;
 		for (chan=0; chan<NUM_CHANNELS; chan++)
@@ -981,14 +952,19 @@ void display_transpose(void){
 
 		chan = overlap[i][overlap_ctr[i]];
 		if (chan<=NUM_CHANNELS)
-			set_rgb_color_by_array(&led_cont.outring[i], CH_COLOR_MAP[chan], 1.0);
+		{
+			if (overlap_num[i]==1 && params.osc_param_lock[chan] && lock_flash_state() )
+				set_rgb_color(&led_cont.outring[i], ledc_OFF);
+			else
+				set_rgb_color_by_array(&led_cont.outring[i], CH_COLOR_MAP[chan], 1.0);
+		}
 
 	}
 }
 
 
-void display_finetune (void){
-
+void display_finetune (void)
+{
 	uint8_t i, j;
 	int16_t t_finetune;
 	uint32_t triangle, saw;
@@ -999,89 +975,44 @@ void display_finetune (void){
 
 	tm = HAL_GetTick()/TICKS_PER_MS;
 
-	for (i = 0; i < NUM_LED_OUTRING; i++){	
+	for (i = 0; i < NUM_LED_OUTRING; i++)
 		set_rgb_color(&led_cont.outring[i], ledc_OFF);
-	}	
 
-	if (system_settings.transpose_display_mode	== TRANSPOSE_CONTINUOUS)
+	for (i = 0; i < NUM_CHANNELS; i++)
 	{
-		for (i = 0; i < NUM_CHANNELS; i++)
-		{
-			//Inner ring: shows channel color (solid, full brightness = unlocked; flashing=locked)
-			if (params.osc_param_lock[i] && lock_flash_state() )
-				brightness 	= 0.0;
-			else
-				brightness 	= F_MAX_BRIGHTNESS;
+		//Inner ring: shows channel color (solid, full brightness = unlocked; flashing=locked)
+		if (params.osc_param_lock[i] && lock_flash_state())
+			brightness 	= 0.0;
+		else
+			brightness 	= F_MAX_BRIGHTNESS;
 
-			j = rotate_origin(i, NUM_CHANNELS);
-			set_rgb_color_by_array(&led_cont.inring[j], CH_COLOR_MAP[i], brightness);
+		j = rotate_origin(i, NUM_CHANNELS);
+		set_rgb_color_by_array(&led_cont.inring[j], CH_COLOR_MAP[i], brightness);
 
-			t_finetune = _CLAMP_I16(params.finetune[i], MIN_FINETUNE_WRAP, MAX_FINETUNE_WRAP);
+		t_finetune = _CLAMP_I16(params.finetune[i], MIN_FINETUNE_WRAP, MAX_FINETUNE_WRAP);
 
-			if (t_finetune==0) {
-				detune_pos_i = j*3+1;
-				set_rgb_color(&led_cont.outring[detune_pos_i], ledc_WHITE);
-				// led_cont.outring[detune_pos_i].brightness = F_MAX_BRIGHTNESS*0.25; //dim tuned channels?
-			}
-			else {
-				if (t_finetune<0) {
-					period = _CLAMP_I16(1000+(t_finetune*8), 50, 1000);
-					detune_pos_i = j*3;
-					set_rgb_color(&led_cont.outring[detune_pos_i], ledc_BLUE);
-				}
-				else {
-					period = _CLAMP_I16(1000-(t_finetune*8), 50, 1000);
-					detune_pos_i = j*3+2;
-					set_rgb_color(&led_cont.outring[detune_pos_i], ledc_RED);
-				}
-
-				//Calculate triangle wave to make LED fade faster as it gets more detuned
-				saw = ((float)(tm % period)/(float)period) * 8191.0;
-				triangle = (saw>4095) ? (8191-saw) : saw;
-
-				led_cont.outring[detune_pos_i].brightness = (exp_1voct_10_41V[triangle] / 1367.0) + 0.03;
-			}
+		if (t_finetune==0) {
+			detune_pos_i = j*3+1;
+			set_rgb_color(&led_cont.outring[detune_pos_i], ledc_WHITE);
+			// led_cont.outring[detune_pos_i].brightness = F_MAX_BRIGHTNESS*0.25; //dim tuned channels?
 		}
-
-	}
-	else //TRANSPOSE_NOWRAP
-	{
-
-		// Light up LED ring positions corresponding to current detune
-		for (i=0; i<NUM_CHANNELS; i++){
-			
-			//Light the inner position if channel is at "0"
-			if (params.finetune[i] || ( params.osc_param_lock[i] && lock_flash_state() )){
-				led_cont.inring[i].brightness = 0.1;
+		else {
+			if (t_finetune<0) {
+				period = _CLAMP_I16(1000+(t_finetune*8), 50, 1000);
+				detune_pos_i = j*3;
+				set_rgb_color(&led_cont.outring[detune_pos_i], ledc_BLUE);
 			}
 			else {
-				led_cont.inring[i].brightness   = F_MAX_BRIGHTNESS;
+				period = _CLAMP_I16(1000-(t_finetune*8), 50, 1000);
+				detune_pos_i = j*3+2;
+				set_rgb_color(&led_cont.outring[detune_pos_i], ledc_RED);
 			}
-			led_cont.inring[i].c_red   		= CH_COLOR_MAP[i][0];
-			led_cont.inring[i].c_green 		= CH_COLOR_MAP[i][1];
-			led_cont.inring[i].c_blue  		= CH_COLOR_MAP[i][2];
 
-			detune_pos_i = 9 + params.finetune[i];
+			//Calculate triangle wave to make LED fade faster as it gets more detuned
+			saw = ((float)(tm % period)/(float)period) * 8191.0;
+			triangle = (saw>4095) ? (8191-saw) : saw;
 
-			// flash locked channels
-			if (params.osc_param_lock[i] && lock_flash_state()){
-				led_cont.outring[INDIV_ADJ_OUTRING_MAP[detune_pos_i]].brightness = 0;
-			}
-			else{
-				if (detune_pos_i != 9){ 
-					if (button_pressed(i) || (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE)){
-						led_cont.outring[INDIV_ADJ_OUTRING_MAP[detune_pos_i]].brightness 		= F_MAX_BRIGHTNESS;
-						led_cont.outring[INDIV_ADJ_OUTRING_MAP[detune_pos_i]].c_red   		= CH_COLOR_MAP[i][0];
-						led_cont.outring[INDIV_ADJ_OUTRING_MAP[detune_pos_i]].c_green 		= CH_COLOR_MAP[i][1];
-						led_cont.outring[INDIV_ADJ_OUTRING_MAP[detune_pos_i]].c_blue  		= CH_COLOR_MAP[i][2];
-					} 
-
-					// idle channels are grey-ed
-					else if (!button_pressed(i)){
-						led_cont.outring[INDIV_ADJ_OUTRING_MAP[detune_pos_i]].brightness = 0.1;				
-					}
-				}
-			}
+			led_cont.outring[detune_pos_i].brightness = (exp_1voct_10_41V[triangle] / 1367.0) + 0.03;
 		}
 	}
 }
@@ -1094,7 +1025,6 @@ void display_fx(void)
 	for (slot_i = 0; slot_i < NUM_LED_OUTRING; slot_i++)
 	{
 		led = rotate_origin(slot_i, NUM_LED_OUTRING);
-
 		led_color = animate_fx_level(slot_i);
 		set_rgb_color(&led_cont.outring[led], led_color);
 	}
@@ -1114,9 +1044,7 @@ void display_preset(void)
 	for (slot_i = 0; slot_i < NUM_LED_OUTRING; slot_i++)
 	{
 		led = rotate_origin(slot_i, NUM_LED_OUTRING);
-
 		preset_i = slot_i + (hover_bank*NUM_LED_OUTRING);
-
 		slot_color = animate_preset_ledring(slot_i, preset_i);
 
 		set_rgb_color(&led_cont.outring[led], slot_color);
@@ -1216,31 +1144,19 @@ void display_sphere_sel(void)
 			else
 				led_cont.outring[i].brightness = F_MAX_BRIGHTNESS;
 		}
-
 	}
 }
 
-
-void display_octave(void){
-
+void display_octave(void)
+{
 	uint8_t i,j;
 	int16_t oct;
 
-	// update LED ring <-- FixMe: This could just run once at begining of display
-	for (i = 0; i < NUM_LED_OUTRING; i++){	
-		// if ( (i > 6) && (i < 10) ){ 
-		// 	led_cont.outring[i].brightness 	= F_MAX_BRIGHTNESS*0.1; //dim				
-		// 	led_cont.outring[i].c_red  		= 1024 ;
-		// 	led_cont.outring[i].c_green 	= 1024 ;
-		// 	led_cont.outring[i].c_blue  	= 1024 ;
-		// }
-
-		// else{
-			led_cont.outring[i].brightness 	= 0;				
-			led_cont.outring[i].c_red  		= 4032  - 4032 * (OCT_OUTRING_MAP[i])  / 18;
-			led_cont.outring[i].c_green 	= 3800 * (OCT_OUTRING_MAP[i]) / 18;
-			led_cont.outring[i].c_blue  	= 0;
-		// }
+	for (i = 0; i < NUM_LED_OUTRING; i++) {	
+		led_cont.outring[i].brightness 	= 0;				
+		led_cont.outring[i].c_red  		= 4032  - 4032 * (OCT_OUTRING_MAP[i])  / 18;
+		led_cont.outring[i].c_green 	= 3800 * (OCT_OUTRING_MAP[i]) / 18;
+		led_cont.outring[i].c_blue  	= 0;
 	}	
 
 	// Light up LED ring positions corresponding to current indiv oct
@@ -1249,27 +1165,25 @@ void display_octave(void){
 		oct = _CLAMP_I16(oct, 0, NUM_LED_OUTRING-1);
 
 		j = rotate_origin(i, NUM_CHANNELS);
-		led_cont.inring[j].c_red  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_red;
-		led_cont.inring[j].c_green 	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_green;
-		led_cont.inring[j].c_blue  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_blue;	
+		set_rgb_color_by_rgb(&led_cont.inring[j], &led_cont.outring[OCT_OUTRING_MAP[oct]]);
 
 		// flash locked channels
 		if (led_cont.flash_state && params.osc_param_lock[i]){
 			led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = 0;
 			led_cont.inring[j].brightness = 0;
 		}
-		else {
-			if(macro_states.all_af_buttons_released){
-					led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = F_MAX_BRIGHTNESS;				
-					led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;				
+		else
+		{
+			if(macro_states.all_af_buttons_released) {
+				led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = F_MAX_BRIGHTNESS;				
+				led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;				
 			}
-
-			else{
+			else
+			{
 				if (button_pressed(i) || (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE)){ //Todo: What is FINETUNE doing here?
 					led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = F_MAX_BRIGHTNESS;
 					led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;
 				} 
-
 				// idle channels are grey-ed
 				else if (!button_pressed(i)){
 					led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = 0.1;				
@@ -1290,54 +1204,38 @@ void update_ongoing_display_timers(void){
 	elapsed_ticks = now - last_systick;
 	last_systick = now;
 
+	if (led_cont.ongoing_display == ONGOING_DISPLAY_NONE)
+		return;
 
-	// Check if we should be timing down:
-
-	// No ongoing display:
-	if (led_cont.ongoing_display == ONGOING_DISPLAY_NONE) return;
-
-	// OSC PARAM LOCK
 	if ( led_cont.ongoing_display == ONGOING_DISPLAY_OSC_PARAM_LOCK)
 		tick_down = 1;
 
-	// WT POS LOCK
-	// if ( led_cont.ongoing_display == ONGOING_DISPLAY_WT_POS_LOCK)
-	// 	tick_down = 1;
-
-	// OCTAVE
-	if ( led_cont.ongoing_display == ONGOING_DISPLAY_OCTAVE &&  macro_states.all_af_buttons_released )
+	else if ( led_cont.ongoing_display == ONGOING_DISPLAY_OCTAVE &&  macro_states.all_af_buttons_released )
 		tick_down = 1;
 
-	// SCALE
 	else if ( led_cont.ongoing_display == ONGOING_DISPLAY_SCALE && macro_states.all_af_buttons_released && !rotary_pressed(rotm_OCT) && !switch_pressed(FINE_BUTTON) )
 		tick_down = 1;
 
-	// TRANSPOSE
 	else if (led_cont.ongoing_display == ONGOING_DISPLAY_TRANSPOSE && macro_states.all_af_buttons_released && !rotary_pressed(rotm_TRANSPOSE) )
 		tick_down = 1;
 
-	// FINETUNE
 	else if (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE && macro_states.all_af_buttons_released && !rotary_pressed(rotm_TRANSPOSE) && !switch_pressed(FINE_BUTTON) )
 		tick_down = 1;	
 
-	// LFO TO VCA
 	else if (led_cont.ongoing_display == ONGOING_DISPLAY_LFO_TOVCA)
 		tick_down = 1;
 
-	// LFO MODE
 	else if (led_cont.ongoing_display == ONGOING_DISPLAY_LFO_MODE)
 		tick_down = 1;
 	
 	else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SEL)
 		tick_down = 1;
 
-	// FX
-	if ( led_cont.ongoing_display == ONGOING_DISPLAY_FX &&  macro_states.all_af_buttons_released )
+	else if ( led_cont.ongoing_display == ONGOING_DISPLAY_FX &&  macro_states.all_af_buttons_released )
 		tick_down = 1;
 
-	// LOAD OR SAVE PRESET
 	else if ((led_cont.ongoing_display == ONGOING_DISPLAY_PRESET) && rotary_released(rotm_PRESET))
-		tick_down = 1;	// LOAD OR SAVE PRESET
+		tick_down = 1;
 	
 	else if ((led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SAVE) && rotary_released(rotm_PRESET))
 		tick_down = 1;	
@@ -1345,18 +1243,17 @@ void update_ongoing_display_timers(void){
 	else if ((led_cont.ongoing_display == ONGOING_DISPLAY_GLOBRIGHT) && rotary_released(rotm_PRESET))
 		tick_down = 1;
 
-	//Exit if we're not ticking down
-	if (!tick_down) return;
+	if (!tick_down)
+		return;
 
-
-	// Update ongoing display timer value
 	if (led_cont.ongoing_timeout)
 	{
-		if (led_cont.ongoing_timeout < elapsed_ticks)	led_cont.ongoing_timeout = 0;
-		else											led_cont.ongoing_timeout -= elapsed_ticks;
+		if (led_cont.ongoing_timeout < elapsed_ticks)
+			led_cont.ongoing_timeout = 0;
+		else
+			led_cont.ongoing_timeout -= elapsed_ticks;
 	}
 
-	// Check if timer has run out ==> show default display
 	if (!led_cont.ongoing_timeout)
 	{
 		led_cont.ongoing_display 	= ONGOING_DISPLAY_NONE;
@@ -1364,23 +1261,10 @@ void update_ongoing_display_timers(void){
 	}
 }
 
-
-// void start_ongoing_display_osc_param_lock(void){
-// 	led_cont.ongoing_display 	= ONGOING_DISPLAY_OSC_PARAM_LOCK;
-// 	led_cont.ongoing_timeout 	= OSC_PARAM_LOCK_TIMER_LIMIT;
-// }
-
-
-// void start_ongoing_display_wt_pos_lock(void){
-// 	led_cont.ongoing_display 	= ONGOING_DISPLAY_WT_POS_LOCK;
-// 	led_cont.ongoing_timeout 	= WT_POS_LOCK_TIMER_LIMIT;
-// }
-
 void start_ongoing_display_finetune(void){
 	led_cont.ongoing_display 	= ONGOING_DISPLAY_FINETUNE;
 	led_cont.ongoing_timeout  	= FINETUNE_TIMER_LIMIT;
 }
-
 
 void start_ongoing_display_octave(void){
 	led_cont.ongoing_display 	= ONGOING_DISPLAY_OCTAVE;
@@ -1419,7 +1303,6 @@ void start_ongoing_display_fx(void){
 	led_cont.ongoing_display = ONGOING_DISPLAY_FX;
 	led_cont.ongoing_timeout = FX_TIMER_LIMIT;
 }
-
 
 void start_ongoing_display_sphere_save(void){
 	led_cont.ongoing_display = ONGOING_DISPLAY_SPHERE_SAVE;

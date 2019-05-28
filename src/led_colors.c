@@ -78,6 +78,13 @@ void set_rgb_color_by_array(o_rgb_led *led, const uint16_t *RGB, float brightnes
 	led->c_blue 	= RGB[c_BLUE];
 }
 
+void set_rgb_color_by_rgb(o_rgb_led *led, o_rgb_led *srcled)
+{
+	led->brightness = srcled->brightness;
+	led->c_red 		= srcled->c_red;
+	led->c_green 	= srcled->c_green;
+	led->c_blue 	= srcled->c_blue;
+}
 
 //Todo: Make colorPalette an array of o_rgb_led elements
 void init_color_palette(void)

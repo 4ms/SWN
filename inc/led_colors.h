@@ -75,5 +75,6 @@ void set_rgb_color(o_rgb_led *led, uint8_t palette_i);
 void set_rgb_color_brightness(o_rgb_led *led, uint8_t palette_i, float brightness);
 void add_rgb_color_brightness(o_rgb_led *led, uint8_t palette_i, float brightness);
 void set_rgb_color_by_array(o_rgb_led *led, const uint16_t *RGB, float brightness);
+void set_rgb_color_by_rgb(o_rgb_led *led, o_rgb_led *srcled);
 void init_color_palette(void);
 
