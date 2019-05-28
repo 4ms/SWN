@@ -134,6 +134,47 @@ void save_sphere_to_flash(uint8_t wt_num, enum SphereTypes sphere_type, int16_t 
 	sphere_types[wt_num] = sphere_type;
 }
 
+void save_unformatted_sphere_to_flash(uint8_t wt_num, enum SphereTypes sphere_type, o_waveform sphere_data[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE]){
+
+	uint32_t sz;
+	uint32_t base_addr = get_wt_addr(wt_num);
+	uint8_t dim1 = 0;
+	uint8_t dim2 = 0;
+	uint8_t dim3 = 0;
+
+
+	pause_timer_IRQ(WT_INTERP_TIM_number);
+
+	sFLASH_erase_sector(base_addr);
+
+	//Write signature
+	sz = 4;
+	if (sphere_type == SPHERE_TYPE_USER)
+		sFLASH_write_buffer((uint8_t *)user_sphere_signature, base_addr, sz);
+	else
+	if (sphere_type == SPHERE_TYPE_FACTORY)
+		sFLASH_write_buffer((uint8_t *)factory_sphere_signature, base_addr, sz);
+	else 
+		return; //error, bad sphere_type
+
+	base_addr += sz;
+
+	sz = sizeof(o_waveform);
+	for (dim1=0; dim1<WT_DIM_SIZE; dim1++) {
+		for (dim2=0; dim2<WT_DIM_SIZE; dim2++) {
+			for (dim3=0; dim3<WT_DIM_SIZE; dim3++) {
+				sFLASH_write_buffer((uint8_t *)(&sphere_data[dim3][dim2][dim1]), base_addr, sz);
+				base_addr+=sz;
+			}
+		}
+	}
+
+	resume_timer_IRQ(WT_INTERP_TIM_number);
+
+	sphere_types[wt_num] = sphere_type;
+}
+
+
 enum SphereTypes read_spheretype(uint32_t wt_num)
 {
 	uint32_t addr = get_wt_addr(wt_num);

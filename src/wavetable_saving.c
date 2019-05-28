@@ -109,29 +109,11 @@ void update_number_of_user_spheres_filled(void){
 	update_num_sphere_filled(num_filled);
 }
 
-void save_user_sphere(uint8_t sphere_num){
+void save_user_sphere(uint8_t sphere_num)
+{
 	ui_mode = WTSAVING;
-	uint8_t dim1 = 0;
-	uint8_t dim2 = 0;
-	uint8_t dim3 = 0;
-
-	static o_waveform formatted_sphere[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE];
-
-	// SWAP X/Z TO MATCH .h FILE FORMATTING
-	while(dim3<WT_DIM_SIZE){
-		formatted_sphere[dim3][dim2][dim1] = spherebuf.data[dim1][dim2][dim3];
-		dim1++;
-		if (dim1>=WT_DIM_SIZE){
-			dim1 = 0;
-			dim2++;
-			if (dim2>=WT_DIM_SIZE){
-				dim2 = 0;
-				dim3++; 
-			}
-		}
-	}
-
-	save_sphere_to_flash(NUM_FACTORY_SPHERES + sphere_num, SPHERE_TYPE_USER, (int16_t *)formatted_sphere);
+	
+	save_unformatted_sphere_to_flash(NUM_FACTORY_SPHERES + sphere_num, SPHERE_TYPE_USER, spherebuf.data);
 
 	//Verify all sphere types in flash
 	update_number_of_user_spheres_filled();

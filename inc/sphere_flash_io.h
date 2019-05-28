@@ -44,7 +44,10 @@ void write_fatory_spheres_to_extflash(void);
 
 void load_extflash_wavetable(uint8_t wt_num, o_waveform *waveform, uint8_t x, uint8_t y, uint8_t z);
 uint32_t get_wt_addr(uint16_t wt_num);
+
 void save_sphere_to_flash(uint8_t wt_num, enum SphereTypes sphere_type, int16_t *sphere_data);
+void save_unformatted_sphere_to_flash(uint8_t wt_num, enum SphereTypes sphere_type, o_waveform sphere_data[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE]);
+
 enum SphereTypes read_spheretype(uint32_t wt_num);
 
 void quick_clear_user_spheres(void);
