@@ -1,7 +1,7 @@
 /*
- * ui_modes.h - handles ui mode selection
+ * wavetable_play_export.c - Exporting a sphere by playing it out the audio
  *
- * Author: Hugo Paris (hugoplho@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,43 +26,16 @@
  * -----------------------------------------------------------------------------
  */
 
+
 #pragma once
 
 #include <stm32f7xx.h>
+#include "led_map.h"
 
-enum UI_Modes {
+#define REPEAT_EACH_WT 8
 
-	UI_NONE, // used in check_ui_mode_requests()
-
-	PLAY,
-	SELECT_PARAMS,
-
-	WTRECORDING,				// <---- WT rec/edit section must start with WTRECORDING 
-	WTREC_WAIT,
-	WTMONITORING,
-	WTTTONE,
-	WTRENDERING,
-	WTEDITING,
-	WTLOAD_SELECTING,
-	WTPLAYEXPORT,
-	WTSAVING,					// <---- WT rec/edit section must end with WTSAVING
-	WTREC_EXIT,
-
-	RGB_COLOR_ADJUST,
-
-	VOCT_CALIBRATE,
-	VOCT_CALIBRATE_EXIT,
-	VOCT_CALIBRATE_CANCEL,
-
-	FACTORY_RESET,
-	
-	NUM_UI_MODES
-};
-
-
-static inline uint8_t UIMODE_IS_WT_RECORDING_EDITING(enum UI_Modes X) { return (((X) >= WTRECORDING) && ((X) <= WTSAVING)); }
-
-void check_ui_mode_requests(void);
-
-
-
+uint16_t 	get_play_export_offset(void);
+void 		start_play_export_sphere(void);
+void 		increment_play_export(uint16_t samples);
+void 		stop_play_export_sphere(void);
+void 		animate_play_export_ledring(uint8_t slot_i, o_rgb_led *rgb);

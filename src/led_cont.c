@@ -57,6 +57,7 @@
 #include "flash_params.h" 
 #include "timekeeper.h"
 #include "ui_modes.h"
+#include "wavetable_play_export.h"
 
 extern SystemCalibrations *system_calibrations;
 
@@ -673,6 +674,9 @@ void calculate_led_ring(void){
 		else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SAVE) {		
 			display_sphere_save();
 		}
+		else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_PLAYEXPORT) {		
+			display_sphere_play_export();
+		}
 		else {
 			display_wt_recbuf_sel_outring();
 			display_wtpos_inring();
@@ -1085,6 +1089,21 @@ void display_sphere_save(void)
 	}
 }
 
+void display_sphere_play_export(void)
+{
+	uint8_t slot_i, bank_i;//, led;
+	
+	for (slot_i = 0; slot_i < NUM_LED_OUTRING; slot_i++)
+	{
+		// led = rotate_origin(slot_i, NUM_LED_OUTRING);
+		animate_play_export_ledring(slot_i, &led_cont.outring[slot_i]);
+	}
+	for ( bank_i = 0; bank_i < NUM_CHANNELS; bank_i++)
+	{
+		set_rgb_color(&led_cont.inring[bank_i], ledc_OFF);
+	}
+
+}
 void display_sphere_sel(void)
 {
 	uint8_t i, led, chan;
@@ -1306,6 +1325,10 @@ void start_ongoing_display_fx(void){
 
 void start_ongoing_display_sphere_save(void){
 	led_cont.ongoing_display = ONGOING_DISPLAY_SPHERE_SAVE;
+	led_cont.ongoing_timeout = SPHERE_SAVE_TIMER_LIMIT;
+}
+void start_ongoing_display_sphere_play_export(void){
+	led_cont.ongoing_display = ONGOING_DISPLAY_SPHERE_PLAYEXPORT;
 	led_cont.ongoing_timeout = SPHERE_SAVE_TIMER_LIMIT;
 }
 

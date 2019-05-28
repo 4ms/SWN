@@ -64,6 +64,7 @@
 #include "ui_modes.h"
 #include "oscillator.h"
 #include "wavetable_saving_UI.h"
+#include "wavetable_play_export.h"
 
 
 extern o_wt_osc wt_osc;
@@ -1526,35 +1527,59 @@ void read_nav_encoder(uint8_t dim){
 }
 
 
-void read_browse_encoder(void){
-
+void read_browse_encoder(void)
+{
 	int16_t enc, enc2;
 	int16_t i,j,k;
-	static uint8_t new_global_brightness=0;
+	static uint8_t set_new_global_brightness=0;
+	static uint8_t browse_pressed = 0; 
+	static uint8_t browse_moved = 0; 
 
 	enc = pop_encoder_q(pec_WBROWSE);
 	enc2 = pop_encoder_q(sec_WTSEL);
 
-	if ((ui_mode == WTEDITING) && (!macro_states.all_af_buttons_released)){
+	if (enc || enc2) browse_moved = 1;
+
+	if (rotary_pressed(rotm_WAVETABLE))
+	{
+		if (!browse_pressed) {
+			browse_pressed = 1;
+			browse_moved = 0;
+		}
+	} else {
+		if (browse_pressed) {
+			browse_pressed = 0;
+			if (!browse_moved && (ui_mode == WTEDITING)) {
+				start_play_export_sphere();
+			}
+		}
+	}
+	
+	if (ui_mode == WTEDITING && !macro_states.all_af_buttons_released) 
+	{
 		params.disppatt_enc = 0;
 		update_wt_disp(CLEAR_LPF);
 		update_wt_fx_params(wt_osc.m0[0][0], wt_osc.m0[1][0], wt_osc.m0[2][0], enc);
 	}
-	
-	else{
+	else
+	{
 		if (!rotary_pressed(rotm_PRESET))
 			update_wbrowse(enc);
 
-		if(enc){
-			if (rotary_pressed(rotm_PRESET)){
+		if (enc)
+		{
+			if (rotary_pressed(rotm_PRESET)) {
 				exit_preset_manager();
 				stop_all_displays();
 				start_ongoing_display_globright();
 				system_settings.global_brightness = _CLAMP_F(system_settings.global_brightness + ((float)enc * F_SCALING_NAVIGATE_GLOBAL_BRIGHTNESS), F_MIN_GLOBAL_BRIGHTNESS, 1.0);
-				new_global_brightness =1;
+				set_new_global_brightness =1;
 			} 
 		}
-		if(!rotary_pressed(rotm_PRESET) && new_global_brightness){save_flash_params();new_global_brightness=0;}
+		if (!rotary_pressed(rotm_PRESET) && set_new_global_brightness) {
+			save_flash_params();
+			set_new_global_brightness=0;
+		}
 	}
 
 	if (enc2)

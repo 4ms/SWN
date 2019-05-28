@@ -111,6 +111,7 @@ void 		display_sphere_save(void);
 void		display_sphere_sel(void);
 void		display_fx(void);
 void 		display_firmware_version(void);
+void 		display_sphere_play_export(void);
 
 // ------- display timers ------
 void 		update_ongoing_display_timers(void);
@@ -127,6 +128,7 @@ void 		start_ongoing_display_sphere_save(void);
 void 		start_ongoing_display_globright(void);
 void 		start_ongoing_display_fx(void);
 void		start_ongoing_display_sphere_sel(void);
+void 		start_ongoing_display_sphere_play_export(void);
 void 		stop_all_displays(void);
 
 
