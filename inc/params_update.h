@@ -1,7 +1,7 @@
 /*
  * params_update.h
  *
- * Author: Hugo Paris (hugoplho@gmail.com)
+ * Author: Hugo Paris (hugoplho@gmail.com), Dan Green (danngreen1@gmail.com)
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -251,9 +251,6 @@ void 		update_noise(uint8_t chan);
 
 void 		read_freq(void);
 
-// ##########################
-//			OSC PARAMS
-// ##########################
 
 // --------- LOCK ---------
 void 		update_osc_param_lock(void);
@@ -287,18 +284,12 @@ float 		compute_transposition(int32_t transpose);
 void 		reset_notes(void);
 
 
-// ##########################
-//			WT PARAMS
-// ##########################
-
-// -------- 
 void 		update_wt(void);
 
 // ##### READ ENCODERS ######
 void 		read_nav_encoder(uint8_t dim);
 void		read_browse_encoder(void);
 void 		read_load_save_encoder(void);
-// ##########################
 
 void 		update_wt_interp(void);
 void 		interp_wt(uint8_t chan, int16_t *p_waveform[8]);
@@ -339,9 +330,6 @@ void 		force_all_wt_interp_update (void);
 void 		update_wt_disp(uint8_t clear_lpf);
 
 
-// ##########################
-//			MEMORY
-// ##########################
 void		read_clear_settings(void);
 
 void 		read_switches(void);

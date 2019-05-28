@@ -44,10 +44,6 @@ void check_ui_mode_requests(void){
 	static enum 	UI_Modes arm_ui;
 	uint8_t 		flag;
 
-	// -------------------------------------
-	// 			  ARM UI CHANGES 	
-	// -------------------------------------
-
 	if (ui_mode == PLAY){
 
 		if 		(key_combo_enter_editing())			{ arm_ui = WTEDITING;}
@@ -94,18 +90,12 @@ void check_ui_mode_requests(void){
 
 	else {arm_ui = UI_NONE;}
 
-
-
-	// -------------------------------------
-	// APPLY UI CHANGES AT KEY COMBO RELEASE
-	// -------------------------------------
-
 	if ((!key_combo_exit_request()) && (arm_ui == WTREC_EXIT)) {
 		exit_wtediting();
 		arm_ui = UI_NONE;
 	} 
 	
-	else if ((!key_combo_enter_recording()) /*&& (!(key_combo_enter_immediate_rec()))*/ && (arm_ui == WTREC_WAIT)){
+	else if ((!key_combo_enter_recording()) && (arm_ui == WTREC_WAIT)){
 		enter_wtrecording();
 		arm_ui = UI_NONE;
 	}

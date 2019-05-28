@@ -63,31 +63,20 @@ void record_audio_buffer(int32_t audio_in_sample)
 	}
 }
 
-void init_wtrec(void){	
+void init_wtrec(void) {	
 	recbuf.wh = 0;
 }
 
-uint32_t get_recbuf_wh(void){
+uint32_t get_recbuf_wh(void) {
 	return recbuf.wh;
 }
 
-
-
-// -------------------------
-// 			DISPLAY
-// -------------------------
-
-// LEDs are updated show the recorfing buffer fill status
-// Recording buffer is divided in 18 sections, one per LED
-// full ring is buffer 100% full
-// empty ring is buffer 0% full
 void display_wt_recbuff_fill_outring(void){
 
 	float	led_len;
 	uint8_t i_ll;
 	float 	r_ll;
 
-	// uint8_t	end_led;
 	uint8_t i;
 
 	led_len 	= (float)(NUM_LED_OUTRING-1) * (float)(recbuf.wh) / (float)(NUM_SAMPLES_IN_RECBUF_SMOOTHED);
@@ -96,18 +85,11 @@ void display_wt_recbuff_fill_outring(void){
 
 	turn_outring_off();
 
-	// light up leds corresponding to buffer sections that are 100% full
 	for (i =0; i <= i_ll; i++){
 		set_rgb_color(&led_cont.outring[i], ledc_RED);
 	}
 
-	// light up last led for current recording fill status
-	// brightness is proportional to recording buffer section fill status
 	set_rgb_color_brightness(&led_cont.outring[i], ledc_RED, r_ll);
-	// led_cont.outring[i_ll + 1].c_red 		= colorPalette[c_RED]  [ledc_RED];
-	// led_cont.outring[i_ll + 1].c_green 		= colorPalette[c_GREEN][ledc_RED];
-	// led_cont.outring[i_ll + 1].c_blue 		= colorPalette[c_BLUE] [ledc_RED];
-	// led_cont.outring[i_ll + 1].brightness 	= F_MAX_BRIGHTNESS * r_ll;
 }
 
 void display_wt_rec_wait(void)
@@ -120,7 +102,3 @@ void display_wt_rec_wait(void)
 		set_rgb_color(&led_cont.outring[0], ledc_OFF);
 
 }
-
-
-
-

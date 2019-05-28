@@ -43,8 +43,9 @@
 #include "wavetable_editing.h"
 #include "wavetable_recording.h"
 #include "rotary_driver.h"
+#include "math_util.h"
 #include "gpio_pins.h"
-
+#include "wavetable_play_export.h"
 
 extern enum UI_Modes 	ui_mode;
 extern o_rotary 		rotary[NUM_ROTARIES];
@@ -168,7 +169,7 @@ void update_oscillators(void){
 
 	for (chan = 0; chan < NUM_CHANNELS; chan++){
 		
-		if ((ui_mode != SELECT_PARAMS) && (ui_mode != RGB_COLOR_ADJUST)){
+		if ((ui_mode != SELECT_PARAMS) && (ui_mode != RGB_COLOR_ADJUST)) {
 
 			read_noteon(chan);		
 
@@ -178,7 +179,6 @@ void update_oscillators(void){
 				read_lfoto_vca_vco (chan);
 			}
 		}
-
 		update_pitch (chan);
 
 		if (ui_mode == PLAY)
@@ -190,13 +190,10 @@ void start_osc_updates(void){
 	start_timer_IRQ(OSC_TIM_number, &update_oscillators); 
 }
 
-
-
 void update_sphere_wt(void){
 	render_full_sphere();
 	update_wt_interp();
 }
-
 
 void start_osc_interp_updates(void){
 	start_timer_IRQ(WT_INTERP_TIM_number, &update_sphere_wt); 
@@ -205,11 +202,10 @@ void start_osc_interp_updates(void){
 void init_wt_osc(void) {
 	uint8_t  i;
 
-	for (i=0;i<NUM_CHANNELS;i++){
+	for (i=0;i<NUM_CHANNELS;i++)
+	{
 		wt_osc.wt_head_pos[i] 					= 0;
-
 		wt_osc.buffer_sel[i] 					= 0;
 		wt_osc.wt_interp_status[i]				= WT_INTERP_FORCE;
-
 	}
 }

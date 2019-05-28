@@ -1320,7 +1320,7 @@ void start_ongoing_display_sphere_sel(void){
 }
 
 void stop_all_displays(void){
-	led_cont.ongoing_display = 0;
+	led_cont.ongoing_display = ONGOING_DISPLAY_NONE;
 	led_cont.ongoing_timeout = 0;
 }
 

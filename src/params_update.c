@@ -1506,18 +1506,19 @@ void read_nav_encoder(uint8_t dim){
 
 	enc = pop_encoder_q(WT_ENCODERS[dim]);
 
-	if(enc){
-		if ((ui_mode == WTEDITING) && (!macro_states.all_af_buttons_released)){
+	if(enc) {
+		if ((ui_mode == WTEDITING) && (!macro_states.all_af_buttons_released))
+		{
 			if 	   (dim == 0){for (i = 0; i < WT_DIM_SIZE; i++){update_wt_fx_params(i, 					wt_osc.m0[1][0], 	wt_osc.m0[2][0], 	enc);}}
 			else if(dim == 1){for (i = 0; i < WT_DIM_SIZE; i++){update_wt_fx_params(wt_osc.m0[0][0],	i,	 				wt_osc.m0[2][0], 	enc);}}
 			else if(dim == 2){for (i = 0; i < WT_DIM_SIZE; i++){update_wt_fx_params(wt_osc.m0[0][0], 	wt_osc.m0[1][0], 	i, 					enc);}}
 		}
-		
-		else{
-
-			if 		(UIMODE_IS_WT_RECORDING_EDITING(ui_mode)  && !switch_pressed(FINE_BUTTON)) 	{wt_pos_increment = enc;}
-			else if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode)  &&  switch_pressed(FINE_BUTTON)) 	{wt_pos_increment = enc * F_SCALING_NAVIGATE;}
-			else 																				{wt_pos_increment = enc * (switch_pressed(FINE_BUTTON) ? F_SCALING_FINE_NAVIGATE : F_SCALING_NAVIGATE);}
+		else
+		{
+			if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
+				wt_pos_increment = enc * (switch_pressed(FINE_BUTTON) ? F_SCALING_NAVIGATE : 1);
+			else
+				wt_pos_increment = enc * (switch_pressed(FINE_BUTTON) ? F_SCALING_FINE_NAVIGATE : F_SCALING_NAVIGATE);
 
 			update_wt_nav(dim, wt_pos_increment);
 		}	
@@ -1574,11 +1575,10 @@ void read_browse_encoder(void){
 			}
 		}	
 
-		else if (ui_mode == PLAY){
+		else if (ui_mode == PLAY) {
 			read_wtsel(enc2);
 		}
 	}
-
 }
 
 void read_load_save_encoder(void){
@@ -1680,13 +1680,12 @@ void interp_wt(uint8_t chan, int16_t *p_waveform[8]){
 	uint16_t  i = 0;
 	// float xfade0, xfade1, yfade0, yfade1;
 
-	if (ui_mode == WTTTONE){
+	if (ui_mode == WTTTONE) {
 	    while (i < WT_TABLELEN){ 
 		    wt_osc.mc[1 - wt_osc.buffer_sel[chan]][chan][i] = (float)(TTONE[i]);
 		    i++;
 		}
 	}
-	
 	else{
 	    while (i < WT_TABLELEN){ 
 	    	//344us

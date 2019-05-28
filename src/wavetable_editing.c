@@ -68,12 +68,12 @@ extern 		SRAM1DATA o_recbuf 		recbuf;
 uint32_t 							sector_addr;
 extern const uint32_t 				WT_SIZE;
 
-uint8_t		stage_enter_wtediting_flag = 0;
+uint8_t	stage_enter_wtediting_flag = 0;
 
 
 
-void init_wt_edit_settings(void){
-	
+void init_wt_edit_settings(void)
+{
 	uint8_t i,j,k;
 	
 	spherebuf.position			= 0;
