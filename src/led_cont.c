@@ -200,8 +200,8 @@ void init_led_cont(void)
 
 
 
-void update_display_at_encoder_press(void){
-		
+void update_display_at_encoder_press(void)
+{
 	if (rotary_pressed(rotm_TRANSPOSE))
 	{
 		if (switch_pressed(FINE_BUTTON))
@@ -216,7 +216,7 @@ void update_display_at_encoder_press(void){
 	else if (rotary_pressed(rotm_OCT) && switch_pressed(FINE_BUTTON))
 		start_ongoing_display_scale();
 
-	if (rotary_pressed(rotm_WAVETABLE))
+	if (!UIMODE_IS_WT_RECORDING_EDITING(ui_mode) && rotary_pressed(rotm_WAVETABLE))
 		start_ongoing_display_sphere_sel();
 }
 
@@ -676,11 +676,6 @@ void update_LED_rings(void){
 	}
 }
 
-
-
-// ##############################
-//	     OUTRING / WT POS
-// ##############################
 
 void calculate_led_ring(void){
 	uint8_t i;

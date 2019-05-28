@@ -78,7 +78,7 @@ extern 	o_analog 	analog[NUM_ANALOG_ELEMENTS];
 extern 	o_macro_states macro_states;
 extern	o_rotary 	rotary[NUM_ROTARIES];
 extern	o_button 	button[NUM_BUTTONS];
-extern	o_switch 	hwSwitch[NUM_SWITCHES];						//switch position = note when mutes_sw and keys_sw state is both off
+extern	o_switch 	hwSwitch[NUM_SWITCHES];
 extern 	o_monoLed  	monoLed[NUM_MONO_LED];
 extern 	o_led_cont	led_cont;
 
@@ -90,64 +90,58 @@ extern const int16_t TTONE[WT_TABLELEN];
 extern float WT_SPREAD_PATTERN[NUM_DISPPAT][NUM_CHANNELS][3];
 
 // Lookup tables
-uint8_t 			DIM_ANALOG[2]												= {DEPTH_CV, LATITUDE_CV};
+uint8_t DIM_ANALOG[2] = {DEPTH_CV, LATITUDE_CV};
 
-const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] 						= {
+const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
+	// DEFAULT
+	{ 0  	, 0  	, 0  	, 0  	, 0  	, 0		}  ,  	// NONE
 
-																					// DEFAULT
-																					{ 0  	, 0  	, 0  	, 0  	, 0  	, 0		}  ,  	// NONE
+	// FIFTH
+	{ 0  	, 0  	, 7  	, 7  	, 0  	, 0		}  ,  	// FIFTH
+	{ 0  	, 0  	, 7  	, 7  	, -5  	, -5	}  ,  	// FIFTH w/ inversion
+	{ 0  	, 12 	, 7 	, 19	, -12 	, -5	}  ,  	// FIFTH w/ oct
 
-																					// FIFTH
-																					{ 0  	, 0  	, 7  	, 7  	, 0  	, 0		}  ,  	// FIFTH
-																					{ 0  	, 0  	, 7  	, 7  	, -5  	, -5	}  ,  	// FIFTH w/ inversion
-																					{ 0  	, 12 	, 7 	, 19	, -12 	, -5	}  ,  	// FIFTH w/ oct
+	// MAJOR
+	{ 0  	, 0  	, 4  	, 4  	, 7  	, 7		}  ,  	// M3rd
+	{ -7 	, -5 	, 0  	, 4  	, 7  	, 7 	}  , 	// M3rd w inv
+	{ -12 	, -5 	, 0  	, 4  	, 7  	, 12 	}  ,	// M3rd w/ oct
 
-																					// MAJOR
-																					{ 0  	, 0  	, 4  	, 4  	, 7  	, 7		}  ,  	// M3rd
-																					{ -7 	, -5 	, 0  	, 4  	, 7  	, 7 	}  , 	// M3rd w inv
-																					{ -12 	, -5 	, 0  	, 4  	, 7  	, 12 	}  ,	// M3rd w/ oct
+	// MINOR																																										{ 0  	, 0  	, 4  	, 4  	, 7  	, 7		}  ,  	// M3rd
+	{ 0  	, 0  	, 3  	, 3  	, 7  	, 7		}  ,  	// m3rd
+	{ -8 	, -5 	, 0  	, 3  	, 7  	, 7 	}  , 	// m3rd w inv
+	{ -12 	, -5 	, 0  	, 3  	, 7  	, 12 	}  ,	// m3rd w/ oct
 
-																					// MINOR																																										{ 0  	, 0  	, 4  	, 4  	, 7  	, 7		}  ,  	// M3rd
-																					{ 0  	, 0  	, 3  	, 3  	, 7  	, 7		}  ,  	// m3rd
-																					{ -8 	, -5 	, 0  	, 3  	, 7  	, 7 	}  , 	// m3rd w inv
-																					{ -12 	, -5 	, 0  	, 3  	, 7  	, 12 	}  ,	// m3rd w/ oct
+	// MAJOR EXT chords (6th, 7th 9th, 11th)
+	{ 0  	, 0  	, 4  	, 4  	, 7  	, 9		}  ,  	// M6th
+	{ -12  	, 0  	, 4  	, 7  	, 9  	, 9		}  ,  	// M6th w/oct
+	{ -12  	, -3	, 0  	, 4  	, 4  	, 9		}  ,  	// M6th w/ inv
+	{ 0  	, 0  	, 4  	, 4  	, 7  	, 11	}  ,  	// M7th
+	{ -12  	, 0  	, 4  	, 7  	, 11  	, 11	}  ,  	// M7th w/oct
+	{ -12  	, -1	, 0  	, 4  	, 7  	, 11	}  ,  	// M7th w/ inv
+	{ 0  	, 0		, 4  	, 7  	, 11	, 17	}  ,  	// M9th
+	{ 0  	, 4		, 7  	, 11  	, 17	, 21	}  ,  	// M11th
 
-																					// MAJOR EXT chords (6th, 7th 9th, 11th)
-																					{ 0  	, 0  	, 4  	, 4  	, 7  	, 9		}  ,  	// M6th
-																					{ -12  	, 0  	, 4  	, 7  	, 9  	, 9		}  ,  	// M6th w/oct
-																					{ -12  	, -3	, 0  	, 4  	, 4  	, 9		}  ,  	// M6th w/ inv
-																					{ 0  	, 0  	, 4  	, 4  	, 7  	, 11	}  ,  	// M7th
-																					{ -12  	, 0  	, 4  	, 7  	, 11  	, 11	}  ,  	// M7th w/oct
-																					{ -12  	, -1	, 0  	, 4  	, 7  	, 11	}  ,  	// M7th w/ inv
-																					{ 0  	, 0		, 4  	, 7  	, 11	, 17	}  ,  	// M9th
-																					{ 0  	, 4		, 7  	, 11  	, 17	, 21	}  ,  	// M11th
+	// MINOR EXT chords (6th, 7th 9th, 11th)
+	{ 0  	, 0  	, 3  	, 3  	, 7  	, 9		}  ,  	// m6th
+	{ -12  	, 0  	, 3  	, 7  	, 9  	, 9		}  ,  	// m6th w/oct
+	{ -12  	, -3	, 0  	, 3  	, 3  	, 9		}  ,  	// m6th w/ inv
+	{ 0  	, 0  	, 3  	, 3  	, 7  	, 10	}  ,  	// m7th
+	{ -12  	, 0  	, 3  	, 7  	, 10  	, 10	}  ,  	// m7th w/oct
+	{ -12  	, -2	, 0  	, 3  	, 7  	, 10	}  ,  	// m7th w/ inv
+	{ 0  	, 0		, 3  	, 7  	, 10	, 17	}  ,  	// m9th
+	{ 0  	, 3		, 7  	, 10  	, 17	, 20	}    	// m11th
+  };
 
-																					// MINOR EXT chords (6th, 7th 9th, 11th)
-																					{ 0  	, 0  	, 3  	, 3  	, 7  	, 9		}  ,  	// m6th
-																					{ -12  	, 0  	, 3  	, 7  	, 9  	, 9		}  ,  	// m6th w/oct
-																					{ -12  	, -3	, 0  	, 3  	, 3  	, 9		}  ,  	// m6th w/ inv
-																					{ 0  	, 0  	, 3  	, 3  	, 7  	, 10	}  ,  	// m7th
-																					{ -12  	, 0  	, 3  	, 7  	, 10  	, 10	}  ,  	// m7th w/oct
-																					{ -12  	, -2	, 0  	, 3  	, 7  	, 10	}  ,  	// m7th w/ inv
-																					{ 0  	, 0		, 3  	, 7  	, 10	, 17	}  ,  	// m9th
-																					{ 0  	, 3		, 7  	, 10  	, 17	, 20	}    	// m11th
+const int8_t WTSEL_SPREAD[NUM_WTSEL_SPREADS][NUM_CHANNELS] = {
+	{ 0  , 0  , 0  , 0  , 0  , 0}  ,
+	{ 0  , 1  , -1 , 2  , -2 , 3}  ,
+	{ 3  , -3 , 2  , -1 , 1  , 2}  ,
+	{ 1  , 4  , -5 , -6 , 7  , 2}  ,
+	{ -3 , 4  , 3  , -2 , 5  , 1 } ,
+	{ 8  , 1  , 2  , -2 , 3  , 5}
+  };
 
-
-
-																				  };
-
-const int8_t 		WTSEL_SPREAD[NUM_WTSEL_SPREADS][NUM_CHANNELS] 				= {
-																					{ 0  , 0  , 0  , 0  , 0  , 0}  ,
-																					{ 0  , 1  , -1 , 2  , -2 , 3}  ,
-																					{ 3  , -3 , 2  , -1 , 1  , 2}  ,
-																					{ 1  , 4  , -5 , -6 , 7  , 2}  ,
-																					{ -3 , 4  , 3  , -2 , 5  , 1 } ,
-																					{ 8  , 1  , 2  , -2 , 3  , 5}
-																				  };
-
-extern const float 	exp_1voct_10_41V[4096];
-
-
+extern const float exp_1voct_10_41V[4096];
 
 o_params 			params;
 o_calc_params		calc_params;
@@ -415,7 +409,7 @@ void cache_uncache_pitch_params(enum CacheUncache cache_uncache)
 
 
 void init_ksw_params(uint8_t chan){
-		params.key_sw[chan]						= ksw_MUTE;
+		params.key_sw[chan]	= ksw_MUTE;
 }
 
 
@@ -497,7 +491,8 @@ void read_noteon(uint8_t i)
 }
 
 
-void read_level(uint8_t chan){
+void read_level(uint8_t chan)
+{
 	static uint32_t last_slider_a=0;
 	int16_t slider_motion;
 	float new_gain;
@@ -1143,8 +1138,8 @@ void update_finetune(int16_t tmp)
 		resync_audio_osc(do_resync_osc);
 }
 
-void reset_octaves(void){
-
+void reset_octaves(void)
+{
 	uint8_t i;
 
 	for (i=0; i<NUM_CHANNELS; i++)
@@ -1154,8 +1149,8 @@ void reset_octaves(void){
 	}
 }
 
-void reset_notes(void){
-
+void reset_notes(void)
+{
 	uint8_t i;
 
 	for (i=0; i<NUM_CHANNELS; i++)
@@ -1386,8 +1381,8 @@ void trim_array(int32_t *a, uint32_t num_elements, int32_t display_min, int32_t 
 	}
 }
 
-void compute_transpositions(void){
-
+void compute_transpositions(void)
+{
 	uint8_t chan;
 
 	for( chan = 0; chan < NUM_CHANNELS; chan++){
@@ -1395,7 +1390,8 @@ void compute_transpositions(void){
 	}
 }
 
-float compute_transposition(int32_t transpose){
+float compute_transposition(int32_t transpose)
+{
 	int16_t i;
 	float transposition;
 
@@ -1430,8 +1426,8 @@ float compute_transposition(int32_t transpose){
 // ########################################################################
 
 
-void update_wt(void){
-
+void update_wt(void)
+{
 	uint8_t 		i;
 	static uint8_t  poll_ctr =  0;
 
