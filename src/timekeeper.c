@@ -118,7 +118,7 @@ void init_timekeeper(void)
 	//PWM steps = 32 ---> 3kHz / 32 = 94Hz refresh rate 
 	i = MONO_LED_TIM_number;
 	tim_timing[i].priority1 		= 0;
-	tim_timing[i].priority2 		= 2;
+	tim_timing[i].priority2 		= 3;
 	tim_timing[i].period 			= 18000;
 	tim_timing[i].prescaler			= 1;
 	tim_timing[i].clock_division 	= 0;

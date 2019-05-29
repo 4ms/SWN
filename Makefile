@@ -161,6 +161,7 @@ LFLAGS  = $(MCU) -v --specs=nano.specs -T $(LDSCRIPT)  -lc -lrdimon
 # build/src/drivers/flash_S25FL127.o: CFLAGS = $(C0FLAGS)
 # build/src/drivers/flashram_spidma.o: CFLAGS = $(C0FLAGS)
 # build/src/sphere_flash_io.o: CFLAGS = $(C0FLAGS)
+# build/src/wavetable_play_export.o: CFLAGS = $(C0FLAGS)
 
 
 #-----------------------------------

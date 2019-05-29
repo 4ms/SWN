@@ -28,6 +28,7 @@
 
 
 #include "wavetable_play_export.h"
+#include "wavetable_recording.h"
 #include "led_cont.h"
 #include "params_update.h"
 #include "math_util.h"
@@ -37,79 +38,82 @@
 #include "oscillator.h"
 #include "led_colors.h"
 #include "ui_modes.h"
+#include "drivers/flashram_spidma.h"
 
 extern const float BROWSE_TABLE[ NUM_WAVEFORMS_IN_SPHERE ][ NUM_WT_DIMENSIONS ];
 extern o_wt_osc wt_osc;
 extern o_params params;
 extern enum UI_Modes ui_mode;
 
+uint32_t play_export_sample_i;
 uint16_t play_export_offset;
-uint16_t play_export_wt_repeat_i;
-uint16_t play_export_browse_i;
-o_waveform tmp_waveform;
+uint8_t play_export_wt_repeat_i;
+uint8_t play_export_browse_i;
+extern o_spherebuf spherebuf;
 
 void start_play_export_sphere(void)
 {
-	play_export_offset = 0;
-	play_export_wt_repeat_i = 0;
-	play_export_browse_i = 0;
+	// uint8_t x, y, z;
+	// uint32_t repeat_i, sample_i;
+	// uint8_t browse_i;
+	// uint32_t dst=0;
 
-	load_extflash_wavetable(params.wt_bank[0], &tmp_waveform, 0, 0, 0);
-	//todo: wait until loaded
-	//todo: new function to load wave data only from flash 
-	for (uint16_t i=0; i<WT_TABLELEN; i++)
-		wt_osc.mc[wt_osc.buffer_sel[0]][0][i] = tmp_waveform.wave[i];
+	// ui_mode = WTPLAYEXPORT_LOAD;
+
+	// for (browse_i=0; browse_i<NUM_WAVEFORMS_IN_SPHERE; browse_i++)
+	// {
+	// 	x = BROWSE_TABLE[browse_i][0];
+	// 	y = BROWSE_TABLE[browse_i][1];
+	// 	z = BROWSE_TABLE[browse_i][2];
+
+	// 	for (repeat_i=0; repeat_i<REPEAT_EACH_WT; repeat_i++) {
+	// 		for (sample_i=0; sample_i<WT_TABLELEN; sample_i++) {
+	// 			recbuf.data[dst++] = spherebuf.data[x][y][z].wave[sample_i];
+	// 		}
+	// 	}
+	// }
+	// for (;dst<NUM_SAMPLES_IN_RECBUF_SMOOTHED;dst++)
+	// 	recbuf.data[dst++] = spherebuf.data[x][y][z].wave[(sample_i++) % WT_TABLELEN];
 
 	ui_mode = WTPLAYEXPORT;
+	play_export_sample_i = 0;
 	start_ongoing_display_sphere_play_export();
 }
 
-uint16_t get_play_export_offset(void) {
-	return play_export_offset;
+int16_t *get_play_export_ptr(void)
+{
+	uint8_t browse_i;
+	uint8_t x, y, z;
+	
+	//repeat last waveform to provide a stretch buffer
+	browse_i = (play_export_browse_i < NUM_WAVEFORMS_IN_SPHERE) ? play_export_browse_i : (NUM_WAVEFORMS_IN_SPHERE-1);
+	x = BROWSE_TABLE[browse_i][0];
+	y = BROWSE_TABLE[browse_i][1];
+	z = BROWSE_TABLE[browse_i][2];
+
+	return &(spherebuf.data[x][y][z].wave[play_export_offset]);
 }
 
 void increment_play_export(uint16_t samples)
 {
-	play_export_offset += samples;
+	play_export_sample_i += samples;
+	play_export_offset = play_export_sample_i % WT_TABLELEN;
+	play_export_wt_repeat_i = (play_export_sample_i/WT_TABLELEN) % REPEAT_EACH_WT;
+	play_export_browse_i = play_export_sample_i/(WT_TABLELEN*REPEAT_EACH_WT);
 
-	if (play_export_offset>=WT_TABLELEN) {
-		play_export_wt_repeat_i++;
-		play_export_offset = 0;
-	}
-
-	if (play_export_wt_repeat_i==REPEAT_EACH_WT)
-	{
-		play_export_wt_repeat_i = 0;
-		play_export_browse_i++;
-
-		if (play_export_browse_i<NUM_WAVEFORMS_IN_SPHERE)
-		{
-			uint16_t x = BROWSE_TABLE[play_export_browse_i][0];
-			uint16_t y = BROWSE_TABLE[play_export_browse_i][1];
-			uint16_t z = BROWSE_TABLE[play_export_browse_i][2];
-			load_extflash_wavetable(params.wt_bank[0], &tmp_waveform, x, y, z);
-			//wait until loaded
-			//todo: new function to load wave data only from flash 
-			for (uint16_t i=0; i<WT_TABLELEN; i++)
-				wt_osc.mc[wt_osc.buffer_sel[0]][0][i] = tmp_waveform.wave[i];
-		}
-		else 
-			stop_play_export_sphere();
-	}
+	if (play_export_sample_i>=NUM_SAMPLES_IN_RECBUF_SMOOTHED)
+		stop_play_export_sphere();
 }
 
-void stop_play_export_sphere(void)
-{
+void stop_play_export_sphere(void) {
 	stop_all_displays();
 	ui_mode = WTEDITING;
 }
 
-
 void animate_play_export_ledring(uint8_t slot_i, o_rgb_led *rgb)
 {
-	float amount_played = play_export_wt_repeat_i + play_export_browse_i*REPEAT_EACH_WT;
-
-	if (slot_i<(amount_played/(REPEAT_EACH_WT*NUM_WAVEFORMS_IN_SPHERE/NUM_LED_OUTRING)))
+	// if (slot_i < (play_export_sample_i/ (NUM_SAMPLES_IN_RECBUF_SMOOTHED/NUM_LED_OUTRING) ))
+	if (slot_i < (play_export_sample_i/ (WT_TABLELEN*REPEAT_EACH_WT*NUM_WAVEFORMS_IN_SPHERE/NUM_LED_OUTRING) ))
 		set_rgb_color(rgb, ledc_GREEN);
 	else
 		set_rgb_color(rgb, ledc_OFF);

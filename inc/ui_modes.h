@@ -45,6 +45,7 @@ enum UI_Modes {
 	WTEDITING,
 	WTLOAD_SELECTING,
 	WTPLAYEXPORT,
+	WTPLAYEXPORT_LOAD,
 	WTSAVING,					// <---- WT rec/edit section must end with WTSAVING
 	WTREC_EXIT,
 

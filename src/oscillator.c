@@ -54,6 +54,7 @@ extern o_calc_params	calc_params;
 extern o_systemSettings	system_settings;
 extern o_led_cont 		led_cont;
 
+extern o_recbuf 		recbuf;
 o_wt_osc				wt_osc;
 
 //Private:
@@ -62,15 +63,15 @@ void update_sphere_wt(void);
 
 void process_audio_block_codec(int32_t *src, int32_t *dst)
 {
-	int16_t 		i_sample, i, offset;
+	int16_t 		i_sample, i;
 	uint8_t 		chan;
 	float 			smpl;
 	float			xfade0, xfade1;
 	uint8_t			oscout_status, audiomon_status;
-
 	int32_t			audio_in_sample;
 	int32_t			audio_out_sample;
 	float			output_buffer_evens[MONO_BUFSZ], output_buffer_odds[MONO_BUFSZ];
+	int16_t			*ptr;
 
 	static float 	prev_level[NUM_CHANNELS] = {0.0};
 	float 			interpolated_level, level_inc;
@@ -85,14 +86,13 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 
 	if (ui_mode==WTPLAYEXPORT)
 	{
-		chan = 0;
 		interpolated_level = 0.65*256.0;
-		offset = get_play_export_offset();
 
-		for (i = 0; i < MONO_BUFSZ; i++)
+		ptr = get_play_export_ptr();
+
+		for (i=0; i < MONO_BUFSZ; i++)
 		{
-			i_sample = _WRAP_I16(i+offset, 0, WT_TABLELEN);
-			smpl = wt_osc.mc[wt_osc.buffer_sel[0]][0][i_sample];
+			smpl = (float)(*ptr++);
 
 			*dst++ = (int32_t)(smpl*interpolated_level);
 			*dst++ = (int32_t)(smpl*interpolated_level);
@@ -102,7 +102,17 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 
 		increment_play_export(MONO_BUFSZ);
 	}
-	else 
+	else if (ui_mode==WTPLAYEXPORT_LOAD)
+	{
+		for (i=0; i < MONO_BUFSZ; i++)
+		{
+			*dst++ = 0;
+			*dst++ = 0;
+			UNUSED(*src++);
+			UNUSED(*src++);
+		}
+	}
+	else
 	{
 		for (chan = 0; chan < NUM_CHANNELS; chan++)
 		{
@@ -214,6 +224,6 @@ void init_wt_osc(void) {
 	{
 		wt_osc.wt_head_pos[i] 					= 0;
 		wt_osc.buffer_sel[i] 					= 0;
-		wt_osc.wt_interp_status[i]				= WT_INTERP_FORCE;
+		wt_osc.wt_interp_request[i]				= WT_INTERP_REQ_FORCE;
 	}
 }

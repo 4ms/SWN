@@ -429,10 +429,10 @@ void sFLASH_SPIDMA_init(void)
     HAL_DMA_Init(&flashram_spidma_rx);
     __HAL_LINKDMA(&flashram_spi, hdmarx, flashram_spidma_rx);
 
-    HAL_NVIC_SetPriority(SPIx_DMA_TX_IRQn, 0, 3);
+    HAL_NVIC_SetPriority(SPIx_DMA_TX_IRQn, 0, 2);
     HAL_NVIC_EnableIRQ(SPIx_DMA_TX_IRQn);
 
-    HAL_NVIC_SetPriority(SPIx_DMA_RX_IRQn, 0, 3);
+    HAL_NVIC_SetPriority(SPIx_DMA_RX_IRQn, 0, 2);
     HAL_NVIC_EnableIRQ(SPIx_DMA_RX_IRQn);
 }
 

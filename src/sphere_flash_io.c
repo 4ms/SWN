@@ -79,12 +79,8 @@ uint32_t get_wt_addr(uint16_t wt_num)
 	return (sFLASH_get_sector_addr(WT_SECTOR_START + wt_num));
 }	
 
-
-// load_extflash_wavetable() must only be called within the WT_INTERP timer interrupt.
-// Calling pause_timer_IRQ(WT_INTERP_TIM_number) pauses periodic reading from flash. 
-// If you have to call it from somewhere else, then you must check and prevent flash collisions
-// such as requesting a write while it's already reading.
-// 
+// You must check if SPI DMA is busy before calling this or using *waveform.
+// *waveform must point to a global or static memory space (not to the stack)
 void load_extflash_wavetable(uint8_t wt_num, o_waveform *waveform, uint8_t x, uint8_t y, uint8_t z)
 {
 	uint32_t base_addr = get_wt_addr(wt_num);
@@ -104,7 +100,22 @@ void load_extflash_wavetable(uint8_t wt_num, o_waveform *waveform, uint8_t x, ui
 	sFLASH_read_buffer_DMA((uint8_t *)(waveform->wave), addr, WT_TABLELEN*BYTEDEPTH);
 }
 
-// Write to flash
+void load_extflash_wave_raw(uint8_t wt_num, int16_t *waveform, uint8_t x, uint8_t y, uint8_t z)
+{
+	uint32_t base_addr = get_wt_addr(wt_num);
+	uint32_t addr;
+
+	x = _CLAMP_U8(x,0,2);
+	y = _CLAMP_U8(y,0,2);
+	z = _CLAMP_U8(z,0,2);
+
+	//calculate where the waveform is within the sphere
+	addr = base_addr + sizeof(user_sphere_signature) + ((x + (y*WT_DIM_SIZE) + (z*WT_DIM_SIZE*WT_DIM_SIZE)) * SPHERE_WAVEFORM_SIZE);
+	addr += WT_NAME_MONITOR_CHARSIZE;
+
+	sFLASH_read_buffer_DMA((uint8_t *)waveform, addr, WT_TABLELEN*BYTEDEPTH);
+}
+
 
 void save_sphere_to_flash(uint8_t wt_num, enum SphereTypes sphere_type, int16_t *sphere_data){
 
