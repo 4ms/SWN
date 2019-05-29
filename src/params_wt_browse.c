@@ -218,7 +218,8 @@ void update_wbrowse(int16_t inc)
 	}
 
 	if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode) && !switch_pressed(FINE_BUTTON)) {
-			params.disppatt_enc = 0;
+//			params.disppatt_enc = 0;
+			params.dispersion_enc = 0;
 			update_wt_disp(CLEAR_LPF);
 			bypass_wbrowse_morph();
 	}

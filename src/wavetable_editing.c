@@ -181,7 +181,8 @@ void enter_wtttone(void){
 
 void enter_wtrecording(void){
 	if (ui_mode == PLAY) {
-		params.disppatt_enc = 0;
+		params.dispersion_enc = 0;
+		// params.disppatt_enc = 1;
 		update_wt_disp(CLEAR_LPF);
 	}
 	else

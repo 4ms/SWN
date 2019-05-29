@@ -157,7 +157,7 @@ void init_params(void){
 	uint16_t j;
 
 	// global & display
-	params.dispersion_enc				= 1;
+	params.dispersion_enc				= 0;
 	params.disppatt_enc 				= 1;
 	params.noise_on 					= 0; 
 	params.spread_cv 					= 0;
@@ -1557,7 +1557,8 @@ void read_browse_encoder(void)
 	
 	if (ui_mode == WTEDITING && !macro_states.all_af_buttons_released) 
 	{
-		params.disppatt_enc = 0;
+		params.dispersion_enc = 0;
+		// params.disppatt_enc = 1;
 		update_wt_disp(CLEAR_LPF);
 		update_wt_fx_params(wt_osc.m0[0][0], wt_osc.m0[1][0], wt_osc.m0[2][0], enc);
 	}
@@ -1956,7 +1957,8 @@ void update_wt_nav(uint8_t wt_dim, float wt_nav_increment)
 		change_param_f(params.wt_nav_enc[wt_dim], wt_nav_increment);
 
 		if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode) && !switch_pressed(FINE_BUTTON)) {
-			params.disppatt_enc  = 0;
+			params.dispersion_enc = 0;
+			// params.disppatt_enc = 1;
 			update_wt_disp(CLEAR_LPF);
 		}
 	}
