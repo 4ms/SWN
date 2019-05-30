@@ -1726,6 +1726,9 @@ void update_wt_interp(void)
 				x[1] = wt_osc.m1[0][chan];
 				y[1] = wt_osc.m1[1][chan];
 				z[1] = wt_osc.m1[2][chan];
+				old_x0[chan] = x[0];
+				old_y0[chan] = y[0];
+				old_z0[chan] = z[0];
 
 				p_waveform[chan][0] =  spherebuf.data[x[0]][y[0]][z[0]].wave;
 				p_waveform[chan][1] =  spherebuf.data[x[1]][y[0]][z[0]].wave;
