@@ -107,7 +107,7 @@ void increment_play_export(uint16_t samples)
 
 void stop_play_export_sphere(void) {
 	stop_all_displays();
-	ui_mode = WTEDITING;
+	ui_mode = WTMONITORING;
 }
 
 void animate_play_export_ledring(uint8_t slot_i, o_rgb_led *rgb)

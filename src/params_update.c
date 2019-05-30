@@ -1549,7 +1549,7 @@ void read_browse_encoder(void)
 	} else {
 		if (browse_pressed) {
 			browse_pressed = 0;
-			if (!browse_moved && (ui_mode == WTEDITING)) {
+			if (!browse_moved && (ui_mode == WTMONITORING)) {
 				start_play_export_sphere();
 			}
 		}
