@@ -39,6 +39,7 @@
 #include "led_colors.h"
 #include "ui_modes.h"
 #include "drivers/flashram_spidma.h"
+#include "codec_sai.h"
 
 extern const float BROWSE_TABLE[ NUM_WAVEFORMS_IN_SPHERE ][ NUM_WT_DIMENSIONS ];
 extern o_wt_osc wt_osc;
@@ -51,33 +52,46 @@ uint8_t play_export_wt_repeat_i;
 uint8_t play_export_browse_i;
 extern o_spherebuf spherebuf;
 
+void play_export_audio_block(int32_t *src, int32_t *dst);
+
+
 void start_play_export_sphere(void)
 {
-	// uint8_t x, y, z;
-	// uint32_t repeat_i, sample_i;
-	// uint8_t browse_i;
-	// uint32_t dst=0;
-
-	// ui_mode = WTPLAYEXPORT_LOAD;
-
-	// for (browse_i=0; browse_i<NUM_WAVEFORMS_IN_SPHERE; browse_i++)
-	// {
-	// 	x = BROWSE_TABLE[browse_i][0];
-	// 	y = BROWSE_TABLE[browse_i][1];
-	// 	z = BROWSE_TABLE[browse_i][2];
-
-	// 	for (repeat_i=0; repeat_i<REPEAT_EACH_WT; repeat_i++) {
-	// 		for (sample_i=0; sample_i<WT_TABLELEN; sample_i++) {
-	// 			recbuf.data[dst++] = spherebuf.data[x][y][z].wave[sample_i];
-	// 		}
-	// 	}
-	// }
-	// for (;dst<NUM_SAMPLES_IN_RECBUF_SMOOTHED;dst++)
-	// 	recbuf.data[dst++] = spherebuf.data[x][y][z].wave[(sample_i++) % WT_TABLELEN];
-
 	ui_mode = WTPLAYEXPORT;
+	set_audio_callback(&play_export_audio_block);
+
 	play_export_sample_i = 0;
 	start_ongoing_display_sphere_play_export();
+}
+
+void stop_play_export_sphere(void) {
+	stop_all_displays();
+	ui_mode = WTMONITORING;
+	set_audio_callback(&process_audio_block_codec);
+}
+
+void play_export_audio_block(int32_t *src, int32_t *dst)
+{
+	int16_t i;
+	float smpl;
+	float level;
+	int16_t *ptr;
+
+	level = 0.65*256.0;
+
+	ptr = get_play_export_ptr();
+
+	for (i=0; i < MONO_BUFSZ; i++)
+	{
+		smpl = (float)(*ptr++);
+
+		*dst++ = (int32_t)(smpl*level);
+		*dst++ = (int32_t)(smpl*level);
+		UNUSED(*src++);
+		UNUSED(*src++);
+	}
+
+	increment_play_export(MONO_BUFSZ);
 }
 
 int16_t *get_play_export_ptr(void)
@@ -103,11 +117,6 @@ void increment_play_export(uint16_t samples)
 
 	if (play_export_sample_i>=NUM_SAMPLES_IN_RECBUF_SMOOTHED)
 		stop_play_export_sphere();
-}
-
-void stop_play_export_sphere(void) {
-	stop_all_displays();
-	ui_mode = WTMONITORING;
 }
 
 void animate_play_export_ledring(uint8_t slot_i, o_rgb_led *rgb)

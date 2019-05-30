@@ -63,7 +63,7 @@ void update_sphere_wt(void);
 
 void process_audio_block_codec(int32_t *src, int32_t *dst)
 {
-	int16_t 		i_sample, i;
+	int16_t 		i_sample;
 	uint8_t 		chan;
 	float 			smpl;
 	float			xfade0, xfade1;
@@ -71,7 +71,6 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 	int32_t			audio_in_sample;
 	int32_t			audio_out_sample;
 	float			output_buffer_evens[MONO_BUFSZ], output_buffer_odds[MONO_BUFSZ];
-	int16_t			*ptr;
 
 	static float 	prev_level[NUM_CHANNELS] = {0.0};
 	float 			interpolated_level, level_inc;
@@ -84,90 +83,58 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 		output_buffer_odds[i_sample] = 0.0;
 	}
 
-	if (ui_mode==WTPLAYEXPORT)
+	for (chan = 0; chan < NUM_CHANNELS; chan++)
 	{
-		interpolated_level = 0.65*256.0;
+		read_level(chan);
+		level_inc = (calc_params.level[chan] - prev_level[chan]) / MONO_BUFSZ;
+		interpolated_level = prev_level[chan];
+		prev_level[chan] = calc_params.level[chan];
 
-		ptr = get_play_export_ptr();
-
-		for (i=0; i < MONO_BUFSZ; i++)
+		for (i_sample = 0; i_sample < MONO_BUFSZ; i_sample++)
 		{
-			smpl = (float)(*ptr++);
+			// FIXME: try using this instead:
+			// wt_osc.wt_head_pos[chan] = _WRAP_F(wt_osc.wt_head_pos[chan] + wt_osc.wt_head_pos_inc[chan], 0 , F_WT_TABLELEN)
+			wt_osc.wt_head_pos[chan] += wt_osc.wt_head_pos_inc[chan];
+			while (wt_osc.wt_head_pos[chan] >= (float)WT_TABLELEN)
+				wt_osc.wt_head_pos[chan] -= (float)(WT_TABLELEN);
 
-			*dst++ = (int32_t)(smpl*interpolated_level);
-			*dst++ = (int32_t)(smpl*interpolated_level);
-			UNUSED(*src++);
-			UNUSED(*src++);
-		}
+			wt_osc.rh0[chan] 	= (uint16_t)(wt_osc.wt_head_pos[chan]);
+			wt_osc.rh1[chan] 	= (wt_osc.rh0[chan] + 1) & (WT_TABLELEN-1);
+			wt_osc.rhd[chan] 	= wt_osc.wt_head_pos[chan] - (float)(wt_osc.rh0[chan]);
+			wt_osc.rhd_inv[chan] = 1.0 - wt_osc.rhd[chan];
 
-		increment_play_export(MONO_BUFSZ);
-	}
-	else if (ui_mode==WTPLAYEXPORT_LOAD)
-	{
-		for (i=0; i < MONO_BUFSZ; i++)
-		{
-			*dst++ = 0;
-			*dst++ = 0;
-			UNUSED(*src++);
-			UNUSED(*src++);
-		}
-	}
-	else
-	{
-		for (chan = 0; chan < NUM_CHANNELS; chan++)
-		{
-			read_level(chan);
-			level_inc = (calc_params.level[chan] - prev_level[chan]) / MONO_BUFSZ;
-			interpolated_level = prev_level[chan];
-			prev_level[chan] = calc_params.level[chan];
+			xfade0 = (wt_osc.mc[wt_osc.buffer_sel[chan]][chan][wt_osc.rh0[chan]] * wt_osc.rhd_inv[chan]) + (wt_osc.mc[wt_osc.buffer_sel[chan]][chan][wt_osc.rh1[chan]] * wt_osc.rhd[chan]);
 
-			for (i_sample = 0; i_sample < MONO_BUFSZ; i_sample++)
+			if (wt_osc.wt_xfade[chan] > 0)
 			{
-				// FIXME: try using this instead:
-				// wt_osc.wt_head_pos[chan] = _WRAP_F(wt_osc.wt_head_pos[chan] + wt_osc.wt_head_pos_inc[chan], 0 , F_WT_TABLELEN)
-				wt_osc.wt_head_pos[chan] += wt_osc.wt_head_pos_inc[chan];
-				while (wt_osc.wt_head_pos[chan] >= (float)WT_TABLELEN)
-					wt_osc.wt_head_pos[chan] -= (float)(WT_TABLELEN);
-
-				wt_osc.rh0[chan] 	= (uint16_t)(wt_osc.wt_head_pos[chan]);
-				wt_osc.rh1[chan] 	= (wt_osc.rh0[chan] + 1) & (WT_TABLELEN-1);
-				wt_osc.rhd[chan] 	= wt_osc.wt_head_pos[chan] - (float)(wt_osc.rh0[chan]);
-				wt_osc.rhd_inv[chan] = 1.0 - wt_osc.rhd[chan];
-
-				xfade0 = (wt_osc.mc[wt_osc.buffer_sel[chan]][chan][wt_osc.rh0[chan]] * wt_osc.rhd_inv[chan]) + (wt_osc.mc[wt_osc.buffer_sel[chan]][chan][wt_osc.rh1[chan]] * wt_osc.rhd[chan]);
-
-				if (wt_osc.wt_xfade[chan] > 0)
-				{
-					wt_osc.wt_xfade[chan] -= XFADE_INC;
-					xfade1 = wt_osc.mc[1-wt_osc.buffer_sel[chan]][chan][wt_osc.rh0[chan]] * wt_osc.rhd_inv[chan] + wt_osc.mc[1-wt_osc.buffer_sel[chan]][chan][wt_osc.rh1[chan]] * wt_osc.rhd[chan];
-					
-					smpl = ((xfade0 * (1.0 - wt_osc.wt_xfade[chan])) + (xfade1 * wt_osc.wt_xfade[chan])) * interpolated_level;
-				} else {
-					smpl = xfade0  * interpolated_level;
-				}
-
-				interpolated_level += level_inc;
-
-				if (chan & 1)
-					output_buffer_evens[i_sample] += smpl;
-				else 
-					output_buffer_odds[i_sample] += smpl;
+				wt_osc.wt_xfade[chan] -= XFADE_INC;
+				xfade1 = wt_osc.mc[1-wt_osc.buffer_sel[chan]][chan][wt_osc.rh0[chan]] * wt_osc.rhd_inv[chan] + wt_osc.mc[1-wt_osc.buffer_sel[chan]][chan][wt_osc.rh1[chan]] * wt_osc.rhd[chan];
 				
-				if (chan==5)
-				{
-					audio_in_sample = convert_s24_to_s32(*src++);								
-					UNUSED(*src++);  // ignore right channel input (not connected in hardware)
+				smpl = ((xfade0 * (1.0 - wt_osc.wt_xfade[chan])) + (xfade1 * wt_osc.wt_xfade[chan])) * interpolated_level;
+			} else {
+				smpl = xfade0  * interpolated_level;
+			}
 
-					if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
-						record_audio_buffer(audio_in_sample);
-				
-					audio_out_sample = (int32_t)( oscout_status * output_buffer_evens[i_sample] * system_settings.master_gain) + audio_in_sample * audiomon_status;	//Add the audio input to the evens buffer
-					*dst++ = compress(audio_out_sample);
+			interpolated_level += level_inc;
 
-					audio_out_sample = (int32_t)( oscout_status * output_buffer_odds[i_sample] *  system_settings.master_gain) + audio_in_sample * audiomon_status;	//Add the audio input to the odds buffer
-					*dst++ = compress(audio_out_sample);
+			if (chan & 1)
+				output_buffer_evens[i_sample] += smpl;
+			else 
+				output_buffer_odds[i_sample] += smpl;
+			
+			if (chan==5)
+			{
+				audio_in_sample = convert_s24_to_s32(*src++);								
+				UNUSED(*src++);  // ignore right channel input (not connected in hardware)
 
-				}
+				if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
+					record_audio_buffer(audio_in_sample);
+			
+				audio_out_sample = (int32_t)( oscout_status * output_buffer_evens[i_sample] * system_settings.master_gain) + audio_in_sample * audiomon_status;	//Add the audio input to the evens buffer
+				*dst++ = compress(audio_out_sample);
+
+				audio_out_sample = (int32_t)( oscout_status * output_buffer_odds[i_sample] *  system_settings.master_gain) + audio_in_sample * audiomon_status;	//Add the audio input to the odds buffer
+				*dst++ = compress(audio_out_sample);
 			}
 		}
 	}
