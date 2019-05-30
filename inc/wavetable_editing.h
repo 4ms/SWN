@@ -90,7 +90,7 @@ void enter_wtttone(void);
 void enter_wtrecording(void);
 void exit_wtediting(void);
 
-void copy_current_sphere_to_recbuf(void);
+void copy_current_sphere_to_recbuf(uint8_t sphere_index);
 void render_full_sphere(void);
 float render_recbuf_to_spherebuf(uint8_t dim1, uint8_t dim2, uint8_t dim3, float start_sample);
 float put_waveform_in_sphere(uint8_t dim1, uint8_t dim2, uint8_t dim3, float start_sample);

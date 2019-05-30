@@ -83,9 +83,10 @@ void clear_all_presets(void);
 
 void store_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos);
 void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos);
+void update_preset_version(char version, o_params *t_params, o_lfos *t_lfos);
 
 void recalc_active_params(void);
 
-uint8_t check_preset_filled(uint32_t preset_num);
+uint8_t check_preset_filled(uint32_t preset_num, char *version);
 uint32_t get_preset_addr(uint32_t preset_num);
 uint32_t get_preset_size(void);

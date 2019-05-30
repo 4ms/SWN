@@ -30,38 +30,34 @@
 #include <stm32f7xx.h>
 #include "wavetable_saving.h"
 #include "wavetable_saving_UI.h"
+#include "wavetable_editing.h"
+#include "params_sphere_enable.h"
 #include "math_util.h"
 #include "sphere.h"
 #include "sphere_flash_io.h"
 #include "led_cont.h"
 #include "ui_modes.h"
-#include "wavetable_editing.h"
 #include "params_update.h" 
 
 extern enum UI_Modes ui_mode;
 extern o_spherebuf spherebuf;
 
 extern o_UserSphereManager user_sphere_mgr;
-
+extern o_params params;
 
 // Given a sphere index (the "nth" sphere), return the physical bank number (flash slot)
 //
 uint8_t sphere_index_to_bank(uint8_t wtsel)
 {
 	uint8_t i;
-	uint8_t filled_sphere_count;
+	uint8_t filled_sphere_count = 0;
 
-	if (wtsel<NUM_FACTORY_SPHERES)
-		return wtsel;
-
-	filled_sphere_count = NUM_FACTORY_SPHERES;
-
-	for (i=0; i<NUM_USER_SPHERES_ALLOWED; i++)
+	for (i=0; i<MAX_TOTAL_SPHERES; i++)
 	{
-		if (is_spheretype_user(i+NUM_FACTORY_SPHERES))
+		if (is_sphere_filled(i) && is_sphere_enabled(i))
 		{
 			if (filled_sphere_count==wtsel)
-				return i+NUM_FACTORY_SPHERES;
+				return i;
 			else
 				filled_sphere_count++;
 		}
@@ -76,58 +72,55 @@ uint8_t bank_to_sphere_index(uint8_t wtbank)
 	uint8_t i;
 	uint8_t filled_sphere_count;
 
-	if (wtbank<NUM_FACTORY_SPHERES)
-		return wtbank;
+	// if (wtbank<NUM_FACTORY_SPHERES)
+	// 	return wtbank;
 
 	if (!is_sphere_filled(wtbank))
 		return 0; //error: bank is not filled, return fail-safe value
 
 	filled_sphere_count = NUM_FACTORY_SPHERES-1;
 
-	for (i=NUM_FACTORY_SPHERES; i<=wtbank; i++)
+	for (i=0; i<=wtbank; i++)
 	{
-		if (is_spheretype_user(i))
+		if (is_sphere_filled(i))
 			filled_sphere_count++;
 	}
 
 	return filled_sphere_count;
 }
 
-void update_number_of_user_spheres_filled(void){
-	
+void update_number_of_user_spheres_filled(void)
+{	
 	uint8_t i;
 	uint8_t num_filled=0;
 
-	read_all_spheretypes();
-	
-	for (i=0; i<NUM_USER_SPHERES_ALLOWED; i++)
+
+	for (i=0; i<MAX_TOTAL_SPHERES; i++)
 	{
-		if (is_spheretype_user(i+NUM_FACTORY_SPHERES))
+		if (is_sphere_filled(i)	&& is_sphere_enabled(i))
 			num_filled++;
 	}
-
-	update_num_sphere_filled(num_filled);
+	set_num_sphere_filled(num_filled);
 }
 
 void save_user_sphere(uint8_t sphere_num)
 {
 	ui_mode = WTSAVING;
-	
-	save_unformatted_sphere_to_flash(NUM_FACTORY_SPHERES + sphere_num, SPHERE_TYPE_USER, spherebuf.data);
+	if (sphere_num>=NUM_FACTORY_SPHERES)
+		save_unformatted_sphere_to_flash(sphere_num, SPHERE_TYPE_USER, spherebuf.data);
 
 	//Verify all sphere types in flash
+	read_all_spheretypes();
 	update_number_of_user_spheres_filled();
 }
 
+void load_sphere(uint8_t sphere_num)
+{
+	uint8_t sphere_index;
+	
+	params.wt_bank[0] = sphere_num;
+	sphere_index = bank_to_sphere_index(sphere_num);
+	set_wtsel(sphere_index);
 
-void clear_user_spheres_from_flash(void){
-	quick_clear_user_spheres();
-
-	// uint8_t i;
-	// o_waveform sphere_data[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE]={0};
-
-	// for (i=0; i< MAX_TOTAL_SPHERES; i++){
-	// 	save_sphere_to_flash(NUM_FACTORY_SPHERES + i, SPHERE_TYPE_EMPTY, (int16_t*)sphere_data);
-	// }
-	// update_number_of_user_spheres_filled();
+	enter_wtediting();
 }

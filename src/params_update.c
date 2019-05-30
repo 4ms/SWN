@@ -27,7 +27,6 @@
  */
 
 
-#include "globals.h"
 #include "params_update.h"
 #include "params_changes.h"
 #include "led_cont.h"
@@ -151,6 +150,7 @@ uint32_t num_spheres_filled;
 o_waveform 	waveform[NUM_CHANNELS][2][2][2];
 
 
+//Todo: replace with init_param_object(&params), plus a few other differences
 void init_params(void){
 	
 	uint8_t  i;
@@ -163,7 +163,7 @@ void init_params(void){
 	params.spread_cv 					= 0;
 
 	for (i=0;i<NUM_CHANNELS;i++){
-		init_ksw_params(i);
+		params.key_sw[i]						= ksw_MUTE;
 
 		params.note_on[i] 	  					= 1;
 		calc_params.level[i] 					= 4093;
@@ -188,18 +188,21 @@ void init_params(void){
 	 	params.transpose_enc[i]					= 0;
 
 		calc_wt_pos(i);
-		for ( j = 0; j < 3; j++){update_wt_pos_interp_params(i, j);}
+		for ( j = 0; j < 3; j++)
+			update_wt_pos_interp_params(i, j);
 
 		// flags
-		calc_params.already_handled_button[i]		= 0;
+		calc_params.already_handled_button[i]	= 0;
 
-		for (j = 0; j < NUM_ARM_FLAGS; j++){
+		for (j = 0; j < NUM_ARM_FLAGS; j++)
 			calc_params.armed[j][i] 			= 0;
-		}
 
 		params.random[i]						= 1.0;
-
 	}
+
+	for (i=0; i<(MAX_TOTAL_SPHERES/8); i++)
+		params.enabled_spheres[i]=0xFF;
+
 }
 
 
@@ -226,16 +229,15 @@ void init_param_object(o_params *t_params){
 	uint8_t chan;
 
 	// global & display
-	t_params->dispersion_enc			= 1;
+	t_params->dispersion_enc			= 0;
 	t_params->disppatt_enc 				= 1;
 	t_params->noise_on 					= 0; 
 	t_params->spread_cv 				= 0;
 
 	// individual params
-	for (chan=0; chan<NUM_CHANNELS; chan++){
-		
+	for (chan=0; chan<NUM_CHANNELS; chan++)
+	{
 		t_params->key_sw[chan]					= ksw_MUTE;
-		
 		t_params->note_on[chan] 	  			= 1;
 
 		// individual locks
@@ -259,8 +261,6 @@ void init_param_object(o_params *t_params){
 	 	t_params->spread_enc[chan]				= 0;
 	 	t_params->transpose_enc[chan]			= 0;
 
-		// flags
-
 		t_params->random[chan]					= 1.0;
 
 		t_params->finetune[chan] 	  			= 0;
@@ -268,10 +268,14 @@ void init_param_object(o_params *t_params){
 
 		t_params->oct[chan] 	  				= INIT_OCT;
 		t_params->indiv_scale[chan] 	  		= 0;
-		t_params->indiv_scale_buf[chan] 	 	= t_params->indiv_scale[chan];
+		t_params->indiv_scale_buf[chan] 	 	= 0;
 
 		t_params->qtz_note_changed[chan]		= 0;
+
 	}
+
+	for (uint8_t i=0; i<(MAX_TOTAL_SPHERES/8); i++)
+		t_params->enabled_spheres[i]=0xFF;
 
 }
 
@@ -293,7 +297,6 @@ void init_calc_params(void)
 	calc_params.keymode_pressed = 0;
 	calc_params.button_safe_release[0] = 0;
 	calc_params.button_safe_release[1] = 0;
-
 }
 
 
@@ -362,11 +365,6 @@ void check_reset_navigation(void)
 			 	params.wtsel_enc[i]						= 0;
 				params.wt_bank[i]						= 0;	
 			}
-
-			//calc_wt_pos(i);
-			//for (uint8_t j = 0; j < 3; j++)
-			//	update_wt_pos_interp_params(i, j);
-
 		 }
 	}
 }
@@ -408,12 +406,6 @@ void cache_uncache_pitch_params(enum CacheUncache cache_uncache)
 	}
 }
 
-
-void init_ksw_params(uint8_t chan){
-		params.key_sw[chan]	= ksw_MUTE;
-}
-
-
 void read_noteon(uint8_t i)
 {
 	static uint8_t new_key_armed[NUM_CHANNELS] = {0};
@@ -447,7 +439,6 @@ void read_noteon(uint8_t i)
 		}
 
 
-		
 		// NOTE/KEYS Presses 
 		// ... and auto-notes at qtz crossings
 		else
@@ -1226,16 +1217,8 @@ void compute_tuning (uint8_t chan){
 
 	calc_params.tuning[chan] = 1;
 
-	if (system_settings.transpose_display_mode	== TRANSPOSE_CONTINUOUS)
-	{
-		params.finetune[chan] = _CLAMP_I16(params.finetune[chan], MIN_FINETUNE_WRAP, MAX_FINETUNE_WRAP);
-		f_scaling_finetune = F_SCALING_FINETUNE_WRAP;
-	}
-	else
-	{
-		params.finetune[chan] = _CLAMP_I16(params.finetune[chan], MIN_FINETUNE_NOWRAP, MAX_FINETUNE_NOWRAP);
-		f_scaling_finetune = F_SCALING_FINETUNE_NOWRAP;
-	}
+	params.finetune[chan] = _CLAMP_I16(params.finetune[chan], MIN_FINETUNE_WRAP, MAX_FINETUNE_WRAP);
+	f_scaling_finetune = F_SCALING_FINETUNE_WRAP;
 
 	if(params.finetune[chan] > 0){
 		for (i = 0; i < params.finetune[chan]; i++){
@@ -1265,14 +1248,9 @@ void update_transpose(int16_t tmp){
 	channels_changed = change_param_i32(transpose_enc, tmp);
 	if (channels_changed)
 	{
-		if (system_settings.transpose_display_mode	== TRANSPOSE_NOWRAP) {
-			max = MAX_TRANSPOSE_NOWRAP;
-			min = MIN_TRANSPOSE_NOWRAP;
-		}
-		else {
-			max = MAX_TRANSPOSE_WRAP;
-			min = MIN_TRANSPOSE_WRAP;
-		}
+		max = MAX_TRANSPOSE_WRAP;
+		min = MIN_TRANSPOSE_WRAP;
+
 		trim_array(transpose_enc, NUM_CHANNELS, min, max);
 
 		start_ongoing_display_transpose();
@@ -1411,10 +1389,6 @@ float compute_transposition(int32_t transpose)
 		for (i = 0; i > transpose; i--){
 			transposition /= F_SCALING_TRANSPOSE;
 		}
-	}
-
-	if (system_settings.transpose_display_mode	== TRANSPOSE_NOWRAP){
-		transposition = _CLAMP_F(transposition, F_MIN_TRANSPOSITION, F_MAX_TRANSPOSITION);
 	}
 
 	return transposition;
@@ -1801,8 +1775,8 @@ void force_wt_interp_update (uint8_t chan){
 }
 
 
-void update_num_sphere_filled(uint8_t num_user_filled){
-	num_spheres_filled = NUM_FACTORY_SPHERES + num_user_filled;
+void set_num_sphere_filled(uint8_t num_filled){
+	num_spheres_filled = num_filled;
 }
 
 

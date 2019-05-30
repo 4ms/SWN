@@ -33,6 +33,6 @@
 uint8_t bank_to_sphere_index(uint8_t wtbank);
 uint8_t sphere_index_to_bank(uint8_t wtsel);
 
-void update_number_of_user_spheres_filled 	(void);
+void update_number_of_user_spheres_filled(void);
 void save_user_sphere(uint8_t sphere_num);
-void clear_user_spheres_from_flash(void);
+void load_sphere(uint8_t sphere_num);

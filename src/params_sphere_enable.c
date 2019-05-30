@@ -1,5 +1,5 @@
 /*
- * preset_manager_UI.h - User Interface for preset manager (reading controls and display lights)
+ * params_sphere_enable.c - Parameters for enabling/disable spheres within a preset
  *
  * Author: Dan Green (danngreen1@gmail.com)
  *
@@ -26,57 +26,27 @@
  * -----------------------------------------------------------------------------
  */
 
-#pragma once
+#include "params_sphere_enable.h"
+#include "globals.h"
+#include "params_update.h"
 
-#include <stm32f7xx.h>
-#include "led_colors.h"
-#include "sphere.h"
+extern o_params params;
 
-#define SPHERE_SAVE_ANIMATION_TIME (18*40)
+uint8_t is_sphere_enabled(uint8_t sphere_num)
+{
+	if (params.enabled_spheres[sphere_num/8] & (1<<(sphere_num & 7)) )
+		return 1;
+	else
+		return 0;
+}
 
-enum WTSavingMgrStates{
-	WTS_INACTIVE,
-	WTS_SELECTING,
+void enable_sphere(uint8_t sphere_num)
+{
+	params.enabled_spheres[sphere_num/8] |= (1<<(sphere_num & 7));
+}
 
-	WTS_LOAD_CONFIRM,
-	WTS_PRESSED_TO_DO_LOAD,
-	WTS_DOING_LOAD,
-
-	WTS_SAVE_HELD,
-	WTS_SAVE_CONFIRM,
-	WTS_PRESSED_TO_DO_SAVE,
-	WTS_DOING_SAVE,
-
-	WTS_CLEAR_HELD,
-	WTS_CLEAR_CONFIRM,
-	WTS_PRESSED_TO_DO_CLEAR,
-	WTS_DOING_CLEAR,
-
-	WTS_UNCLEAR_HELD,
-	WTS_UNCLEAR_CONFIRM,
-	WTS_PRESSED_TO_DO_UNCLEAR,
-	WTS_DOING_UNCLEAR,
-
-	WTS_PRESSED_TO_DO_ENABLE,
-	WTS_DOING_ENABLE,
-
-	WTS_PRESSED_TO_DO_DISABLE,
-	WTS_DOING_DISABLE,
-
-};
-
-typedef struct o_UserSphereManager{
-	int8_t 					hover_num;
-	uint8_t					filled[NUM_USER_SPHERES_ALLOWED];
-	uint32_t 				animation_ctr;
-	uint32_t				activity_tmr;
-	enum WTSavingMgrStates	mode;
-} o_UserSphereManager;
-
-uint8_t get_sphere_hover(void);
-
-void handle_wt_saving_events(int16_t enc_turn);
-void animate_wt_saving_ledring(uint8_t slot_i, o_rgb_led *rgb);
-void exit_wt_saving(void);
-void init_user_sphere_mgr(uint8_t initial_sphere_num);
+void disable_sphere(uint8_t sphere_num)
+{
+	params.enabled_spheres[sphere_num/8] &= ~(1<<(sphere_num & 7));
+}
 

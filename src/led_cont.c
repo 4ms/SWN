@@ -779,7 +779,7 @@ void get_wt_color(uint8_t wt_num, o_rgb_led *rgb)
 		rgb->c_green  	= 0;
 		rgb->c_blue 	= (100.0 * fade);
 	}
-	else {
+	else if (wt_num < MAX_TOTAL_SPHERES) {
 		scaled_wt_num = _SCALE_U2U((wt_num-NUM_FACTORY_SPHERES) % 18, 0, 17, 1024, 4095);
 		//fade = exp_1voct_10_41V[scaled_wt_num] / 1370.0;
 		inv_fade = exp_1voct_10_41V[4095-scaled_wt_num+1024] / 1370.0;
@@ -815,6 +815,9 @@ void get_wt_color(uint8_t wt_num, o_rgb_led *rgb)
 			rgb->c_green 	= (2048.0 * inv_fade) + 50;
 			rgb->c_blue 	= (2048.0 * inv_fade) + 50;
 		}
+	}
+	else {
+		set_rgb_color(rgb, ledc_OFF);
 	}
 }
 
@@ -1071,7 +1074,12 @@ void display_sphere_save(void)
 	uint16_t hover_bank;
 	uint8_t slot_color = ledc_OFF;
 
-	hover_bank = get_sphere_hover() / NUM_LED_OUTRING;
+	uint8_t hover_slot = get_sphere_hover();
+	
+	if (hover_slot >= NUM_FACTORY_SPHERES)
+		hover_bank = (hover_slot - NUM_FACTORY_SPHERES) / NUM_LED_OUTRING;
+	else
+		hover_bank = 0xFF;
 
 	for (slot_i = 0; slot_i < NUM_LED_OUTRING; slot_i++)
 	{
@@ -1082,8 +1090,9 @@ void display_sphere_save(void)
 	{
 		led = rotate_origin(bank_i, NUM_CHANNELS);
 
-		if (bank_i==hover_bank)	slot_color = ledc_WHITE;
-		else					slot_color = ledc_OFF;
+		if (hover_bank>=NUM_CHANNELS) 	slot_color = ledc_WHITE;
+		else if (bank_i==hover_bank)	slot_color = ledc_WHITE;
+		else							slot_color = ledc_OFF;
 
 		set_rgb_color(&led_cont.inring[led], slot_color);
 	}

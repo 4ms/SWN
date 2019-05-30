@@ -119,7 +119,7 @@ void factory_reset(void)
 {	
 	default_system_settings();
 	set_default_voct_calibrate();
-	quick_clear_user_spheres();
+	empty_all_user_spheres();
 	clear_all_presets();
 
 	set_firmware_version();

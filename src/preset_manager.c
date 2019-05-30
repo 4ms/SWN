@@ -28,6 +28,7 @@
 
 #include "preset_manager.h"
 #include "preset_manager_undo.h"
+#include "wavetable_saving.h"
 #include "globals.h"
 #include "gpio_pins.h"
 #include "drivers/flashram_spidma.h"
@@ -43,7 +44,9 @@ extern	o_lfos   		lfos;				//  526 Bytes
 
 o_preset_manager		preset_mgr;
 
-char	preset_signature[4] = {'P', 'R', '9', '\0'};
+char	preset_signature_v1[4] = {'P', 'R', '9', '\0'};
+char	preset_signature[4] = {'P', 'R', 'A', '\0'};
+
 static uint8_t cached_preset[4 + sizeof(o_params) + sizeof(o_lfos)]; //must be global or static because SPIDMA read/writes to it
 
 static char	read_data[4];
@@ -60,6 +63,7 @@ static char	read_data[4];
 
 void init_preset_manager(void)
 {
+	char dummy;
 	preset_mgr.hover_num 		= 0;
 	preset_mgr.mode				= PM_INACTIVE;
 	preset_mgr.last_action		= PM_INACTIVE;
@@ -67,13 +71,13 @@ void init_preset_manager(void)
 
 	uint16_t i;
 	for (i=0;i<MAX_PRESETS;i++){
-		if (check_preset_filled(i)) preset_mgr.filled[i] = 1;
+		if (check_preset_filled(i, &dummy)) preset_mgr.filled[i] = 1;
 		else preset_mgr.filled[i] = 0;
 
 	}
 
 	stash_active_into_undo_buffer();
-	// if (rotary_pressed(rotm_PRESET)) LOCK_PRESET_BANK_2 = 0;
+	// if (rotary_pressed(rotm_PRESET)) LOCK_PRESET_BANK_2 = 0; //Show Mode
 }
 
 void exit_preset_manager(void)
@@ -98,6 +102,7 @@ void store_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 	uint32_t addr = get_preset_addr(preset_num);
 	uint32_t other_preset_addr;
 	uint32_t sz;
+	char dummy;
 
 	pause_timer_IRQ(OSC_TIM_number);
 	pause_timer_IRQ(WT_INTERP_TIM_number);
@@ -123,7 +128,7 @@ void store_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 	sFLASH_write_buffer(cached_preset, other_preset_addr, get_preset_size());
 
 	//Verify sector was written (could use a checksum to be more rigorous)
-	preset_mgr.filled[preset_num] = check_preset_filled(preset_num);
+	preset_mgr.filled[preset_num] = check_preset_filled(preset_num, &dummy);
 
 	resume_timer_IRQ(OSC_TIM_number);
 	resume_timer_IRQ(WT_INTERP_TIM_number);
@@ -134,13 +139,16 @@ void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 {
 	uint32_t addr = get_preset_addr(preset_num);
 	uint32_t sz;
+	uint8_t preset_is_filled;
+	char version;
 
 	pause_timer_IRQ(OSC_TIM_number);
 	pause_timer_IRQ(WT_INTERP_TIM_number);
 	pause_timer_IRQ(PWM_OUTS_TIM_number);
 
 	//Manually checking is not necessary, but we want to make sure this sector is readable, and we already have control of FLASH
-	if (preset_num < MAX_PRESETS && preset_mgr.filled[preset_num] && check_preset_filled(preset_num))
+	preset_is_filled = check_preset_filled(preset_num, &version);
+	if (preset_num < MAX_PRESETS && preset_mgr.filled[preset_num] && preset_is_filled)
 	{
 		//offset for signature
 		addr += 4; 
@@ -152,8 +160,10 @@ void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 		sz = sizeof(o_lfos);
 		sFLASH_read_buffer((uint8_t *)t_lfos, addr, sz);
 
-		fix_wtsel_wtbank_offset();
+		if (version != preset_signature[2])
+			update_preset_version(version, t_params, t_lfos);
 
+		fix_wtsel_wtbank_offset();
 	} else {
 		//Loading an unfilled preset re-initializes params
 		init_param_object(t_params);
@@ -166,6 +176,16 @@ void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 	resume_timer_IRQ(WT_INTERP_TIM_number);
 	resume_timer_IRQ(PWM_OUTS_TIM_number);
 }
+
+void update_preset_version(char version, o_params *t_params, o_lfos *t_lfos)
+{
+	if (version==preset_signature_v1[2]) {
+		uint8_t i;
+		for (i=0; i<MAX_TOTAL_SPHERES/8; i++)
+			t_params->enabled_spheres[i]=0xFF;
+	}
+}
+
 
 void clear_preset(uint32_t preset_num)
 {
@@ -191,6 +211,7 @@ void clear_preset(uint32_t preset_num)
 void recalc_active_params(void)
 {
 	init_calc_params();
+	update_number_of_user_spheres_filled();
 	update_all_wt_pos_interp_params();
 	flag_all_lfos_recalc();
 	force_all_wt_interp_update();
@@ -213,7 +234,7 @@ void clear_all_presets(void)
 		sFLASH_read_buffer((uint8_t *)read_data, addr, sz);
 		if (   read_data[0] == preset_signature[0] 
 			&& read_data[1] == preset_signature[1] 
-			&& read_data[2] == preset_signature[2] 
+			// && read_data[2] == preset_signature[2] 
 			&& read_data[3] == preset_signature[3] )
 		{
 			sz = 4;
@@ -231,7 +252,8 @@ void clear_all_presets(void)
 
 }
 
-uint8_t check_preset_filled(uint32_t preset_num)
+
+uint8_t check_preset_filled(uint32_t preset_num, char *version)
 {
 	uint32_t addr = get_preset_addr(preset_num);
 	uint32_t sz;
@@ -241,9 +263,12 @@ uint8_t check_preset_filled(uint32_t preset_num)
 
 	if (   read_data[0] == preset_signature[0] 
 		&& read_data[1] == preset_signature[1] 
-		&& read_data[2] == preset_signature[2] 
+		// && read_data[2] == preset_signature[2] 
 		&& read_data[3] == preset_signature[3] )
+	{
+		*version = read_data[2];
 		return 1;
+	}
 	else
 		return 0;
 

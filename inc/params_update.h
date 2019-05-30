@@ -48,14 +48,10 @@
 #define NUM_SCALES			2
 #define NOTES_PER_SCALE		NUM_OUTRING_LEDS +1
 
-// #define XP_GAIN 			1
-
 //WAVETABLE
-#define NUM_WT_XP 						0 		//0=Disabled. It was 8 when it was last enabled 	// number of wavetable expanders
 #define XFADE_INC						0.025 // 1/4000 ~ 0.1s
 
 
-// ...
 #define FREQNUDGE_LPF					0.995
 #define FREDIMCV_LPF					0.99
 #define NUDGEPOT_MIN_CHANGE 			0.0029304029304 // f_nudge_range / max pot val * num_pts_to_ignore <=> 1.2/4095*10 
@@ -82,14 +78,13 @@
 #define TRANSPOSE_TIMER_LIMIT			3000
 #define OCTAVE_TIMER_LIMIT				700
 #define PRESET_TIMER_LIMIT				2000
-#define SPHERE_SAVE_TIMER_LIMIT			2000
+#define SPHERE_SAVE_TIMER_LIMIT			3000
 #define SPHERE_SEL_TIMER_LIMIT			2000
 #define FX_TIMER_LIMIT					500
 #define GLOBRIGHT_TIMER_LIMIT			100
 
 // SCALING
-#define F_SCALING_FINETUNE_NOWRAP		1.003 //0.0025
-#define F_SCALING_FINETUNE_WRAP			1.00057779 /*100th root of 12th root of 2*/
+#define F_SCALING_FINETUNE_WRAP			1.00057779 // 100th root of 12th root of 2
 #define F_SCALING_TRANSPOSE				1.05946309436
 
 #define NUM_DIM_STEPS					50.0
@@ -109,8 +104,6 @@
 // TUNING
 #define MAX_FINETUNE_NOWRAP 			9
 #define MIN_FINETUNE_NOWRAP 			-9
-#define MAX_TRANSPOSE_NOWRAP 			9
-#define MIN_TRANSPOSE_NOWRAP 			-9
 #define F_MAX_TRANSPOSITION 			1.68179283051 // 2^( 9/12)
 #define F_MIN_TRANSPOSITION 			0.5946035575  // 2^(-9/12)
 
@@ -214,8 +207,11 @@ typedef struct o_params{
 	uint8_t 	wt_pos_lock 			[NUM_CHANNELS]		;	//For v1.0 this is always the same as osc_param_lock
 	uint8_t		wtsel_lock				[NUM_CHANNELS]		;	//For v1.0 this is always the same as osc_param_lock
 
+	//v2.0:
+	uint8_t		enabled_spheres			[MAX_TOTAL_SPHERES/8];
 
-	uint8_t		PADDING					[NUM_CHANNELS*32]   ; //padding for future features: 8 x 32b x 6chan, or 32 x 8b x 6chan
+	
+	uint8_t		PADDING					[NUM_CHANNELS*32 - MAX_TOTAL_SPHERES/8]   ; //padding for future features: 8 x 32b x 6chan, or 32 x 8b x 6chan
 } o_params;
 
 
@@ -230,7 +226,6 @@ void 		set_pitch_param_to_ttone(uint8_t chan);
 
 void 		check_reset_navigation(void);
 void 		cache_uncache_pitch_params(enum CacheUncache cache_uncache);
-void 		init_ksw_params(uint8_t chan);
 
 void 		read_noteon(uint8_t i);
 void 		read_level(uint8_t chan);
@@ -335,7 +330,7 @@ void		read_clear_settings(void);
 void 		read_switches(void);
 void 		read_wt_bankCV(void);
 
-void 		update_num_sphere_filled(uint8_t num_user_filled);
+void 		set_num_sphere_filled(uint8_t num_filled);
 
 uint32_t 	abs(int32_t v);
 

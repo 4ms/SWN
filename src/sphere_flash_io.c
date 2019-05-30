@@ -43,6 +43,7 @@ const uint32_t 	WT_SIZE = sizeof(o_waveform)*WT_DIM_SIZE*WT_DIM_SIZE*WT_DIM_SIZE
 
 char	user_sphere_signature[4];
 char	factory_sphere_signature[4];
+char	cleared_user_sphere_signature[4];
 
 enum SphereTypes sphere_types[MAX_TOTAL_SPHERES];
 
@@ -57,6 +58,11 @@ void init_sphere_flash(void)
 	factory_sphere_signature[1]='S';
 	factory_sphere_signature[2]='1';
 	factory_sphere_signature[3]='\0';
+
+	cleared_user_sphere_signature[0]='C';
+	cleared_user_sphere_signature[1]='S';
+	cleared_user_sphere_signature[2]='1';
+	cleared_user_sphere_signature[3]='\0';
 }
 
 void write_fatory_spheres_to_extflash(void)
@@ -185,6 +191,10 @@ void save_unformatted_sphere_to_flash(uint8_t wt_num, enum SphereTypes sphere_ty
 	sphere_types[wt_num] = sphere_type;
 }
 
+enum SphereTypes get_spheretype(uint32_t wt_num)
+{
+	return sphere_types[wt_num];
+}
 
 enum SphereTypes read_spheretype(uint32_t wt_num)
 {
@@ -211,12 +221,65 @@ enum SphereTypes read_spheretype(uint32_t wt_num)
 		&& read_sphere_type_data[3] == factory_sphere_signature[3] )
 		return SPHERE_TYPE_FACTORY;
 	else
+	if (   read_sphere_type_data[0] == cleared_user_sphere_signature[0] 
+		&& read_sphere_type_data[1] == cleared_user_sphere_signature[1] 
+		&& read_sphere_type_data[2] == cleared_user_sphere_signature[2] 
+		&& read_sphere_type_data[3] == cleared_user_sphere_signature[3] )
+		return SPHERE_TYPE_CLEARED;
+	else
 		return SPHERE_TYPE_EMPTY;
 
 }
 
-//Clear sphere signatures for user spheres
-void quick_clear_user_spheres(void)
+enum SphereTypes clear_user_sphere(uint8_t wt_num)
+{
+	uint32_t addr;
+	uint32_t sz;
+	static char	read_data[4];
+
+	pause_timer_IRQ(WT_INTERP_TIM_number);
+
+	sz = 4;
+	addr = get_wt_addr(wt_num);
+	sFLASH_read_buffer((uint8_t *)read_data, addr, sz);
+
+	if ((sphere_types[wt_num]==SPHERE_TYPE_USER) ||
+		(read_data[0] == user_sphere_signature[0] && read_data[1] == user_sphere_signature[1] && read_data[2] == user_sphere_signature[2] && read_data[3] == user_sphere_signature[3]))
+	{
+		sFLASH_write_buffer((uint8_t *)cleared_user_sphere_signature, addr, sz);
+		sphere_types[wt_num] = SPHERE_TYPE_CLEARED;
+	}
+	resume_timer_IRQ(WT_INTERP_TIM_number);
+
+	return sphere_types[wt_num];
+}
+
+enum SphereTypes unclear_user_sphere(uint8_t wt_num)
+{
+	uint32_t addr;
+	uint32_t sz;
+	static char	read_data[4];
+
+	pause_timer_IRQ(WT_INTERP_TIM_number);
+
+	sz = 4;
+	addr = get_wt_addr(wt_num);
+	sFLASH_read_buffer((uint8_t *)read_data, addr, sz);
+
+	if ((sphere_types[wt_num]==SPHERE_TYPE_CLEARED) ||
+		(read_data[0] == cleared_user_sphere_signature[0] && read_data[1] == cleared_user_sphere_signature[1] && read_data[2] == cleared_user_sphere_signature[2] && read_data[3] == cleared_user_sphere_signature[3]))
+	{
+		sFLASH_write_buffer((uint8_t *)user_sphere_signature, addr, sz);
+		sphere_types[wt_num] = SPHERE_TYPE_USER;
+	}
+	resume_timer_IRQ(WT_INTERP_TIM_number);
+
+	return sphere_types[wt_num];
+}
+
+
+//remove sphere signatures for user spheres
+void empty_all_user_spheres(void)
 {
 	uint32_t addr;
 	uint32_t sz;
@@ -239,15 +302,15 @@ void quick_clear_user_spheres(void)
 			read_data[2] = 0x00;
 			read_data[3] = 0x00;
 			sFLASH_write_buffer((uint8_t *)read_data, addr, sz);
-
+			
 			sphere_types[wt_num] = SPHERE_TYPE_EMPTY;
 		}
 	}
 	resume_timer_IRQ(WT_INTERP_TIM_number);
 }
 
-void read_all_spheretypes(void){
-
+void read_all_spheretypes(void)
+{
 	uint8_t i;
 
 	for (i=0; i< MAX_TOTAL_SPHERES; i++){
@@ -256,7 +319,7 @@ void read_all_spheretypes(void){
 }
 
 uint8_t is_sphere_filled(uint8_t wt_num){
-	if (sphere_types[wt_num] != SPHERE_TYPE_EMPTY) return 1;
+	if (sphere_types[wt_num] == SPHERE_TYPE_FACTORY || sphere_types[wt_num] == SPHERE_TYPE_USER) return 1;
 	else return 0;
 }
 

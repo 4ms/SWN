@@ -35,6 +35,7 @@ enum SphereTypes {
 	SPHERE_TYPE_EMPTY = 0,
 	SPHERE_TYPE_USER = 1,
 	SPHERE_TYPE_FACTORY = 2,
+	SPHERE_TYPE_CLEARED = 3,
 
 	NUM_SPHERE_TYPES
 };
@@ -51,9 +52,12 @@ void save_unformatted_sphere_to_flash(uint8_t wt_num, enum SphereTypes sphere_ty
 
 enum SphereTypes read_spheretype(uint32_t wt_num);
 
-void quick_clear_user_spheres(void);
+void empty_all_user_spheres(void);
+enum SphereTypes clear_user_sphere(uint8_t wt_num);
+enum SphereTypes unclear_user_sphere(uint8_t wt_num);
 uint8_t is_factory_sphere0_present(void);
 
+enum SphereTypes get_spheretype(uint32_t wt_num);
 void read_all_spheretypes(void);
 uint8_t is_spheretype_factory(uint8_t wt_num);
 uint8_t is_spheretype_user(uint8_t wt_num);

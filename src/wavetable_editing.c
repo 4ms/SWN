@@ -34,6 +34,7 @@
 #include "wavetable_saving_UI.h"
 #include "oscillator.h"
 #include "params_update.h"
+#include "params_sphere_enable.h"
 #include "globals.h"
 #include "wavetable_recording.h"
 #include "key_combos.h"
@@ -107,10 +108,6 @@ void set_params_for_editing(void)
 		params.wtsel_enc[i] = params.wtsel_enc[0];
 		params.wtsel_spread_enc[i] = 0;
 
-		// params.wt_nav_enc[0][i] = params.wt_nav_enc[0][0];
-		// params.wt_nav_enc[1][i] = params.wt_nav_enc[1][0];
-		// params.wt_nav_enc[2][i] = params.wt_nav_enc[2][0];
-		// params.wt_browse_step_pos_enc[i] = params.wt_browse_step_pos_enc[0];
 		params.wt_nav_enc[0][i] = 0;
 		params.wt_nav_enc[1][i] = 0;
 		params.wt_nav_enc[2][i] = 0;
@@ -143,28 +140,24 @@ void stage_enter_wtediting(void){
 	stage_enter_wtediting_flag = 1;	
 }
 
-void enter_wtediting(void){
-
-	if (ui_mode == PLAY){
+void enter_wtediting(void)
+{
+	if (ui_mode==PLAY)
+	{
 		cache_all_lfo_tovca();
 		set_all_lfo_to_vca_off();
-
 		cache_uncache_locks(CACHE);
 		unlock_all();
-
-		set_params_for_editing();
-
-		spherebuf.data_source = SPHERESRC_SPHERE;
-		init_wt_edit_settings();
-		copy_current_sphere_to_recbuf();
-		enter_wtrendering_fromcur();
-
-		init_wt_saving();
+		init_user_sphere_mgr(params.wt_bank[0]);
 	}
 
-	else{
-		ui_mode = WTEDITING;
-	}
+	set_params_for_editing();
+
+	spherebuf.data_source = SPHERESRC_SPHERE;
+	init_wt_edit_settings();
+	copy_current_sphere_to_recbuf(params.wt_bank[0]);
+	enter_wtrendering_fromcur();
+
 }
 
 void enter_wtmonitoring(void){
@@ -206,7 +199,11 @@ void exit_wtediting(void){
 	uncache_all_lfo_tovca();
 	cache_uncache_locks(UNCACHE);
 
+	if (!is_sphere_enabled(params.wt_bank[0]))
+		set_wtsel(0);
+
 	ui_mode = PLAY; // switching to internal sphere 
+
 
 	update_all_wt_pos_interp_params();					// re-factor in decimal part of navigation
 	force_all_wt_interp_update();						// re-interpolate, with  wavetables from flash (ui_mode==PLAY)
@@ -215,7 +212,7 @@ void exit_wtediting(void){
 
 // Copies sphere to recbuf for wt editing w/o recording
 // Todo: Fix and re-enable copying the spheres from waveform[], giving a speed boost since they are already loaded from flash 
-void copy_current_sphere_to_recbuf(void){
+void copy_current_sphere_to_recbuf(uint8_t sphere_index){
 
 	uint32_t i;
 	uint32_t j;
@@ -260,7 +257,7 @@ void copy_current_sphere_to_recbuf(void){
 		// }
 		
 		// else {
-			load_extflash_wavetable(params.wt_bank[0], &tmp_waveform, BROWSE_TABLE[wt_browse][0],BROWSE_TABLE[wt_browse][1],BROWSE_TABLE[wt_browse][2]);
+			load_extflash_wavetable(sphere_index, &tmp_waveform, BROWSE_TABLE[wt_browse][0],BROWSE_TABLE[wt_browse][1],BROWSE_TABLE[wt_browse][2]);
 			while (get_flash_state() != sFLASH_NOTBUSY) 
 				{;}
 			ptr = tmp_waveform.wave;
@@ -289,7 +286,11 @@ void render_full_sphere(void){
 	uint8_t		wt_browse=0;
 
 	if (stage_enter_wtediting_flag) {
-		enter_wtediting();
+		if (ui_mode==PLAY)
+			enter_wtediting();
+		else
+			ui_mode = WTEDITING;
+
 		stage_enter_wtediting_flag = 0;
 	}
 
@@ -302,7 +303,7 @@ void render_full_sphere(void){
  			wt_browse++;
  		}
 
-		enter_wtediting();	
+		ui_mode = WTEDITING;	
 		force_all_wt_interp_update();
 	}
 }

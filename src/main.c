@@ -164,7 +164,7 @@ int main(void)
 	init_sphere_flash();
 
 	#ifdef CLEAR_USER_SPHERES_FROM_FLASH
-		clear_user_spheres_from_flash();
+		empty_all_user_spheres();
 	#endif
 
 	#ifdef FORCE_WRITE_FACTORY_SPHERES
@@ -189,6 +189,7 @@ int main(void)
 	if (!is_factory_sphere0_present())
 		write_fatory_spheres_to_extflash();
 
+	read_all_spheretypes();
 	update_number_of_user_spheres_filled();
 
 	// Init ADC
