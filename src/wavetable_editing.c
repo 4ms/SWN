@@ -77,7 +77,7 @@ void init_wt_edit_settings(void)
 {
 	uint8_t i,j,k;
 	
-	spherebuf.position			= 0;
+	spherebuf.position			= WT_TABLELEN/2;
 	spherebuf.stretch_ratio		= 1;
 	spherebuf.spread_amount		= DEFAULT_WTBUF_SPREAD;
 

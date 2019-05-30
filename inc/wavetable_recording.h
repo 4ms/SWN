@@ -40,7 +40,7 @@ typedef struct o_recbuf{
 }o_recbuf;
 
 // Threshold of audio to trigger recording, in mV 
-#define REC_THRESHOLD_mV 12
+#define REC_THRESHOLD_mV 48
 //#define MAX_RANGE_V 20
 //#define REC_THRESHOLD (((REC_THRESHOLD_mV/1000) / MAX_RANGE_V) * (INT32_MAX>>8))
 #define REC_THRESHOLD (REC_THRESHOLD_mV * 419)
