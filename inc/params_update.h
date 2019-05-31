@@ -49,7 +49,8 @@
 #define NOTES_PER_SCALE		NUM_OUTRING_LEDS +1
 
 //WAVETABLE
-#define XFADE_INC						0.025 // 1/4000 ~ 0.1s
+#define XFADE_TIME_SEC					0.001
+#define XFADE_INC						(1.0/(F_SAMPLERATE * XFADE_TIME_SEC))
 
 
 // DISPLAY TIMERS: specified in # of tick

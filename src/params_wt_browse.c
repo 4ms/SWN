@@ -45,9 +45,9 @@ extern 	o_macro_states macro_states;
 extern	o_button 	button[NUM_BUTTONS];
 extern	o_switch 	hwSwitch[NUM_SWITCHES];						//switch position = note when mutes_sw and keys_sw state is both off
 
-const float F_SCALING_BROWSE 			= 0.050;
+const float F_SCALING_BROWSE 			= 0.030;
 const float F_SCALING_FINE_BROWSE 		= 0.005;
-const float F_SCALING_BROWSE_FADE_STEP  = 0.020;
+const float F_SCALING_BROWSE_FADE_STEP  = 0.010;
 const float VELOCITY 					= 40.0;
 
 const float BROWSE_TABLE[ NUM_WAVEFORMS_IN_SPHERE ][ NUM_WT_DIMENSIONS ] =
