@@ -88,7 +88,6 @@ extern const uint8_t 	ledstring_map[NUM_CHANNELS+1];
 extern const uint8_t 	led_outring_map[NUM_LED_OUTRING];
 extern const uint8_t 	led_inring_map[NUM_LED_INRING];
 
-const uint8_t INDIV_ADJ_OUTRING_MAP[NUM_LED_OUTRING + 1] 	= { 9, 10, 11, 12, 13, 14, 15, 16, 17, 9, 0,  1,   2, 3,  4,  5,  6,  7,  8 };
 const uint8_t OCT_OUTRING_MAP[NUM_LED_OUTRING] 		    	= { 9, 10, 11, 12, 13, 14, 15, 16, 17, 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
 // Color palettes
@@ -250,8 +249,10 @@ void update_button_leds(void){
 					else
 						lock_brightness = F_MAX_BRIGHTNESS;
 
-					if (!params.note_on[i])
-						lock_brightness = F_MAX_BRIGHTNESS - lock_brightness;
+					if (params.key_sw[i]==ksw_MUTE) {
+						if (!params.note_on[i])
+							lock_brightness = F_MAX_BRIGHTNESS - lock_brightness;
+					}
 
 					if ( (led_cont.ongoing_display == ONGOING_DISPLAY_SCALE)){
 						set_rgb_color_brightness(&led_cont.button[i], qtz_scale_colors[ params.indiv_scale[i] ], lock_brightness);
@@ -1167,7 +1168,7 @@ void display_sphere_sel(void)
 		if (chan<=NUM_CHANNELS)  {
 			get_wt_color(params.wt_bank[chan], &led_cont.outring[i]);
 
-			if (params.osc_param_lock[i] && lock_flash_state())
+			if (params.osc_param_lock[chan] && lock_flash_state())
 				led_cont.outring[i].brightness = 0;
 			else
 				led_cont.outring[i].brightness = F_MAX_BRIGHTNESS;

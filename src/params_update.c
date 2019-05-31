@@ -396,6 +396,7 @@ void cache_uncache_nav_params(enum CacheUncache cache_uncache)
 				params.wt_nav_enc[1][i] = cached_wt_nav_enc[1][i];
 				params.wt_nav_enc[2][i] = cached_wt_nav_enc[2][i];
 				params.wt_browse_step_pos_enc[i] = cached_wt_browse_step_pos_enc[i];
+				reset_wbrowse_morph(i);
 			}
 		}
 	}
@@ -1643,27 +1644,6 @@ void read_browse_encoder(void)
 	}
 }
 
-void read_load_save_encoder(void){
-	static uint8_t preset_feature_armed = 0;
-	int16_t enc, enc2;
-
-	enc   = pop_encoder_q (pec_LOADPRESET);	
-	enc2  = pop_encoder_q (sec_SAVEPRESET);
-
-	if (rotary_released(rotm_PRESET))
-		preset_feature_armed = 1;
-	
-	if (!key_combo_all_but_preset_released()) {
-		preset_feature_armed = 0;
-		exit_preset_manager();
-	}
-
-	if (ui_mode==PLAY && key_combo_all_but_preset_released() && preset_feature_armed)
-		handle_preset_events(enc,enc2);
-
-	else if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))	
-		handle_wt_saving_events(enc);
-}
 
 enum WTFlashLoadQueueStates{
 	WT_FLASH_NO_ACTION,
@@ -1914,8 +1894,7 @@ void update_wtsel(void){
 		spread_sum = _WRAP_U8(spread_cv + params.wtsel_spread_enc[chan], 0, NUM_WTSEL_SPREADS);
 		wtsel_sum = params.wtsel_enc[chan] + wtsel_cv + WTSEL_SPREAD[spread_sum][chan];
 
-		if (!params.osc_param_lock[chan])
-			calc_params.wtsel[chan] = _WRAP_I8(wtsel_sum, 0, num_spheres_filled);
+		calc_params.wtsel[chan] = _WRAP_I8(wtsel_sum, 0, num_spheres_filled);
 	}
 }
 
@@ -1927,7 +1906,7 @@ void update_wt_bank(void)
 	for (i=0; i<NUM_CHANNELS; i++){	
 		test_bank = sphere_index_to_bank(calc_params.wtsel[i]);
 		
-		if ((params.wt_bank[i]!=test_bank) && (!params.osc_param_lock[i])) {
+		if ((params.wt_bank[i]!=test_bank) ) {
 			params.wt_bank[i] = test_bank;
 			req_wt_interp_update(i);
 		}
@@ -2091,10 +2070,7 @@ void calc_wt_pos(uint8_t chan){
 
 		disp_amt = WT_DIM_SIZE * total_disp * (WT_SPREAD_PATTERN[disp_pattern][chan][wt_dim])/100.0;
 
-		if (params.wt_pos_lock[chan])	
-			new_wt_pos = calc_params.wt_pos[wt_dim][chan];
-		else
-			new_wt_pos = _WRAP_F(disp_amt + browse_nav[wt_dim] + params.wt_nav_cv[wt_dim] + nav_enc[wt_dim], 0, WT_DIM_SIZE);
+		new_wt_pos = _WRAP_F(disp_amt + browse_nav[wt_dim] + params.wt_nav_cv[wt_dim] + nav_enc[wt_dim], 0, WT_DIM_SIZE);
 
 		if (snap_to_int)
 			new_wt_pos = _WRAP_F((int32_t)(new_wt_pos+0.5),0,3);
@@ -2128,6 +2104,27 @@ void update_all_wt_pos_interp_params(void){
 	}
 }
 
+void read_load_save_encoder(void){
+	static uint8_t preset_feature_armed = 0;
+	int16_t enc, enc2;
+
+	enc   = pop_encoder_q (pec_LOADPRESET);	
+	enc2  = pop_encoder_q (sec_SAVEPRESET);
+
+	if (rotary_released(rotm_PRESET))
+		preset_feature_armed = 1;
+	
+	if (!key_combo_all_but_preset_released()) {
+		preset_feature_armed = 0;
+		exit_preset_manager();
+	}
+
+	if (ui_mode==PLAY && key_combo_all_but_preset_released() && preset_feature_armed)
+		handle_preset_events(enc,enc2);
+
+	else if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))	
+		handle_wt_saving_events(enc);
+}
 
 
 
