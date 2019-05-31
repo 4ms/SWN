@@ -107,6 +107,7 @@ void store_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 	pause_timer_IRQ(OSC_TIM_number);
 	pause_timer_IRQ(WT_INTERP_TIM_number);
 	pause_timer_IRQ(PWM_OUTS_TIM_number);
+	while (get_flash_state() != sFLASH_NOTBUSY) {;}
 
 	//store other half of sector in a temp variable
 	other_preset_addr = get_preset_addr((preset_num & 1) ? preset_num-1 : preset_num+1);
@@ -145,6 +146,8 @@ void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 	pause_timer_IRQ(OSC_TIM_number);
 	pause_timer_IRQ(WT_INTERP_TIM_number);
 	pause_timer_IRQ(PWM_OUTS_TIM_number);
+
+	while (get_flash_state() != sFLASH_NOTBUSY) {;}
 
 	//Manually checking is not necessary, but we want to make sure this sector is readable, and we already have control of FLASH
 	preset_is_filled = check_preset_filled(preset_num, &version);
@@ -194,6 +197,7 @@ void clear_preset(uint32_t preset_num)
 	uint32_t other_preset_addr;
 
 	pause_timer_IRQ(WT_INTERP_TIM_number);
+	while (get_flash_state() != sFLASH_NOTBUSY) {;}
 
 	//store other half of sector in a temp variable
 	other_preset_addr = get_preset_addr((preset_num & 1) ? preset_num-1 : preset_num+1);
@@ -226,6 +230,7 @@ void clear_all_presets(void)
 	uint8_t sz;
 
 	pause_timer_IRQ(WT_INTERP_TIM_number);
+	while (get_flash_state() != sFLASH_NOTBUSY) {;}
 
 	for (preset_num=0; preset_num<MAX_PRESETS; preset_num++)
 	{
@@ -259,6 +264,8 @@ uint8_t check_preset_filled(uint32_t preset_num, char *version)
 	uint32_t sz;
 
 	sz = 4;
+	while (get_flash_state() != sFLASH_NOTBUSY) {;}
+
 	sFLASH_read_buffer((uint8_t *)read_data, addr, sz);
 
 	if (   read_data[0] == preset_signature[0] 
