@@ -51,7 +51,7 @@
 #include "wavetable_editing.h"
 #include "ui_modes.h"
 #include "key_combos.h"
-#include "wavetable_saving.h"
+#include "wavetable_saveload.h"
 #include "wavetable_effects.h"
 #include "preset_manager.h"
 #include "preset_manager_UI.h"
@@ -62,7 +62,7 @@
 #include "flash_params.h" 
 #include "ui_modes.h"
 #include "oscillator.h"
-#include "wavetable_saving_UI.h"
+#include "wavetable_saveload_UI.h"
 #include "drivers/flashram_spidma.h"
 #include "wavetable_play_export.h"
 

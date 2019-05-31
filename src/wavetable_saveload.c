@@ -1,7 +1,7 @@
 /*
- * wavetable_saving.c
+ * wavetable_saveload.c
  *
- * Author: Hugo Paris (hugoplho@gmail.com), Dan Green (danngreen1@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,8 +28,8 @@
 
 
 #include <stm32f7xx.h>
-#include "wavetable_saving.h"
-#include "wavetable_saving_UI.h"
+#include "wavetable_saveload.h"
+#include "wavetable_saveload_UI.h"
 #include "wavetable_editing.h"
 #include "params_sphere_enable.h"
 #include "math_util.h"
@@ -72,9 +72,6 @@ uint8_t bank_to_sphere_index(uint8_t wtbank)
 	uint8_t i;
 	uint8_t filled_sphere_count;
 
-	// if (wtbank<NUM_FACTORY_SPHERES)
-	// 	return wtbank;
-
 	if (!is_sphere_filled(wtbank))
 		return 0; //error: bank is not filled, return fail-safe value
 
@@ -115,12 +112,10 @@ void save_user_sphere(uint8_t sphere_num)
 }
 
 void load_sphere(uint8_t sphere_num)
-{
-	uint8_t sphere_index;
-	
+{	
 	params.wt_bank[0] = sphere_num;
-	sphere_index = bank_to_sphere_index(sphere_num);
-	set_wtsel(sphere_index);
+	// sphere_index = bank_to_sphere_index(sphere_num);
+	// set_wtsel(sphere_index);
 
 	enter_wtediting();
 }

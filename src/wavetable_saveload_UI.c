@@ -1,5 +1,5 @@
 /*
- * wavetable_saving_UI.c - Saving and recalling spheres
+ * wavetable_saveload_UI.c - Saving and recalling spheres
  *
  * Author: Dan Green (danngreen1@gmail.com)
  *
@@ -27,8 +27,8 @@
  */
 
 
-#include "wavetable_saving_UI.h"
-#include "wavetable_saving.h"
+#include "wavetable_saveload_UI.h"
+#include "wavetable_saveload.h"
 #include "wavetable_editing.h"
 #include "led_cont.h"
 #include "UI_conditioning.h"
@@ -304,15 +304,6 @@ void animate_wt_saving_ledring(uint8_t slot_i, o_rgb_led *rgb)
 			ring_color = clear_animation_color;
 			direction = -1;
 		}
-		// else if (user_sphere_mgr.mode == WTS_DOING_ENABLE) {
-		// 	slot_color = ledc_GREEN;
-		// 	direction = 0;
-		// }
-		// else if (user_sphere_mgr.mode == WTS_DOING_DISABLE) {
-		// 	slot_color = ledc_BLUE;
-		// 	direction = 0;
-		// }
-
 		else {
 			ring_color = load_animation_color;
 			direction = 1;

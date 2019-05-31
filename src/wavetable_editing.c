@@ -30,8 +30,8 @@
 #include <math.h>
 #include "wavetable_editing.h"
 #include "wavetable_effects.h"
-#include "wavetable_saving.h"
-#include "wavetable_saving_UI.h"
+#include "wavetable_saveload.h"
+#include "wavetable_saveload_UI.h"
 #include "oscillator.h"
 #include "params_update.h"
 #include "params_sphere_enable.h"
