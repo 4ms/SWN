@@ -36,6 +36,7 @@
 #include "analog_conditioning.h"
 
 void get_browse_nav(float browse_pos, float *x, float *y, float *z);
+uint8_t get_browse_index(uint8_t x, uint8_t y, uint8_t z);
 void update_wbrowse(int16_t inc);
 void update_wbrowse_cv(void);
 void update_wbrowse_step_pos(uint8_t chan);

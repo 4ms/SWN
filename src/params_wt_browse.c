@@ -50,7 +50,6 @@ const float F_SCALING_FINE_BROWSE 		= 0.005;
 const float F_SCALING_BROWSE_FADE_STEP  = 0.020;
 const float VELOCITY 					= 40.0;
 
-
 const float BROWSE_TABLE[ NUM_WAVEFORMS_IN_SPHERE ][ NUM_WT_DIMENSIONS ] =
 {
 	{0.0,0.0,0.0},
@@ -91,7 +90,8 @@ const float BROWSE_TABLE[ NUM_WAVEFORMS_IN_SPHERE ][ NUM_WT_DIMENSIONS ] =
 };
 
 
-void get_browse_nav(float browse_pos, float *x, float *y, float *z){
+void get_browse_nav(float browse_pos, float *x, float *y, float *z)
+{
 	uint8_t fade0_i, fade1_i;
 	float fade_f;
 
@@ -111,7 +111,6 @@ void get_browse_nav(float browse_pos, float *x, float *y, float *z){
 		*y = (BROWSE_TABLE[fade0_i][1] * (1.0-fade_f)) + (BROWSE_TABLE[fade1_i][1] * fade_f);
 		*z = (BROWSE_TABLE[fade0_i][2] * (1.0-fade_f)) + (BROWSE_TABLE[fade1_i][2] * fade_f);
 	}
-	
 	else
 	{
 		*x = BROWSE_TABLE[fade0_i][0];
@@ -119,6 +118,21 @@ void get_browse_nav(float browse_pos, float *x, float *y, float *z){
 		*z = BROWSE_TABLE[fade0_i][2];
 	}
 }
+
+uint8_t get_browse_index(uint8_t x, uint8_t y, uint8_t z)
+{
+	uint8_t i;
+	for (i=0; i<NUM_WAVEFORMS_IN_SPHERE; i++)
+	{
+		if (BROWSE_TABLE[i][0]==x && BROWSE_TABLE[i][1]==y && BROWSE_TABLE[i][2]==z)
+			break;
+	}
+	if (i<NUM_WAVEFORMS_IN_SPHERE)
+		return i;
+	else
+		return 0;
+}
+
 
 static float wbrowse_dest[NUM_CHANNELS]={0};
 

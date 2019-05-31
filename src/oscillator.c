@@ -75,6 +75,7 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 	static float 	prev_level[NUM_CHANNELS] = {0.0};
 	float 			interpolated_level, level_inc;
 
+	//Todo: use a separate callback for WTTTONE mode, and another one for WTRECORDING/WTMONITORING/WTREC_WAIT
 	oscout_status = 	((ui_mode != WTRECORDING) && (ui_mode != WTMONITORING) && (ui_mode != WTREC_WAIT));
 	audiomon_status = 	((ui_mode == WTRECORDING) || (ui_mode == WTMONITORING) || (ui_mode == WTTTONE) || (ui_mode == WTREC_WAIT));
 
@@ -126,9 +127,6 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 			{
 				audio_in_sample = convert_s24_to_s32(*src++);								
 				UNUSED(*src++);  // ignore right channel input (not connected in hardware)
-
-				if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
-					record_audio_buffer(audio_in_sample);
 			
 				audio_out_sample = (int32_t)( oscout_status * output_buffer_evens[i_sample] * system_settings.master_gain) + audio_in_sample * audiomon_status;	//Add the audio input to the evens buffer
 				*dst++ = compress(audio_out_sample);

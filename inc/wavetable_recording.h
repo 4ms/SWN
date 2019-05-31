@@ -30,14 +30,20 @@
 #pragma once
 
 #include <stm32f7xx.h>
-#include "sphere.h"
+//#include "sphere.h"
 #include "wavetable_editing.h"
 
 typedef struct o_recbuf{
-	uint32_t 				wh;	// write head
+	uint32_t 				wh;
 	int16_t 				data[NUM_SAMPLES_IN_RECBUF_SMOOTHED];
-	uint8_t					reset;
-}o_recbuf;
+	uint32_t				start_pos;
+	uint32_t				end_pos;
+} o_recbuf;
+
+enum RecordWindows {
+	RECORD_CURRENT = 0,
+	RECORD_ALL = 0xFF
+};
 
 // Threshold of audio to trigger recording, in mV 
 #define REC_THRESHOLD_mV 48
@@ -45,9 +51,9 @@ typedef struct o_recbuf{
 //#define REC_THRESHOLD (((REC_THRESHOLD_mV/1000) / MAX_RANGE_V) * (INT32_MAX>>8))
 #define REC_THRESHOLD (REC_THRESHOLD_mV * 419)
 
-void record_audio_buffer(int32_t audio_in_sample);
-void init_wtrec(void);
+void init_wtrecording(uint8_t wave_browse_i);
 void display_wt_recbuff_fill_outring(void);
 void display_wt_rec_wait(void);
+void enter_wtrecording(uint8_t record_window);
 
 uint32_t get_recbuf_wh(void);

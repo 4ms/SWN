@@ -300,10 +300,7 @@ void init_calc_params(void)
 }
 
 
-void set_pitch_params_to_ttone(void) {
-
-	params.dispersion_enc   = 0;
-
+void set_pitch_params_to_ttone(void){
 	set_pitch_param_to_ttone(0);
 	set_pitch_param_to_ttone(1);
 	set_pitch_param_to_ttone(2);
@@ -1941,7 +1938,6 @@ void update_wt_nav(uint8_t wt_dim, float wt_nav_increment)
 	}
 }
 
-
 void update_wt_nav_cv(uint8_t wt_dim)
 {
 	if (wt_dim>1) 
@@ -1949,7 +1945,6 @@ void update_wt_nav_cv(uint8_t wt_dim)
 	else
 		params.wt_nav_cv[wt_dim] = (float)(analog[ DIM_ANALOG[wt_dim] ].bracketed_val) * (float)WT_DIM_SIZE / 4095.0; //0..3
 }
-
 
 
 void update_wt_disp(uint8_t clear_lpf){

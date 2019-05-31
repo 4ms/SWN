@@ -72,6 +72,8 @@ typedef struct o_spherebuf{
 	float 					fx 			[NUM_FX][WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE];
 	uint32_t 				maxvalbuf 	[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE];
 	o_waveform 				data		[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE];
+	
+	uint32_t 				start_pos	[NUM_WAVEFORMS_IN_SPHERE];
 } o_spherebuf;
 
 
@@ -81,13 +83,10 @@ void init_sphere_editor(void);
 void set_params_for_editing(void);
 
 void enter_wtrendering(void);
-void enter_wtrendering_fromcur(void);
-void enter_wtrender_recbuff(void);
 void enter_wtediting(void);
 void stage_enter_wtediting(void);
 void enter_wtmonitoring(void);
 void enter_wtttone(void);
-void enter_wtrecording(void);
 void exit_wtediting(void);
 
 void copy_current_sphere_to_recbuf(uint8_t sphere_index);

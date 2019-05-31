@@ -65,7 +65,7 @@
 #include "sphere.h"
 #include "wavetable_recording.h" 
 #include "wavetable_editing.h"
-#include "wavetable_saving.h"
+#include "wavetable_saveload.h"
 #include "analog_conditioning.h"
 #include "UI_conditioning.h"
 #include "drivers/flashram_spidma.h"
@@ -244,7 +244,7 @@ int main(void)
 	codec_I2C_init();
 	codec_register_setup(SAMPLERATE);
 
-	init_wt_edit_settings();
+	//init_wt_edit_settings();
 
 	//Start audio processing
 	set_audio_callback(&process_audio_block_codec);

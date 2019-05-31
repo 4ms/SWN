@@ -42,7 +42,7 @@ enum 	UI_Modes ui_mode;
 void check_ui_mode_requests(void){
 	
 	static enum 	UI_Modes arm_ui;
-	uint8_t 		flag;
+	static uint8_t	flag=0;
 
 	if (ui_mode == PLAY){
 
@@ -54,18 +54,19 @@ void check_ui_mode_requests(void){
 
 	else if (ui_mode == WTREC_WAIT){
 		if 		(key_combo_enter_recording())		{arm_ui = WTEDITING;}
-
 	}
 
 	else if (ui_mode == WTEDITING){
-		if 		(key_combo_enter_recording())		{arm_ui = WTREC_WAIT;}
+		if 		(key_combo_enter_recording())		{arm_ui = WTREC_WAIT; flag=RECORD_ALL;}
+		else if (key_combo_enter_record_one())		{arm_ui = WTREC_WAIT; flag=RECORD_CURRENT;}
 		else if (key_combo_enter_ttone())			{arm_ui = WTTTONE;}
 		else if (key_combo_enter_monitoring())		{arm_ui = WTMONITORING;}
 		else if (key_combo_exit_request())			{arm_ui = WTREC_EXIT;}
 	}
 	
 	else if (ui_mode == WTMONITORING){
-		if 		(key_combo_enter_recording())		{arm_ui = WTREC_WAIT;}
+		if 		(key_combo_enter_recording())		{arm_ui = WTREC_WAIT; flag=RECORD_ALL;}
+		else if (key_combo_enter_record_one())		{arm_ui = WTREC_WAIT; flag=RECORD_CURRENT;}
 		else if (key_combo_enter_ttone())			{arm_ui = WTTTONE;}
 		else if (key_combo_exit_monitoring())		{arm_ui = WTEDITING;}
 		else if (key_combo_load_request())			{arm_ui = WTLOAD_SELECTING;} //FixMe: is this used?
@@ -73,15 +74,16 @@ void check_ui_mode_requests(void){
 	}
 
 	else if (ui_mode == WTTTONE){
-		if 		(key_combo_enter_recording())		{arm_ui = WTREC_WAIT;}
+		if 		(key_combo_enter_recording())		{arm_ui = WTREC_WAIT; flag=RECORD_ALL;}
+		else if (key_combo_enter_record_one())		{arm_ui = WTREC_WAIT; flag=RECORD_CURRENT;}
 		else if (key_combo_enter_monitoring())		{arm_ui = WTMONITORING;}
 		else if (key_combo_load_request())			{arm_ui = WTLOAD_SELECTING;}  //FixMe: is this used?
 		else if (key_combo_exit_request())			{arm_ui = WTREC_EXIT;}
 	}
 	
-	else if ((ui_mode == WTREC_WAIT) || (ui_mode == WTRENDERING)){
-		if 		(key_combo_enter_recording())		{arm_ui = WTREC_WAIT;}
-	}
+	// else if (ui_mode == WTRENDERING){
+	// 	if 		(key_combo_enter_recording())		{arm_ui = WTREC_WAIT;}
+	// }
 
 	else if (ui_mode == VOCT_CALIBRATE){
 		if (key_combo_exit_voct_calibrate())	{arm_ui = VOCT_CALIBRATE_EXIT;}
@@ -95,8 +97,8 @@ void check_ui_mode_requests(void){
 		arm_ui = UI_NONE;
 	} 
 	
-	else if ((!key_combo_enter_recording()) && (arm_ui == WTREC_WAIT)){
-		enter_wtrecording();
+	else if ((!key_combo_enter_recording()) && (!key_combo_enter_record_one()) && arm_ui==WTREC_WAIT){
+		enter_wtrecording(flag);
 		arm_ui = UI_NONE;
 	}
 
@@ -112,7 +114,7 @@ void check_ui_mode_requests(void){
 		arm_ui = UI_NONE;
 	}
 
-	else if (key_combo_enter_editing_released() && (!key_combo_exit_monitoring()) && (!key_combo_enter_recording()) && (arm_ui == WTEDITING)){
+	else if (key_combo_enter_editing_released() && (!key_combo_exit_monitoring()) && (!key_combo_enter_recording()) && (!key_combo_enter_record_one()) && (arm_ui == WTEDITING)){
 		stage_enter_wtediting();
 		arm_ui = UI_NONE;
 	}

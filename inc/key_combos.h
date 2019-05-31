@@ -41,7 +41,8 @@ static inline uint8_t key_combo_enter_monitoring		(void)	{ return  button_presse
 static inline uint8_t key_combo_enter_ttone				(void)	{ return (key_combo_enter_monitoring() && switch_pressed(FINE_BUTTON)); }
 static inline uint8_t key_combo_exit_monitoring			(void)	{ return  key_combo_enter_monitoring(); }
 static inline uint8_t key_combo_enter_immediate_rec		(void)	{ return (key_combo_enter_editing() && switch_pressed(FINE_BUTTON)); }
-static inline uint8_t key_combo_enter_recording			(void)	{ return  button_pressed(butm_LFOVCA_BUTTON); }
+static inline uint8_t key_combo_enter_recording			(void)	{ return  button_pressed(butm_LFOVCA_BUTTON) && !switch_pressed(FINE_BUTTON); }
+static inline uint8_t key_combo_enter_record_one		(void)	{ return  button_pressed(butm_LFOVCA_BUTTON) && switch_pressed(FINE_BUTTON); }
 
 static inline uint8_t key_combo_save_request			(void)	{ return  rotary_short_pressed(rotm_PRESET); }
 static inline uint8_t key_combo_save_confirm			(void)	{ return  rotary_pressed(rotm_PRESET); }
