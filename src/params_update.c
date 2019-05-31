@@ -459,14 +459,15 @@ void read_noteon(uint8_t i)
 					calc_params.armed[armf_NOTE_ON][i] = 0;	
 					if (!calc_params.already_handled_button[i])
 					{
-						if (calc_params.lock_change_staged[i]) {
+						if (calc_params.lock_change_staged[i]==1) {
 							toggle_lock(i);
-							calc_params.lock_change_staged[i] = 0;
-						 } else
+							calc_params.lock_change_staged[i]=2;
+						 }
+						 else
 							params.note_on[i] = 1 - params.note_on[i];
 					}
 				}
-				calc_params.already_handled_button[i]  = 0;
+				calc_params.already_handled_button[i] = 0;
 			}
 		}
 
@@ -482,9 +483,16 @@ void read_noteon(uint8_t i)
 				}
 				
 				if (!new_key_armed[i]) {
-					params.new_key[i] = 1;
-					new_key_armed[i]=1;
-					params.note_on[i] = 1;
+					new_key_armed[i] = 1;
+
+					if (calc_params.lock_change_staged[i]==1) {
+						toggle_lock(i);
+						calc_params.lock_change_staged[i]=2;
+					 } 
+					 else {
+						params.new_key[i] = 1;
+						params.note_on[i] = 1;
+					}
 				}
 			}
 
@@ -505,7 +513,6 @@ void read_noteon(uint8_t i)
 				}
 			}
 		}
-
 	}
 
 	// other UI modes
@@ -1105,8 +1112,12 @@ void update_osc_param_lock(void)
 
 	for (chan=0; chan<NUM_CHANNELS; chan++)
 	{
-		if (key_combo_lock_channel(chan))
-			calc_params.lock_change_staged[chan] = 1;
+		if (key_combo_lock_channel(chan)) {
+			if (calc_params.lock_change_staged[chan]==0)
+				calc_params.lock_change_staged[chan] = 1;
+		} else
+			if (calc_params.lock_change_staged[chan]==2)
+				calc_params.lock_change_staged[chan] = 0;
 	}
 }
 
