@@ -586,7 +586,7 @@ void read_lfoto_vca_vco(uint8_t i){
 			calc_params.armed[armf_LFOTOVCA][i] = 0;
 			
 			if(button_pressed(i)){
-				if (!lfos.locked[i])
+				//if (!lfos.locked[i])
 					calc_params.armed[armf_LFOTOVCA][i] = 1;
 				calc_params.already_handled_button[i] = 1;
 				calc_params.button_safe_release[0] = 1;		
@@ -594,7 +594,7 @@ void read_lfoto_vca_vco(uint8_t i){
 		}
 		
 		if (!button_pressed(i) && any_button_pressed && calc_params.armed[armf_LFOTOVCA][i]){
-			if (!lfos.locked[i])
+			//if (!lfos.locked[i])
 				lfos.to_vca[i] = 1 - lfos.to_vca[i];
 			calc_params.armed[armf_LFOTOVCA][i] = 0;
 		}
@@ -614,7 +614,7 @@ void read_lfoto_vca_vco(uint8_t i){
 	else if (!button_pressed(butm_LFOVCA_BUTTON))
 	{
 		if (calc_params.armed[armf_LFOTOVCA][i]){
-			if (!lfos.locked[i]) 
+			//if (!lfos.locked[i]) 
 				lfos.to_vca[i] = 1 - lfos.to_vca[i];
 			calc_params.armed[armf_LFOTOVCA][i] = 0;
 		}
@@ -630,7 +630,7 @@ void read_lfoto_vca_vco(uint8_t i){
 
 void read_lfomode(uint8_t i)
 {
-	static uint8_t any_button_pressed; //==1 when a channel button is pressed
+	static uint8_t any_button_pressed;
 	static uint8_t cached[NUM_CHANNELS] = {0};
 
 	if (!lfos.audio_mode[i])
@@ -649,17 +649,18 @@ void read_lfomode(uint8_t i)
 				calc_params.armed[armf_LFOMODE][i] = 0;
 				
 				if(button_pressed(i)){
-					if (!lfos.locked[i]) calc_params.armed[armf_LFOMODE][i] = 1;
+					//if (!lfos.locked[i])
+						calc_params.armed[armf_LFOMODE][i] = 1;
 					calc_params.already_handled_button[i] = 1;
 					calc_params.button_safe_release[1] = 1;
 				}
 			}
 			
 			if (!button_pressed(i) && any_button_pressed && calc_params.armed[armf_LFOMODE][i]){
-				if (!lfos.locked[i]) {
+				//if (!lfos.locked[i]) {
 					lfos.mode[i] ++;
 					lfos.mode[i] %= NUM_LFO_MODES;
-				}
+				//}
 				calc_params.armed[armf_LFOMODE][i]   = 0;
 			}
 
@@ -723,7 +724,7 @@ void read_all_keymodes(void){
 				any_button_pressed = 1;
 				calc_params.armed[armf_KEYMODE][i] = 0;
 				
-				if(!lfos.locked[i] && button_pressed(i)){
+				if(/*!lfos.locked[i] && */button_pressed(i)){
 					calc_params.armed[armf_KEYMODE][i]   = 1;
 					calc_params.already_handled_button[i] = 1;
 					calc_params.button_safe_release[0]  	 = 1;		
@@ -731,7 +732,7 @@ void read_all_keymodes(void){
 				}
 			}
 			
-			if (!lfos.locked[i] && !button_pressed(i) && any_button_pressed && calc_params.armed[armf_KEYMODE][i]){
+			if (/*!lfos.locked[i] && */ !button_pressed(i) && any_button_pressed && calc_params.armed[armf_KEYMODE][i]){
 				change_keymode[i] = 1;
 				calc_params.armed[armf_KEYMODE][i]   = 0;
 			}
@@ -751,7 +752,7 @@ void read_all_keymodes(void){
 
 		else if (key_combo_keymode_released()){
 			if (calc_params.armed[armf_KEYMODE][i]){
-				if (!lfos.locked[i])
+				//if (!lfos.locked[i])
 					change_keymode[i] = 1;
 				calc_params.armed[armf_KEYMODE][i] = 0;
 			}
