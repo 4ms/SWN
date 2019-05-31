@@ -44,6 +44,7 @@ extern o_spherebuf spherebuf;
 
 extern o_UserSphereManager user_sphere_mgr;
 extern o_params params;
+extern o_calc_params calc_params;
 
 // Given a sphere index (the "nth" sphere), return the physical bank number (flash slot)
 //
@@ -70,20 +71,20 @@ uint8_t sphere_index_to_bank(uint8_t wtsel)
 uint8_t bank_to_sphere_index(uint8_t wtbank)
 {
 	uint8_t i;
-	uint8_t filled_sphere_count;
+	uint8_t filled_sphere_count = 0;
 
 	if (!is_sphere_filled(wtbank))
 		return 0; //error: bank is not filled, return fail-safe value
-
-	filled_sphere_count = NUM_FACTORY_SPHERES-1;
 
 	for (i=0; i<=wtbank; i++)
 	{
 		if (is_sphere_filled(i))
 			filled_sphere_count++;
 	}
-
-	return filled_sphere_count;
+	if (filled_sphere_count)
+		return filled_sphere_count-1;
+	else
+		return 0;
 }
 
 void update_number_of_user_spheres_filled(void)
@@ -113,9 +114,16 @@ void save_user_sphere(uint8_t sphere_num)
 
 void load_sphere(uint8_t sphere_num)
 {	
-	params.wt_bank[0] = sphere_num;
-	// sphere_index = bank_to_sphere_index(sphere_num);
-	// set_wtsel(sphere_index);
+	uint8_t sphere_index;
+	uint8_t i;
+	for (i=0; i<NUM_CHANNELS; i++) {
+		// if (!params.wtsel_lock[i]) {
+			params.wt_bank[i] = sphere_num;
+			sphere_index = bank_to_sphere_index(sphere_num);
+			params.wtsel_enc[i] = sphere_index;
+			calc_params.wtsel[i] = sphere_index;
+		// }
+	}
 
 	enter_wtediting();
 }

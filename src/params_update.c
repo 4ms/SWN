@@ -299,38 +299,27 @@ void init_calc_params(void)
 	calc_params.button_safe_release[1] = 0;
 }
 
+void set_pitch_params_to_ttone(void) {
+	for (uint8_t chan=0; chan<NUM_CHANNELS; chan++)
+	{
+		params.finetune[chan] 	  				= 0;
+		compute_tuning(chan);
+		
+		params.transpose_enc[chan] 	  			= TTONE_TRANSPOSE;				
+		params.spread_enc[chan] 				= 0;
 
-void set_pitch_params_to_ttone(void){
-	set_pitch_param_to_ttone(0);
-	set_pitch_param_to_ttone(1);
-	set_pitch_param_to_ttone(2);
-	set_pitch_param_to_ttone(3);
-	set_pitch_param_to_ttone(4);
-	set_pitch_param_to_ttone(5);
+		params.oct[chan] 	  					= TTONE_OCT;
+		params.indiv_scale[chan] 	  			= 0;
+		params.indiv_scale_buf[chan] 	  		= params.indiv_scale[chan];
+
+		params.qtz_note_changed[chan]			= 0;
+	}
 
 	combine_transpose_spread();
 	compute_transpositions();
-	
-	update_pitch(0);
-	update_pitch(1);
-	update_pitch(2);
-	update_pitch(3);
-	update_pitch(4);
-	update_pitch(5);
-}
 
-void set_pitch_param_to_ttone(uint8_t chan) {
-	params.finetune[chan] 	  				= 0;
-	compute_tuning(chan);
-	
-	params.transpose_enc[chan] 	  			= TTONE_TRANSPOSE;				
-	params.spread_enc[chan] 				= 0;
-
-	params.oct[chan] 	  					= TTONE_OCT;
-	params.indiv_scale[chan] 	  			= 0;
-	params.indiv_scale_buf[chan] 	  		= params.indiv_scale[chan];
-
-	params.qtz_note_changed[chan]			= 0;
+	for (uint8_t chan=0; chan<NUM_CHANNELS; chan++)
+		update_pitch(chan);
 }
 
 void check_reset_navigation(void)
@@ -363,6 +352,52 @@ void check_reset_navigation(void)
 				params.wt_bank[i]						= 0;	
 			}
 		 }
+	}
+}
+
+void cache_uncache_nav_params(enum CacheUncache cache_uncache)
+{
+	uint8_t i;
+	static float cached_dispersion_enc;
+	static int8_t cached_wtsel_enc[NUM_CHANNELS];
+	static int8_t cached_wtsel_spread_enc[NUM_CHANNELS];
+	static float cached_wt_nav_enc[3][NUM_CHANNELS];
+	static float cached_wt_browse_step_pos_enc[NUM_CHANNELS];
+	static uint8_t cached_wt_bank[NUM_CHANNELS];
+
+	if (cache_uncache==CACHE)
+	{
+		cached_dispersion_enc = params.dispersion_enc;
+		for (i=0;i<NUM_CHANNELS;i++)
+		{
+			cached_wtsel_enc[i] = params.wtsel_enc[i];
+			cached_wtsel_spread_enc[i] = params.wtsel_spread_enc[i];
+			cached_wt_bank[i] = params.wt_bank[i];
+			cached_wt_nav_enc[0][i] = params.wt_nav_enc[0][i];
+			cached_wt_nav_enc[1][i] = params.wt_nav_enc[1][i];
+			cached_wt_nav_enc[2][i] = params.wt_nav_enc[2][i];
+			cached_wt_browse_step_pos_enc[i] = params.wt_browse_step_pos_enc[i];
+		}
+	}
+	else 
+	{
+		params.dispersion_enc = cached_dispersion_enc;
+		for (i=0;i<NUM_CHANNELS;i++)
+		{
+			if (params.wtsel_lock[i])
+			{
+				params.wtsel_enc[i] = cached_wtsel_enc[i];
+				params.wtsel_spread_enc[i] = cached_wtsel_spread_enc[i];
+				params.wt_bank[i] = cached_wt_bank[i];
+			}
+			if (params.wt_pos_lock[i])
+			{
+				params.wt_nav_enc[0][i] = cached_wt_nav_enc[0][i];
+				params.wt_nav_enc[1][i] = cached_wt_nav_enc[1][i];
+				params.wt_nav_enc[2][i] = cached_wt_nav_enc[2][i];
+				params.wt_browse_step_pos_enc[i] = cached_wt_browse_step_pos_enc[i];
+			}
+		}
 	}
 }
 
@@ -758,9 +793,7 @@ void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
 			if(params.indiv_scale[chan]==0)
 				params.indiv_scale[chan]= 1;
 
-			//lfos.cycle_spent[chan] = (1.0/lfos.spro[chan]) + 1.0;
 			lfos.cycle_pos[chan] = 1.0;
-			// set_lfo_divmult_id(chan, LFO_UNITY_DIVMULT_ID+2);
 			lfos.divmult_id[chan] = LFO_UNITY_DIVMULT_ID+2;
 			flag_lfo_recalc(chan);
 
@@ -784,6 +817,26 @@ void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
 	lfos.muted[chan] = 0;
 }
 
+void cache_uncache_keymodes(enum CacheUncache cache_uncache)
+{
+	static enum MuteNoteKeyStates cached_key_sw[NUM_CHANNELS];
+
+	for (uint8_t chan=0; chan<NUM_CHANNELS; chan++)
+	{
+		if (cache_uncache==CACHE){
+			cached_key_sw[chan] = params.key_sw[chan];
+		}
+		else {
+			apply_keymode(chan, cached_key_sw[chan]);
+		} 
+	}
+}
+
+void apply_all_keymodes(enum MuteNoteKeyStates new_keymode)
+{
+	for (uint8_t chan=0; chan<NUM_CHANNELS; chan++)
+		apply_keymode(chan, new_keymode);
+}
 
 void cache_uncache_keys_params_and_lfos(uint8_t chan, enum CacheUncache cache_uncache)
 {
@@ -1849,7 +1902,8 @@ void update_wtsel(void){
 		spread_sum = _WRAP_U8(spread_cv + params.wtsel_spread_enc[chan], 0, NUM_WTSEL_SPREADS);
 		wtsel_sum = params.wtsel_enc[chan] + wtsel_cv + WTSEL_SPREAD[spread_sum][chan];
 
-		calc_params.wtsel[chan] = _WRAP_I8(wtsel_sum, 0, num_spheres_filled);
+		if (!params.osc_param_lock[chan])
+			calc_params.wtsel[chan] = _WRAP_I8(wtsel_sum, 0, num_spheres_filled);
 	}
 }
 
@@ -1861,7 +1915,7 @@ void update_wt_bank(void)
 	for (i=0; i<NUM_CHANNELS; i++){	
 		test_bank = sphere_index_to_bank(calc_params.wtsel[i]);
 		
-		if (params.wt_bank[i] != test_bank){
+		if ((params.wt_bank[i]!=test_bank) && (!params.osc_param_lock[i])) {
 			params.wt_bank[i] = test_bank;
 			req_wt_interp_update(i);
 		}
@@ -1909,9 +1963,12 @@ void set_wtsel(uint8_t selection)
 {
 	uint8_t i;
 
-	for (i=0; i<NUM_CHANNELS; i++){
-		params.wtsel_spread_enc[i] = 0;
-		params.wtsel_enc[i] = selection;
+	for (i=0; i<NUM_CHANNELS; i++)
+	{
+		if (!params.osc_param_lock[i]) {
+			params.wtsel_spread_enc[i] = 0;
+			params.wtsel_enc[i] = selection;
+		}
 	}
 	update_wtsel();
 	update_wt_bank();
@@ -1953,9 +2010,10 @@ void update_wt_disp(uint8_t clear_lpf){
 	float 			disp_encoder_motion;
 	static float 	disp_encoder_motion_lpf = 0.0f;
 
-	if(clear_lpf==CLEAR_LPF){disp_encoder_motion_lpf = 0;}
+	if (clear_lpf==CLEAR_LPF)
+		disp_encoder_motion_lpf = 0;
 
-	else{
+	else {
 		// Dispersion encoder
 		disp_encoder_motion = pop_encoder_q(sec_DISPERSION) * (switch_pressed(FINE_BUTTON) ? F_SCALING_FINE_DISPERSION : F_SCALING_DISPERSION);
 		disp_encoder_motion_lpf = (disp_encoder_motion_lpf * (1.0-F_SCALING_DISPERSION_LPF)) + (disp_encoder_motion * F_SCALING_DISPERSION_LPF);
@@ -1968,7 +2026,7 @@ void update_wt_disp(uint8_t clear_lpf){
 		// Pattern encoder
 		patt_encoder_motion = pop_encoder_q(sec_DISPPATT);															
 		if(patt_encoder_motion)
-			params.disppatt_enc = _WRAP_I8(params.disppatt_enc + patt_encoder_motion, 0, NUM_DISPPAT); //todo: test it without this wrap, and/or make disppatt a uint8_t and we can avoid this wrap (since it'll wrap at 255)
+			params.disppatt_enc = _WRAP_I8(params.disppatt_enc + patt_encoder_motion, 0, NUM_DISPPAT);
 
 		// Pattern cv
 		params.disppatt_cv = analog[DISPPAT_CV].bracketed_val * NUM_DISPPAT / 4095;
@@ -1998,7 +2056,6 @@ void calc_wt_pos(uint8_t chan){
 	uint8_t disp_pattern;
 	float 	new_wt_pos = 10;
 	uint8_t snap_to_int=0;
-	float 	cv;
 
 	if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode) && !switch_pressed(FINE_BUTTON))
 		snap_to_int = 1;
@@ -2009,24 +2066,23 @@ void calc_wt_pos(uint8_t chan){
 	nav_enc[2] 	= params.wt_nav_enc[2][chan];
 	
 	// BROWSE
-	cv = params.wt_pos_lock[chan] ? 0 : params.wt_browse_step_pos_cv;
-
-	total_browse = params.wt_browse_step_pos_enc[chan] + cv;
+	total_browse = params.wt_browse_step_pos_enc[chan] + params.wt_browse_step_pos_cv;
 	get_browse_nav(total_browse, &browse_nav[0], &browse_nav[1], &browse_nav[2]);
 
 	// DISPERSION
-	cv = params.wt_pos_lock[chan] ? 0 : params.dispersion_cv;
-	total_disp = _FOLD_F(params.dispersion_enc, 1.0) + cv;
+	total_disp = _FOLD_F(params.dispersion_enc, 1.0) + params.dispersion_cv;
 
-	cv = params.wt_pos_lock[chan] ? 0 : params.disppatt_cv;
-	disp_pattern = _WRAP_U8(params.disppatt_enc + cv, 0, NUM_DISPPAT);
+	disp_pattern = _WRAP_U8(params.disppatt_enc + params.disppatt_cv, 0, NUM_DISPPAT);
 
 	// COMBINING
 	for (wt_dim=0;wt_dim<NUM_WT_DIMENSIONS;wt_dim++){
 
-		disp_amt 	= WT_DIM_SIZE * total_disp * (WT_SPREAD_PATTERN[disp_pattern][chan][wt_dim])/100.0;
-		cv = params.wt_pos_lock[chan] ? 0 : params.wt_nav_cv[wt_dim];
-		new_wt_pos 	= _WRAP_F(disp_amt + browse_nav[wt_dim] + cv + nav_enc[wt_dim], 0, WT_DIM_SIZE);
+		disp_amt = WT_DIM_SIZE * total_disp * (WT_SPREAD_PATTERN[disp_pattern][chan][wt_dim])/100.0;
+
+		if (params.wt_pos_lock[chan])	
+			new_wt_pos = calc_params.wt_pos[wt_dim][chan];
+		else
+			new_wt_pos = _WRAP_F(disp_amt + browse_nav[wt_dim] + params.wt_nav_cv[wt_dim] + nav_enc[wt_dim], 0, WT_DIM_SIZE);
 
 		if (snap_to_int)
 			new_wt_pos = _WRAP_F((int32_t)(new_wt_pos+0.5),0,3);

@@ -134,14 +134,21 @@ void enter_wtediting(void)
 {
 	if (ui_mode==PLAY)
 	{
-		cache_all_lfo_tovca();
-		set_all_lfo_to_vca_off();
+		cache_uncache_keymodes(CACHE);
+		apply_all_keymodes(ksw_MUTE);
+		cache_uncache_all_lfo_to_vca(CACHE);
+		set_all_lfo_to_vca(0);
 		cache_uncache_locks(CACHE);
 		unlock_all();
+		cache_uncache_all_lfomodes(CACHE);
+		set_all_lfo_mode(lfot_SHAPE);
+		cache_uncache_nav_params(CACHE);
+
 		init_user_sphere_mgr(params.wt_bank[0]);
+
 		set_params_for_editing();
 	}
-	
+
 	spherebuf.data_source = SPHERESRC_SPHERE;
 	init_wt_edit_settings();
 	copy_current_sphere_to_recbuf(params.wt_bank[0]);
@@ -163,18 +170,21 @@ void enter_wtttone(void){
 
 
 void exit_wtediting(void){
-	uncache_all_lfo_tovca();
+	cache_uncache_all_lfomodes(UNCACHE);
 	cache_uncache_locks(UNCACHE);
+	cache_uncache_all_lfo_to_vca(UNCACHE);
+	cache_uncache_keymodes(UNCACHE);
+	cache_uncache_nav_params(UNCACHE);
 
 	if (!is_sphere_enabled(params.wt_bank[0]))
 		set_wtsel(0);
 
 	set_audio_callback(&process_audio_block_codec);
 
-	ui_mode = PLAY; // switching to internal sphere 
+	ui_mode = PLAY;
 
-	update_all_wt_pos_interp_params();					// re-factor in decimal part of navigation
-	force_all_wt_interp_update();						// re-interpolate, with  wavetables from flash (ui_mode==PLAY)
+	update_all_wt_pos_interp_params();
+	force_all_wt_interp_update();
 }
 
 

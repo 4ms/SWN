@@ -96,7 +96,7 @@ LFLAGS  = $(MCU) -v --specs=nano.specs -T $(LDSCRIPT)  -lc -lrdimon
 # build/src/audio_util.o: CFLAGS = $(C0FLAGS)
 # build/src/wavetable_editing.o: CFLAGS = $(C0FLAGS)
 # build/src/wavetable_saveload.o: CFLAGS = $(C0FLAGS)
-build/src/wavetable_recording.o: CFLAGS = $(C0FLAGS)
+# build/src/wavetable_recording.o: CFLAGS = $(C0FLAGS)
 # build/src/wavetable_effects.o: CFLAGS = $(C0FLAGS)
 # build/src/resample.o: CFLAGS = $(C0FLAGS)
 # build/src/fft_filter.o: CFLAGS = $(C0FLAGS)

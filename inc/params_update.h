@@ -222,7 +222,6 @@ void 		init_pitch_params();
 void 		init_param_object(o_params *t_params);
 
 void 		set_pitch_params_to_ttone(void);
-void 		set_pitch_param_to_ttone(uint8_t chan);
 
 void 		check_reset_navigation(void);
 void 		cache_uncache_pitch_params(enum CacheUncache cache_uncache);
@@ -236,6 +235,8 @@ void 		read_lfomode(uint8_t i);
 
 void 		apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode);
 void 		read_all_keymodes(void);
+void 		cache_uncache_keymodes(enum CacheUncache cache_uncache);
+void 		apply_all_keymodes(enum MuteNoteKeyStates new_keymode);
 
 void 		cache_uncache_keys_params_and_lfos(uint8_t chan, enum CacheUncache cache_uncache);
 
@@ -309,6 +310,7 @@ void 		fix_wtsel_wtbank_offset(void);
 
 // --------- WT POS ---------
 // void 		update_wt_pos_lock(void);
+void 		cache_uncache_nav_params(enum CacheUncache cache_uncache);
 
 void 		update_wt_nav(uint8_t wt_dim, float wt_pos_increment);
 void 		update_wt_nav_cv(uint8_t wt_dim);

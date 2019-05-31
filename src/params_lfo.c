@@ -682,53 +682,35 @@ void init_lfo_to_vc_mode(void)
 
 
 
-void cache_uncache_to_vca(uint8_t chan, enum CacheUncache cache_uncache)
+void cache_uncache_all_lfo_to_vca(enum CacheUncache cache_uncache)
 {
 	static int16_t to_vca[NUM_CHANNELS];
-	switch (cache_uncache)
-	{
-		case CACHE:
-			to_vca[chan] = lfos.to_vca[chan];
-			break;
 
-		case UNCACHE:
-			lfos.to_vca[chan] = to_vca[chan];
-			break;		
+	uint8_t i;
+	for (i = 0; i < NUM_CHANNELS; i++){
+
+		switch (cache_uncache)
+		{
+			case CACHE:
+				to_vca[i] = lfos.to_vca[i];
+				break;
+
+			case UNCACHE:
+				lfos.to_vca[i] = to_vca[i];
+				break;		
+		}
 	}
 }
 
-void cache_all_lfo_tovca(void)
+void set_all_lfo_to_vca(uint8_t newstate)
 {
-	cache_uncache_to_vca(0, CACHE);
-	cache_uncache_to_vca(1, CACHE);
-	cache_uncache_to_vca(2, CACHE);
-	cache_uncache_to_vca(3, CACHE);
-	cache_uncache_to_vca(4, CACHE);
-	cache_uncache_to_vca(5, CACHE);
+	for (uint8_t chan=0; chan<NUM_CHANNELS; chan++)
+		lfos.to_vca[chan] = newstate;
 }
 
-void set_all_lfo_to_vca_off(void)
+void cache_uncache_lfomode(uint8_t chan, enum CacheUncache cache_uncache)
 {
-	lfos.to_vca[0] = 0;
-	lfos.to_vca[1] = 0;
-	lfos.to_vca[2] = 0;
-	lfos.to_vca[3] = 0;
-	lfos.to_vca[4] = 0;
-	lfos.to_vca[5] = 0;
-}
-
-void uncache_all_lfo_tovca(void){
-	cache_uncache_to_vca(0, UNCACHE);
-	cache_uncache_to_vca(1, UNCACHE);
-	cache_uncache_to_vca(2, UNCACHE);
-	cache_uncache_to_vca(3, UNCACHE);
-	cache_uncache_to_vca(4, UNCACHE);
-	cache_uncache_to_vca(5, UNCACHE);
-}
-
-void cache_uncache_lfomode(uint8_t chan, enum CacheUncache cache_uncache){
-	
-	static uint8_t 	cached_mode[NUM_CHANNELS];
+	static uint8_t cached_mode[NUM_CHANNELS];
 
 	switch (cache_uncache){
 
@@ -740,5 +722,17 @@ void cache_uncache_lfomode(uint8_t chan, enum CacheUncache cache_uncache){
 			lfos.mode[chan] = cached_mode[chan];
 			break;
 	}
+}
+
+void cache_uncache_all_lfomodes(enum CacheUncache cache_uncache)
+{
+	for (uint8_t chan=0; chan<NUM_CHANNELS; chan++)
+		cache_uncache_lfomode(chan, cache_uncache);
+}
+
+void set_all_lfo_mode(enum lfoModes mode)
+{
+	for (uint8_t chan=0; chan<NUM_CHANNELS; chan++)
+		lfos.mode[chan] = mode;
 }
 
