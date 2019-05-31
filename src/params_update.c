@@ -344,14 +344,25 @@ void check_reset_navigation(void)
 			 	params.wt_nav_enc[1][i]					= 0;
 			 	params.wt_nav_enc[2][i]					= 0;
 			}
+		 }
+	}
+
+	if (key_combo_reset_sphere_sel())
+	{
+		exit_preset_manager();
+		stop_all_displays();
+
+		for (i=0; i<NUM_CHANNELS; i++)
+		{
 			if (!params.wtsel_lock[i])
 			{
 				params.wtsel_spread_enc[i] 				= 0;
 			 	calc_params.wtsel[i]					= 1; 
 			 	params.wtsel_enc[i]						= 0;
-				params.wt_bank[i]						= 0;	
+				params.wt_bank[i]						= 0;
+				req_wt_interp_update(i);
 			}
-		 }
+		}
 	}
 }
 
@@ -1254,8 +1265,8 @@ void spread_finetune(int16_t tmp)
 
 	for (i = 0; i < NUM_CHANNELS; i++ )
 	{		
-		// if (!params.osc_param_lock[i])
-		// {
+		if (!params.osc_param_lock[i])
+		{
 			if (i<=2)
 				params.finetune[i] += (i - 3) * tmp;
 			else
@@ -1265,7 +1276,7 @@ void spread_finetune(int16_t tmp)
 				do_resync_osc += (1<<i);
 
 			compute_tuning(i);
-		// }
+		}
 	}
 
 	if (do_resync_osc)

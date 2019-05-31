@@ -63,6 +63,7 @@ static inline uint8_t key_combo_reset_transpose			(void)	{ return (rotary_presse
 static inline uint8_t key_combo_reset_octaves			(void)	{ return (rotary_pressed(rotm_PRESET) && rotary_pressed(rotm_OCT)); }
 
 static inline uint8_t key_combo_reset_navigation		(void)	{ return (rotary_pressed(rotm_DEPTH) && rotary_pressed(rotm_LATITUDE) && rotary_pressed(rotm_PRESET)); }
+static inline uint8_t key_combo_reset_sphere_sel		(void)	{ return (rotary_pressed(rotm_LONGITUDE) && rotary_pressed(rotm_PRESET)); }
 
 static inline uint8_t key_combo_reset_lfos_all			(void)	{ return (rotary_short_pressed(rotm_LFOSPEED) && rotary_short_pressed(rotm_LFOSHAPE) && rotary_pressed(rotm_PRESET)); }
 static inline uint8_t key_combo_reset_lfos_shapes		(void)	{ return (!rotary_pressed(rotm_LFOSPEED) && rotary_pressed(rotm_LFOSHAPE) && rotary_pressed(rotm_PRESET)); }
