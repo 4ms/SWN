@@ -136,7 +136,7 @@ void read_LFO_phase(void);
 void read_LFO_shape(void);
 void wrap_lfo_fine_phase(uint8_t chan, float fine_inc);
 float calc_lfo_phase(float phase_id);
-void apply_lfo_cv(void);
+void read_lfo_cv(void);
 void init_lfo_to_vc_mode(void);
 void cache_uncache_all_lfo_to_vca(enum CacheUncache cache_uncache);
 void set_all_lfo_to_vca(uint8_t newstate);

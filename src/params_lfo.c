@@ -54,6 +54,7 @@ extern o_analog analog[NUM_ANALOG_ELEMENTS];
 extern enum UI_Modes ui_mode;
 
 o_lfos   lfos;
+uint16_t divmult_cv;
 
 const float LFO_PHASE_TABLE[LFO_PHASE_TABLELEN]	= {0, 1.0/8.0, 1.0/7.0, 1.0/6.0, 1.0/5.0, 1.0/4.0, 2.0/7.0, 1.0/3.0, 3.0/8.0, 2.0/5.0, 3.0/7.0, 1.0/2.0, 4.0/7.0, 3.0/5.0, 5.0/8.0, 2.0/3.0, 5.0/7.0, 3.0/4.0, 4.0/5.0, 5.0/6.0, 6.0/7.0, 7.0/8.0};
 
@@ -275,7 +276,7 @@ void update_lfo_params(void)
 	read_LFO_phase();
 	read_LFO_shape();
 	read_LFO_speed_gain();
-	apply_lfo_cv();
+	read_lfo_cv();
 }
 
 
@@ -441,10 +442,6 @@ void read_lfo_speed(int16_t turn)
 			if (!lfos.locked[i]) {
 				if (params.key_sw[i] != ksw_MUTE)
 					lfos.divmult_id[i] = _CLAMP_F(lfos.divmult_id[i] + turn_amt, NOTEKEY_MIN_DIVMULT_ID, NOTEKEY_MAX_DIVMULT_ID);
-
-				// if (lfos.use_ext_clock) {
-				// 	stage_resync(i);
-				// }
 			}
 		}
 
@@ -636,36 +633,24 @@ float calc_lfo_phase(float phase_id)
 }
 
 
-void apply_lfo_cv(void)
+void read_lfo_cv(void)
 {
-	static int16_t prev_cv = 0;
-	int16_t new_cv;
-	int16_t cv_diff;
+	static uint16_t last_divmult_cv=0;
 
-	if   	(system_settings.lfo_cv_mode 	== LFOCV_SPEED) new_cv  = (analog[LFO_CV].bracketed_val * NUM_DIVMULTS)>>12;
+	if (system_settings.lfo_cv_mode == LFOCV_SPEED)
+		divmult_cv = (analog[LFO_CV].bracketed_val * NUM_DIVMULTS)>>12;
+	else
+		divmult_cv = 0;
+
+	if (divmult_cv != last_divmult_cv) {
+		// flag_lfo_recalc(GLO_CLK);
+		flag_all_lfos_recalc();
+		last_divmult_cv = divmult_cv;
+	}
+
 	// else if (system_settings.lfo_cv_mode 	== LFOCV_SHAPE){new_cv  = (analog[LFO_CV].bracketed_val * NUM_LFO_SHAPES   / 4095);}
 	// else if (system_settings.lfo_cv_mode 	== LFOCV_GROOVE){new_cv = (analog[LFO_CV].bracketed_val * 100   / 4095);}
 
-	cv_diff  = new_cv - prev_cv;	
-	if(cv_diff)
-	{
-		if (system_settings.lfo_cv_mode == LFOCV_SPEED)
-		{
-			lfos.divmult_id[GLO_CLK] = _CLAMP_F(lfos.divmult_id[GLO_CLK] + cv_diff, 0, NUM_DIVMULTS);
-			flag_all_lfos_recalc();
-
-			// if (lfos.use_ext_clock)
-			// 	stage_resync_lfos();
-			prev_cv = new_cv;
-		}
-
-		// else if (system_settings.lfo_cv_mode 	== LFOCV_SHAPE) {
-		// 	for (chan = 0; chan < NUM_CHANNELS; chan++){
-		// 		lfos.shape[chan] = _WRAP_I16(lfos.shape[chan] + cv_diff, 0 , NUM_LFO_SHAPES);
-		// 	}
-		// 	prev_cv = new_cv;
-		// }
-	}
 }
 
 

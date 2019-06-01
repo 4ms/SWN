@@ -36,9 +36,10 @@
 #include "gpio_pins.h"
 #include <math.h>
 
-extern o_lfos 			lfos;
-extern o_params 		params;
-extern o_wt_osc 		wt_osc;
+extern o_lfos 		lfos;
+extern o_params 	params;
+extern o_wt_osc 	wt_osc;
+extern uint16_t 	divmult_cv;
 
 
 const float LFO_DIVMULTS[NUM_DIVMULTS] = {
@@ -149,8 +150,8 @@ void update_lfo_calcs(void)
 
 	if (recalc_flagged[GLO_CLK]) {
 		recalc_flagged[GLO_CLK] = 0;
-		lfos.divmult[GLO_CLK] = calc_divmult_amount(lfos.divmult_id[GLO_CLK]);
-		lfos.period[GLO_CLK] = lfos.period[REF_CLK] / calc_divmult_amount(lfos.divmult_id[GLO_CLK]);
+		lfos.divmult[GLO_CLK] = calc_divmult_amount(lfos.divmult_id[GLO_CLK] + divmult_cv);
+		lfos.period[GLO_CLK] = lfos.period[REF_CLK] / calc_divmult_amount(lfos.divmult_id[GLO_CLK] + divmult_cv);
 		lfos.inc[GLO_CLK] = calc_lfo_inc(lfos.period[GLO_CLK]);
 	}
 
@@ -162,7 +163,7 @@ void update_lfo_calcs(void)
 			lfos.divmult[chan] 	= calc_divmult_amount(lfos.divmult_id[chan]);
 
 			if (!lfos.locked[chan])
-				lfos.divmult_id_global_locked[chan] = lfos.divmult_id[GLO_CLK];
+				lfos.divmult_id_global_locked[chan] = lfos.divmult_id[GLO_CLK] + divmult_cv;
 
 			global_divmult_id = (params.key_sw[chan] == ksw_MUTE) ? lfos.divmult_id_global_locked[chan] : LFO_UNITY_DIVMULT_ID;
 
