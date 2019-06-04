@@ -13,6 +13,35 @@ The blue light on the outer ring shows the minor version. For example if the ver
 On the outer light ring, if you imagine it as a clock face, the light just to the right of 12:00 is 0. The next light going around clockwise is 1. Then next light clockwise is 2, etc. The inner ring counts the same but it starts at 1 (and goes to 6). If you would like a picture to help visualize this, see the [SWN User Manual](https://4mscompany.com/SWN/manual/SWN-manual-1.0.pdf), page 29.
 
 
+### Beta Firmware v2.0 (SWN shows version 1.2)
+
+#### New features:
+
+  * __Export Sphere__: in Sphere Recording Mode, enable Monitoring by pressing the green button. Then tap the center knob to export the sphere out the audio jack.
+     *  You can use this to transfer your sphere to another SWN by patching the output of your SWN to the other SWN which is set to record a Sphere. 
+     *  Or you can use this to backup a Sphere by recording the audio with a WAV Recorder, sampler or other audio recording device.
+     *  Or you can record onto a WAV Recorder or computer and then open the file in SphereEdit.
+  * __Record single waveform__: Pressing Fine + Record in Sphere Recording Mode will record over the current waveform only.
+  * __Channel Locks__: press Fine + any channel button to lock/unlock a channel. 
+     * The button flashes when a channel is locked, and the channel's light(s) will flash on the light ring.
+     * Locked channels will not respond to any global parameter changes.
+     * Locked channels will still respond to individual channel parameter changes (holding the channel button and turning a knob)
+  * __Sphere Selection display__: When changing the Sphere (push and turn center knob), the outer light ring will display which channels are assigned to which Spheres (similar to the Octave display). The channel buttons will also change to the color of the channel's Sphere. Turning the WT Spread knob also activates this display. Tapping the center knob will show this display, too (useful for visualing the signal on the Sphere CV or WT Spread CV jacks). 
+  * __Reset Nav/Sphere__: Press Preset + Depth to reset navigation (browse/lat/long/depth). Press Preset + Latitude to reset Sphere selections. You can still press Preset + Depth + Latitude to reset both navigation and sphere selection (just like in version 1.0 and 1.1)
+  * Octave range is now -3 to +14 (formerly was 0 to +14).
+
+
+#### Bug fixes:
+
+  * Bug where LFO Speeds would be set to super slow speeds if LFO CV jack goes from high to low rapidly.
+  
+   
+#### Improvements:
+
+  * Setting each channel to a different octave, and then turning global octave all the way up or down, and then back to the original position does not clear the intervals between channels (just like how Transpose has always worked)
+  * WT Spread now offsets the channels in a more consistant way by adding increasing amounts of space between channels.
+  * LED display tuned so that turning knobs always has an immediate effect, even if all CV jacks are being used with rapidly changing CV
+
 
 
 ### Firmware v1.1
