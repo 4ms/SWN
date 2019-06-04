@@ -132,15 +132,6 @@ const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
 	{ 0  	, 3		, 7  	, 10  	, 17	, 20	}    	// m11th
   };
 
-const int8_t WTSEL_SPREAD[NUM_WTSEL_SPREADS][NUM_CHANNELS] = {
-	{ 0  , 0  , 0  , 0  , 0  , 0}  ,
-	{ 0  , 1  , -1 , 2  , -2 , 3}  ,
-	{ 3  , -3 , 2  , -1 , 1  , 2}  ,
-	{ 1  , 4  , -5 , -6 , 7  , 2}  ,
-	{ -3 , 4  , 3  , -2 , 5  , 1 } ,
-	{ 8  , 1  , 2  , -2 , 3  , 5}
-  };
-
 extern const float exp_1voct_10_41V[4096];
 
 o_params 			params;
@@ -1892,6 +1883,18 @@ void read_wtsel_spread_cv(void)
 	}
 }
 
+int8_t calc_wtspread_offset(uint8_t spread_amt, uint8_t chan)
+{
+	int8_t offset_per_spread = (int8_t)chan - ((int8_t)NUM_CHANNELS/2);
+
+	if (chan >= (NUM_CHANNELS/2))
+		offset_per_spread++; 
+
+	return (int8_t)spread_amt * offset_per_spread;
+
+	//0: -3, 1: -2, 2: -1, 3: 1, 4: 2, 5: 3
+} 
+
 void update_wtsel(void){
 	uint16_t spread_sum;
 	int8_t wtsel_sum;
@@ -1903,7 +1906,8 @@ void update_wtsel(void){
 		spread_cv =  params.wtsel_lock[chan] ? 0 : params.wtsel_spread_cv;
 		wtsel_cv = params.wtsel_lock[chan] ? 0 : params.wtsel_cv;
 		spread_sum = _WRAP_U8(spread_cv + params.wtsel_spread_enc[chan], 0, NUM_WTSEL_SPREADS);
-		wtsel_sum = params.wtsel_enc[chan] + wtsel_cv + WTSEL_SPREAD[spread_sum][chan];
+		//wtsel_sum = params.wtsel_enc[chan] + wtsel_cv + WTSEL_SPREAD[spread_sum][chan];
+		wtsel_sum = params.wtsel_enc[chan] + wtsel_cv + calc_wtspread_offset(spread_sum, chan);
 
 		calc_params.wtsel[chan] = _WRAP_I8(wtsel_sum, 0, num_spheres_filled);
 	}
@@ -1933,7 +1937,8 @@ int8_t calc_static_wtsel(uint8_t chan)
 	int8_t wtsel_sum;
 
 	spread_sum = _WRAP_U8(params.wtsel_spread_enc[chan], 0, NUM_WTSEL_SPREADS);
-	wtsel_sum = params.wtsel_enc[chan] + WTSEL_SPREAD[spread_sum][chan];
+//	wtsel_sum = params.wtsel_enc[chan] + WTSEL_SPREAD[spread_sum][chan];
+	wtsel_sum = params.wtsel_enc[chan] + calc_wtspread_offset(spread_sum, chan);
 	return _WRAP_I8(wtsel_sum, 0, num_spheres_filled);
 }
 

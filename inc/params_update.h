@@ -44,7 +44,7 @@
 #define MAX_OCT				14	
 #define NUM_NOTES 			12
 #define NUM_CHORDS			26
-#define NUM_WTSEL_SPREADS	6
+#define NUM_WTSEL_SPREADS	18
 #define NUM_SCALES			2
 #define NOTES_PER_SCALE		NUM_OUTRING_LEDS +1
 
