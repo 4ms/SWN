@@ -329,11 +329,58 @@ The blue light on the outer ring shows the minor version. For example if the ver
 
 <p>On the outer light ring, if you imagine it as a clock face, the light just to the right of 12:00 is 0. The next light going around clockwise is 1. Then next light clockwise is 2, etc. The inner ring counts the same but it starts at 1 (and goes to 6). If you would like a picture to help visualize this, see the <a href="https://4mscompany.com/SWN/manual/SWN-manual-1.0.pdf">SWN User Manual</a>, page 29.</p>
 
-<h3 id="toc_4">Firmware v1.1</h3>
+<h3 id="toc_4">Beta Firmware v2.0 (SWN shows version 1.2)</h3>
+
+<h4 id="toc_5">New features:</h4>
+
+<ul>
+<li><strong>Export Sphere</strong>: in Sphere Recording Mode, enable Monitoring by pressing the green button. Then tap the center knob to export the sphere out the audio jack.
+
+<ul>
+<li> You can use this to transfer your sphere to another SWN by patching the output of your SWN to the other SWN which is set to record a Sphere. </li>
+<li> Or you can use this to backup a Sphere by recording the audio with a WAV Recorder, sampler or other audio recording device.</li>
+<li> Or you can record onto a WAV Recorder or computer and then open the file in SphereEdit.</li>
+</ul></li>
+<li><strong>Record single waveform</strong>: Pressing Fine + Record in Sphere Recording Mode will record over the current waveform only.</li>
+<li><strong>Channel Locks</strong>: press Fine + any channel button to lock/unlock a channel. 
+
+<ul>
+<li>The button flashes when a channel is locked, and the channel&#39;s light(s) will flash on the light ring.</li>
+<li>Locked channels will not respond to any global parameter changes.</li>
+<li>Locked channels will still respond to individual channel parameter changes (holding the channel button and turning a knob)</li>
+</ul></li>
+<li><strong>Sphere Selection display</strong>: When changing the Sphere (push and turn center knob), the outer light ring will display which channels are assigned to which Spheres (similar to the Octave display). The channel buttons will also change to the color of the channel&#39;s Sphere. Turning the WT Spread knob also activates this display. Tapping the center knob will show this display, too (useful for visualing the signal on the Sphere CV or WT Spread CV jacks). </li>
+<li><strong>Load/Clear Sphere</strong>: In Sphere Recording Mode, turning the Preset knob allows you to load and clear Spheres in the same way you load presets (tap and tap again to load; hold for 8 seconds and then tap to clear). Cleared Spheres can be uncleared by immediately doing the clear button press.</li>
+<li><strong>Enable/Disable Sphere</strong>: In Sphere Recording Mode, turn the Preset knob to select a Sphere. Tap the WT Select knob to disable the selected Sphere. The sphere&#39;s light on the outer ring will flash rapidly to show it&#39;s disabled. 
+
+<ul>
+<li>To re-enable the sphere, do the same thing again.</li>
+<li>When you exit Sphere Recording mode, disabled Spheres will not show up when selecting Spheres or using WT Spread. </li>
+<li>The set of enabled/disabled Spheres is saved in the Presets. So you can enable/disable different sets of Spheres to be used with each Preset. </li>
+</ul></li>
+<li><strong>Reset Nav/Sphere</strong>: Press Preset + Depth to reset navigation (browse/lat/long/depth). Press Preset + Latitude to reset Sphere selections. You can still press Preset + Depth + Latitude to reset both navigation and sphere selection (just like in version 1.0 and 1.1)</li>
+<li>Octave range is now -3 to +14 (formerly was 0 to +14).</li>
+</ul>
+
+<h4 id="toc_6">Bug fixes:</h4>
+
+<ul>
+<li>Bug where LFO Speeds would be set to super slow speeds if LFO CV jack goes from high to low rapidly.</li>
+</ul>
+
+<h4 id="toc_7">Improvements:</h4>
+
+<ul>
+<li>Setting each channel to a different octave, and then turning global octave all the way up or down, and then back to the original position does not clear the intervals between channels (just like how Transpose has always worked)</li>
+<li>WT Spread now offsets the channels in a more consistant way by adding increasing amounts of space between channels.</li>
+<li>LED display tuned so that turning knobs always has an immediate effect, even if all CV jacks are being used with rapidly changing CV</li>
+</ul>
+
+<h3 id="toc_8">Firmware v1.1</h3>
 
 <p>Released May 20, 2019</p>
 
-<h4 id="toc_5">Bug fixes:</h4>
+<h4 id="toc_9">Bug fixes:</h4>
 
 <ul>
 <li>Fixed zippering sound when level changes rapidly (from internal or external LFO with sharp attack or decay).</li>
@@ -342,7 +389,7 @@ The blue light on the outer ring shows the minor version. For example if the ver
 <li>Fixed issue where loading a preset that contained a Scale would not refresh the channel pitches.</li>
 </ul>
 
-<h4 id="toc_6">Improvements:</h4>
+<h4 id="toc_10">Improvements:</h4>
 
 <ul>
 <li>Softer distortion when clipping on the Waveform In jack</li>
@@ -351,7 +398,7 @@ The blue light on the outer ring shows the minor version. For example if the ver
 <li>Transpose/Spread display goes back to normal display mode more quickly.</li>
 </ul>
 
-<h3 id="toc_7">Firmware v1.0</h3>
+<h3 id="toc_11">Firmware v1.0</h3>
 
 <p>Released May 3, 2019</p>
 

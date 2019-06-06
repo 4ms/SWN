@@ -27,6 +27,11 @@ On the outer light ring, if you imagine it as a clock face, the light just to th
      * Locked channels will not respond to any global parameter changes.
      * Locked channels will still respond to individual channel parameter changes (holding the channel button and turning a knob)
   * __Sphere Selection display__: When changing the Sphere (push and turn center knob), the outer light ring will display which channels are assigned to which Spheres (similar to the Octave display). The channel buttons will also change to the color of the channel's Sphere. Turning the WT Spread knob also activates this display. Tapping the center knob will show this display, too (useful for visualing the signal on the Sphere CV or WT Spread CV jacks). 
+  * __Load/Clear Sphere__: In Sphere Recording Mode, turning the Preset knob allows you to load and clear Spheres in the same way you load presets (tap and tap again to load; hold for 8 seconds and then tap to clear). Cleared Spheres can be uncleared by immediately doing the clear button press.
+  * __Enable/Disable Sphere__: In Sphere Recording Mode, turn the Preset knob to select a Sphere. Tap the WT Select knob to disable the selected Sphere. The sphere's light on the outer ring will flash rapidly to show it's disabled. 
+     * To re-enable the sphere, do the same thing again.
+     * When you exit Sphere Recording mode, disabled Spheres will not show up when selecting Spheres or using WT Spread. 
+     * The set of enabled/disabled Spheres is saved in the Presets. So you can enable/disable different sets of Spheres to be used with each Preset. 
   * __Reset Nav/Sphere__: Press Preset + Depth to reset navigation (browse/lat/long/depth). Press Preset + Latitude to reset Sphere selections. You can still press Preset + Depth + Latitude to reset both navigation and sphere selection (just like in version 1.0 and 1.1)
   * Octave range is now -3 to +14 (formerly was 0 to +14).
 
