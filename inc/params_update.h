@@ -52,6 +52,7 @@
 #define XFADE_TIME_SEC					0.001
 #define XFADE_INC						(1.0/(F_SAMPLERATE * XFADE_TIME_SEC))
 
+#define AUDIO_GATE_THRESHOLD (-50000000.0)
 
 // DISPLAY TIMERS: specified in # of tick
 #define OSC_PARAM_LOCK_TIMER_LIMIT		700
@@ -182,10 +183,9 @@ typedef struct o_params{
 	uint8_t 	wt_pos_lock 			[NUM_CHANNELS]		;	//For v1.0 this is always the same as osc_param_lock
 	uint8_t		wtsel_lock				[NUM_CHANNELS]		;	//For v1.0 this is always the same as osc_param_lock
 
-	//v2.0:
+	//v1.2:
 	uint8_t		enabled_spheres			[MAX_TOTAL_SPHERES/8];
 
-	
 	uint8_t		PADDING					[NUM_CHANNELS*32 - MAX_TOTAL_SPHERES/8]   ; //padding for future features: 8 x 32b x 6chan, or 32 x 8b x 6chan
 } o_params;
 
@@ -202,6 +202,7 @@ void 		check_reset_navigation(void);
 void 		cache_uncache_pitch_params(enum CacheUncache cache_uncache);
 
 void 		read_noteon(uint8_t i);
+void 		read_ext_trigs(void);
 void 		read_level(uint8_t chan);
 float 		read_vca_cv(uint8_t chan);
 

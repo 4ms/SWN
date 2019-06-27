@@ -56,10 +56,10 @@ extern o_led_cont 		led_cont;
 
 extern o_recbuf 		recbuf;
 o_wt_osc				wt_osc;
+uint8_t 				audio_in_gate;
 
 //Private:
 void update_sphere_wt(void);
-
 
 void process_audio_block_codec(int32_t *src, int32_t *dst)
 {
@@ -67,22 +67,29 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 	uint8_t 		chan;
 	float 			smpl;
 	float			xfade0, xfade1;
-	uint8_t			oscout_status, audiomon_status;
-	int32_t			audio_in_sample;
-	int32_t			audio_out_sample;
+	int32_t			audio_out_sample, audio_in_sample;
 	float			output_buffer_evens[MONO_BUFSZ], output_buffer_odds[MONO_BUFSZ];
 
 	static float 	prev_level[NUM_CHANNELS] = {0.0};
 	float 			interpolated_level, level_inc;
+	float 			audio_in_sum;
 
-	//Todo: use a separate callback for WTTTONE mode, and another one for WTRECORDING/WTMONITORING/WTREC_WAIT
-	oscout_status = 	((ui_mode != WTRECORDING) && (ui_mode != WTMONITORING) && (ui_mode != WTREC_WAIT));
-	audiomon_status = 	((ui_mode == WTRECORDING) || (ui_mode == WTMONITORING) || (ui_mode == WTTTONE) || (ui_mode == WTREC_WAIT));
-
+	audio_in_sum = 0;
 	for (i_sample = 0; i_sample < MONO_BUFSZ; i_sample++){
 		output_buffer_evens[i_sample]  = 0.0;
 		output_buffer_odds[i_sample] = 0.0;
+
+		audio_in_sample = convert_s24_to_s32(*src++);								
+		if (audio_in_sample<0) audio_in_sum += audio_in_sample;
+
+		UNUSED(*src++);  // ignore right channel input (not connected in hardware)
 	}
+
+	//Requires: Min 4V trigger, min 0.25V/ms rise time (@5V = 20ms, @8V = 32ms), 20ms off time between pulses
+	if (audio_in_sum < AUDIO_GATE_THRESHOLD)
+		audio_in_gate = 1;
+	else 
+		audio_in_gate = 0;
 
 	for (chan = 0; chan < NUM_CHANNELS; chan++)
 	{
@@ -125,13 +132,10 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 			
 			if (chan==5)
 			{
-				audio_in_sample = convert_s24_to_s32(*src++);								
-				UNUSED(*src++);  // ignore right channel input (not connected in hardware)
-			
-				audio_out_sample = (int32_t)( oscout_status * output_buffer_evens[i_sample] * system_settings.master_gain) + audio_in_sample * audiomon_status;	//Add the audio input to the evens buffer
+				audio_out_sample = (int32_t)(output_buffer_evens[i_sample] * system_settings.master_gain);
 				*dst++ = compress(audio_out_sample);
 
-				audio_out_sample = (int32_t)( oscout_status * output_buffer_odds[i_sample] *  system_settings.master_gain) + audio_in_sample * audiomon_status;	//Add the audio input to the odds buffer
+				audio_out_sample = (int32_t)(output_buffer_odds[i_sample] *  system_settings.master_gain);
 				*dst++ = compress(audio_out_sample);
 			}
 		}
@@ -150,6 +154,8 @@ void update_oscillators(void){
 	compute_transpositions();
 	update_transpose_cv();
 
+	read_ext_trigs();		
+
 	for (chan = 0; chan < NUM_CHANNELS; chan++){
 		
 		if ((ui_mode != SELECT_PARAMS) && (ui_mode != RGB_COLOR_ADJUST)) {
@@ -167,6 +173,7 @@ void update_oscillators(void){
 		if (ui_mode == PLAY)
 			update_noise(chan);
 	}
+
 }
 
 void start_osc_updates(void){

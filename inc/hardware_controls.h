@@ -109,6 +109,7 @@ enum MuteNoteKeyStates {
 	ksw_MUTE,
 	ksw_NOTE,
 	ksw_KEYS,
+	ksw_KEYS_EXT_TRIG,
 
 	NUM_MUTE_NOTE_KEY_STATES
 };
