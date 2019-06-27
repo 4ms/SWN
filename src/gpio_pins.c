@@ -182,8 +182,6 @@ void set_gpio_map(void){
 
 	// SWITCHES 
 
-	HW_SW_GPIO[BUTTONS_TO_KEYS] 			= GPIOD; 
-	HW_SW_PIN[ BUTTONS_TO_KEYS]				= GPIO_PIN_7;
 	HW_SW_GPIO[FINE_BUTTON] 				= GPIOD; 
 	HW_SW_PIN[ FINE_BUTTON]					= GPIO_PIN_6;
 	HW_SW_GPIO[VOCTSW] 						= GPIOE; 

@@ -35,9 +35,8 @@
 
 // Set the PCB version here:
 #define PCB_VERSION 100			//version v1.0
-// #define PCB_VERSION 25			//version p2.5
-// #define PCB_VERSION 24			//version p2.4
-// #define PCB_VERSION 23			//version p2.3F7
+// #define PCB_VERSION 25		//In-house Proto (white PCB)
+// #define PCB_VERSION 24		//Beta version
 
 #ifndef PCB_VERSION
 	#define PCB_VERSION 100

@@ -81,17 +81,10 @@ enum buttonMap{
 };
 
 enum Switches{
-	BUTTONS_TO_KEYS,		//  0
-	FINE_BUTTON,			//  1
-	VOCTSW,					//  2
-
-#if (PCB_VERSION>=24)
+	FINE_BUTTON,
+	VOCTSW,
 	CLK_SENSE,
-#endif
-	
-#if (PCB_VERSION>=24)
 	WAVEFORMIN_SENSE,
-#endif
 
 	NUM_SWITCHES
 };

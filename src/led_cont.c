@@ -537,55 +537,43 @@ void update_array_leds(void)
 
 void update_clockin_led(void)
 {
-	#if (PCB_VERSION==23)
-		if (CLK_IN()) {set_led_state(mledm_CLKIN, LED_ON) ;} 
-		else 		{set_led_state(mledm_CLKIN, LED_OFF);}
-	#endif
-
-	#if (PCB_VERSION>=24)
-
-		if (jack_plugged(CLK_SENSE)) {
-			if (led_cont.waiting_for_clockin)
-				set_single_pwm_led(singleledm_CLKIN, 0);
-			if (lfos.use_ext_clock && lfos.cycle_pos[REF_CLK] < 0.5)
-				set_single_pwm_led(singleledm_CLKIN, 1000);
-			else
-				set_single_pwm_led(singleledm_CLKIN, 0);
-		}
-		else if (system_settings.allow_bus_clock) {
-			if (BUS_CLK())	set_single_pwm_led(singleledm_CLKIN, 100);
-			else			set_single_pwm_led(singleledm_CLKIN, 0);
-		}
+	if (jack_plugged(CLK_SENSE)) {
+		if (led_cont.waiting_for_clockin)
+			set_single_pwm_led(singleledm_CLKIN, 0);
+		if (lfos.use_ext_clock && lfos.cycle_pos[REF_CLK] < 0.5)
+			set_single_pwm_led(singleledm_CLKIN, 1000);
 		else
 			set_single_pwm_led(singleledm_CLKIN, 0);
-	#endif
-
+	}
+	else if (system_settings.allow_bus_clock) {
+		if (BUS_CLK())	set_single_pwm_led(singleledm_CLKIN, 100);
+		else			set_single_pwm_led(singleledm_CLKIN, 0);
+	}
+	else
+		set_single_pwm_led(singleledm_CLKIN, 0);
 }
 
 void update_audioin_led(void)
 {
-	#if (PCB_VERSION>=24)
 
-		o_rgb_led rgb;
+	o_rgb_led rgb;
 
-		if (ui_mode == WTREC_WAIT)
-			set_rgb_color_brightness(&rgb, ledc_RED, led_cont.flash_state);
+	if (ui_mode == WTREC_WAIT)
+		set_rgb_color_brightness(&rgb, ledc_RED, led_cont.flash_state);
 
-		else if (jack_unplugged(WAVEFORMIN_SENSE))
-			set_rgb_color(&rgb, ledc_OFF);
+	else if (jack_unplugged(WAVEFORMIN_SENSE))
+		set_rgb_color(&rgb, ledc_OFF);
 
-		else if (ui_mode == WTRECORDING)
-			set_rgb_color(&rgb, ledc_RED);
+	else if (ui_mode == WTRECORDING)
+		set_rgb_color(&rgb, ledc_RED);
 
-		else if ((ui_mode == WTMONITORING) || (ui_mode == WTTTONE))
-			set_rgb_color(&rgb, ledc_GREEN);
+	else if ((ui_mode == WTMONITORING) || (ui_mode == WTTTONE))
+		set_rgb_color(&rgb, ledc_GREEN);
 
-		else
-			set_rgb_color(&rgb, ledc_OFF);
+	else
+		set_rgb_color(&rgb, ledc_OFF);
 
-		set_pwm_led(ledm_AUDIOIN, &rgb);
-
-	#endif
+	set_pwm_led(ledm_AUDIOIN, &rgb);
 
 }
 

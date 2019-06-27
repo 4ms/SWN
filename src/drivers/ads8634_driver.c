@@ -315,13 +315,7 @@ void ads8634_create_reg_init_buffer(uint8_t num_adcs, enum RangeSel *ranges)
 	if (num_adcs>0) channels |= CH_SEL_0;
 
 	reg_init_buffer[0] = MAKE_CMD_WORD(RESET_DEVICE, REG_WRITE, B0_RESET);
-	
-	#if (PCB_VERSION>=24)
 	reg_init_buffer[1] = MAKE_CMD_WORD(AUX_CONFIG, REG_WRITE, AUX_ALPD_PD);
-	#else
-	reg_init_buffer[1] = MAKE_CMD_WORD(AUX_CONFIG, REG_WRITE, AUX_ALPD_PD | AUX_INT_VREF);
-	#endif
-
 	reg_init_buffer[2] = MAKE_CMD_WORD(AUTO_MD_CH_SEL, REG_WRITE, channels);
 	reg_init_buffer[3] = MAKE_CMD_WORD(CH0_RANGE, REG_WRITE, ranges[0] << SHIFT_CH_HIGH);
 	reg_init_buffer[4] = MAKE_CMD_WORD(CH1_RANGE, REG_WRITE, ranges[1] << SHIFT_CH_HIGH);

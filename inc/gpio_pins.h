@@ -49,43 +49,25 @@
 #endif
 
 #if (PCB_VERSION>=25)
-	#define OCTAVETRANSPOSE_ROTARY_PULL PULLUP
-	#define OCTAVETRANSPOSE_DIR_REV
+#define OCTAVETRANSPOSE_ROTARY_PULL PULLUP
+#define OCTAVETRANSPOSE_DIR_REV
 #else
 	#define OCTAVETRANSPOSE_ROTARY_PULL PULLDOWN
 #endif
 
-#if (PCB_VERSION>=24)
-	#define NON_WT_ROTARY_STEPSIZE 		HALFSTEP
-	#define LFOANDPRESET_ROTARY_PULL 	PULLUP
-#else
-	#define NON_WT_ROTARY_STEPSIZE 		FULLSTEP
-	#define LFOANDPRESET_ROTARY_PULL 	PULLDOWN
-#endif
+#define NON_WT_ROTARY_STEPSIZE 		HALFSTEP
+#define LFOANDPRESET_ROTARY_PULL 	PULLUP
 
 
 
 // CLOCK IN
-#if (PCB_VERSION==23)
-	#define CLK_IN_pin 				GPIO_PIN_10
-	#define CLK_IN_GPIO 			GPIOA
-#endif
-
-#if (PCB_VERSION>=24)
-	#define CLK_IN_pin 				GPIO_PIN_12
-	#define CLK_IN_GPIO 			GPIOG
-#endif
-
+#define CLK_IN_pin 				GPIO_PIN_12
+#define CLK_IN_GPIO 			GPIOG
 #define CLK_IN()					PIN_READ(CLK_IN_GPIO, CLK_IN_pin)
 
-#if (PCB_VERSION>=24)
-	#define BUS_CLK_IN_pin			GPIO_PIN_8
-	#define BUS_CLK_IN_GPIO			GPIOC
-	#define BUS_CLK() 				PIN_READ(BUS_CLK_IN_GPIO, BUS_CLK_IN_pin)
-#else
-	#define BUS_CLK()				(0)
-
-#endif
+#define BUS_CLK_IN_pin			GPIO_PIN_8
+#define BUS_CLK_IN_GPIO			GPIOC
+#define BUS_CLK() 				PIN_READ(BUS_CLK_IN_GPIO, BUS_CLK_IN_pin)
 
 #if (PCB_VERSION>=100)
 	#define BUS_SEL_IN_pin 			GPIO_PIN_2
@@ -96,8 +78,6 @@
 	#define BUS_SEL_IN_pin			GPIO_PIN_4
 	#define BUS_SEL_IN_GPIO			GPIOE
 	#define BUS_SEL() 				PIN_READ(BUS_SEL_IN_GPIO, BUS_SEL_IN_pin)
-#else
-	#define BUS_SEL()				(0)
 #endif
 
 // LED RING
