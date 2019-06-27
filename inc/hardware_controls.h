@@ -98,15 +98,6 @@ enum VoctVcaStates {
 	NUM_VOCT_VCA_STATES
 };
 
-enum MuteNoteKeyStates {
-	ksw_MUTE,
-	ksw_NOTE,
-	ksw_KEYS,
-	ksw_KEYS_EXT_TRIG,
-
-	NUM_MUTE_NOTE_KEY_STATES
-};
-
 enum monoLedMap{
 	mledm_SLIDER_A,
 	mledm_SLIDER_B,

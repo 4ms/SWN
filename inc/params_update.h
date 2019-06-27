@@ -113,6 +113,16 @@ enum armFlags
 	NUM_ARM_FLAGS
 };
 
+enum MuteNoteKeyStates {
+	ksw_MUTE,
+	ksw_NOTE,
+	ksw_KEYS,
+	ksw_KEYS_EXT_TRIG,
+
+	NUM_MUTE_NOTE_KEY_STATES
+};
+
+
 typedef struct o_calc_params{
 	uint8_t		wtsel 					[NUM_CHANNELS]		;
 	float		wt_pos 					[3][NUM_CHANNELS]	;

@@ -144,6 +144,7 @@ const uint16_t LFO_BANK_COLOR[25][3]= {
 	{ 800 	, 1	 	, 0	    }
 };
 
+enum colorCodes key_sw_mode_colors[NUM_MUTE_NOTE_KEY_STATES];
 
 void update_pwm_leds(void);
 
@@ -195,6 +196,13 @@ void init_led_cont(void)
 		led_cont.ongoing_lfoshape[i] = 0;
 		led_cont.lfoshape_timeout[i] = 0;
 	}
+
+	
+	key_sw_mode_colors[ksw_MUTE] = ledc_WHITE;
+	key_sw_mode_colors[ksw_NOTE] = ledc_PINK;
+	key_sw_mode_colors[ksw_KEYS] = ledc_PURPLE;
+	key_sw_mode_colors[ksw_KEYS_EXT_TRIG] = ledc_GOLD;
+
 }
 
 void update_display_at_encoder_press(void)
@@ -349,7 +357,7 @@ void update_button_leds(void){
 							brightness = 0.30 + lfos.out_lpf[i]/2.0;
 					}
 
-					set_rgb_color_brightness(&led_cont.button[i], ledc_WHITE + params.key_sw[i], brightness);
+					set_rgb_color_brightness(&led_cont.button[i], key_sw_mode_colors[params.key_sw[i]], brightness);
 				}
 			}
 
