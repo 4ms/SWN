@@ -1,7 +1,7 @@
 /*
  * params_lfo.h
  *
- * Author: Hugo Paris (hugoplho@gmail.com)
+ * Authors: Hugo Paris (hugoplho@gmail.com), Dan Green (danngreen1@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,8 @@
 
 #include "globals.h"
 
-#define LFO_PHASE_TABLELEN 			    22 // Farey sequence Fn with n = 8. Without last term (1, which is redundant with 0 in the application of phase shift)
+// #define LFO_PHASE_TABLELEN 			    22 // Farey sequence Fn with n = 8. Without last term (1, which is redundant with 0 in the application of phase shift)
+#define LFO_PHASE_TABLELEN				24
 #define GLO_CLK							6
 #define REF_CLK							7
 

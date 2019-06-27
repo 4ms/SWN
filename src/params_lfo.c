@@ -56,7 +56,7 @@ extern enum UI_Modes ui_mode;
 o_lfos   lfos;
 uint16_t divmult_cv;
 
-const float LFO_PHASE_TABLE[LFO_PHASE_TABLELEN]	= {0, 1.0/8.0, 1.0/7.0, 1.0/6.0, 1.0/5.0, 1.0/4.0, 2.0/7.0, 1.0/3.0, 3.0/8.0, 2.0/5.0, 3.0/7.0, 1.0/2.0, 4.0/7.0, 3.0/5.0, 5.0/8.0, 2.0/3.0, 5.0/7.0, 3.0/4.0, 4.0/5.0, 5.0/6.0, 6.0/7.0, 7.0/8.0};
+// const float LFO_PHASE_TABLE[LFO_PHASE_TABLELEN]	= {0, 1.0/8.0, 1.0/7.0, 1.0/6.0, 1.0/5.0, 1.0/4.0, 2.0/7.0, 1.0/3.0, 3.0/8.0, 2.0/5.0, 3.0/7.0, 1.0/2.0, 4.0/7.0, 3.0/5.0, 5.0/8.0, 2.0/3.0, 5.0/7.0, 3.0/4.0, 4.0/5.0, 5.0/6.0, 6.0/7.0, 7.0/8.0};
 
 void update_lfos(void)
 {
@@ -84,12 +84,20 @@ void init_lfos(void)
 	uint8_t i;
 
 	// init phase (60deg)
+	// if (!lfos.locked[0]) lfos.phase_id[0] =  0;
+	// if (!lfos.locked[1]) lfos.phase_id[1] =  19;
+	// if (!lfos.locked[2]) lfos.phase_id[2] =  15;
+	// if (!lfos.locked[3]) lfos.phase_id[3] =  11;
+	// if (!lfos.locked[4]) lfos.phase_id[4] =  7;
+	// if (!lfos.locked[5]) lfos.phase_id[5] =  3;	
+
 	if (!lfos.locked[0]) lfos.phase_id[0] =  0;
-	if (!lfos.locked[1]) lfos.phase_id[1] =  19;
-	if (!lfos.locked[2]) lfos.phase_id[2] =  15;
-	if (!lfos.locked[3]) lfos.phase_id[3] =  11;
-	if (!lfos.locked[4]) lfos.phase_id[4] =  7;
-	if (!lfos.locked[5]) lfos.phase_id[5] =  3;	
+	if (!lfos.locked[1]) lfos.phase_id[1] =  20;
+	if (!lfos.locked[2]) lfos.phase_id[2] =  16;
+	if (!lfos.locked[3]) lfos.phase_id[3] =  12;
+	if (!lfos.locked[4]) lfos.phase_id[4] =  8;
+	if (!lfos.locked[5]) lfos.phase_id[5] =  4;	
+
 
 	lfos.phase_switch = 0;
 
@@ -157,11 +165,11 @@ void init_lfo_object(o_lfos *t_lfo){
 
 	// init phase (60deg)
 	t_lfo->phase_id[0] =  0;
-	t_lfo->phase_id[1] =  19;
-	t_lfo->phase_id[2] =  15;
-	t_lfo->phase_id[3] =  11;
-	t_lfo->phase_id[4] =  7;
-	t_lfo->phase_id[5] =  3;	
+	t_lfo->phase_id[1] =  20;
+	t_lfo->phase_id[2] =  16;
+	t_lfo->phase_id[3] =  12;
+	t_lfo->phase_id[4] =  8;
+	t_lfo->phase_id[5] =  4;
 
 	for (i = 0; i < NUM_CHANNELS; i++)
 	{
@@ -352,11 +360,11 @@ void apply_lfo_reset(void){
 			{
 				// init phase (60deg)
 				if (!lfos.locked[0]) lfos.phase_id[0] =  0;
-				if (!lfos.locked[1]) lfos.phase_id[1] =  19;
-				if (!lfos.locked[2]) lfos.phase_id[2] =  15;
-				if (!lfos.locked[3]) lfos.phase_id[3] =  11;
-				if (!lfos.locked[4]) lfos.phase_id[4] =  7;
-				if (!lfos.locked[5]) lfos.phase_id[5] =  3;	
+				if (!lfos.locked[1]) lfos.phase_id[1] =  20;
+				if (!lfos.locked[2]) lfos.phase_id[2] =  16;
+				if (!lfos.locked[3]) lfos.phase_id[3] =  12;
+				if (!lfos.locked[4]) lfos.phase_id[4] =  8;
+				if (!lfos.locked[5]) lfos.phase_id[5] =  4;	
 			}
 
 			for ( i =0; i < NUM_CHANNELS; i++) {
@@ -615,21 +623,23 @@ void read_LFO_shape(void)
 
 float calc_lfo_phase(float phase_id)
 {
-	uint8_t i_phase;
-	float f_phase;
-	float phase;
+	return phase_id/((float)LFO_PHASE_TABLELEN);
 
-	i_phase = (uint8_t)phase_id;
-	f_phase = phase_id - (float)i_phase;
+	// uint8_t i_phase;
+	// float f_phase;
+	// float phase;
 
-	if (i_phase<(LFO_PHASE_TABLELEN-1)) {
-		return _CROSSFADE(LFO_PHASE_TABLE[i_phase], LFO_PHASE_TABLE[i_phase+1], f_phase);
-	}
-	else {
-		phase = _CROSSFADE(LFO_PHASE_TABLE[i_phase], 1.0, f_phase);
-		if (phase == 1.0) phase = 0.0;
-		return phase;
-	}
+	// i_phase = (uint8_t)phase_id;
+	// f_phase = phase_id - (float)i_phase;
+
+	// if (i_phase<(LFO_PHASE_TABLELEN-1)) {
+	// 	return _CROSSFADE(LFO_PHASE_TABLE[i_phase], LFO_PHASE_TABLE[i_phase+1], f_phase);
+	// }
+	// else {
+	// 	phase = _CROSSFADE(LFO_PHASE_TABLE[i_phase], 1.0, f_phase);
+	// 	if (phase == 1.0) phase = 0.0;
+	// 	return phase;
+	// }
 }
 
 
