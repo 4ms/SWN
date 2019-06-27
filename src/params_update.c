@@ -943,10 +943,8 @@ void update_pitch(uint8_t chan)
 	int8_t oct;
 	int16_t oct_clamped;
 	
-	if(  (params.key_sw[chan] == ksw_MUTE) || params.new_key[chan]
-	 || ((params.key_sw[chan] == ksw_NOTE) && !params.note_on[chan]) ){
-
-
+	if(  (params.key_sw[chan] == ksw_MUTE) || params.new_key[chan] || ((params.key_sw[chan] == ksw_NOTE) && !params.note_on[chan]) )
+	{
 		// Calculate pitch multiplier from individual jack 1V/oct CV
 		if ((params.voct_switch_state[chan] == SW_VOCT) || (params.key_sw[chan] != ksw_MUTE))
 		{
@@ -987,7 +985,8 @@ void update_pitch(uint8_t chan)
 			calc_params.prev_qtz_note[chan] = note;
 			calc_params.prev_qtz_oct[chan] = oct;
 			calc_params.qtz_freq[chan] = qtz_ch_freq;
-			if (params.key_sw[chan]!=ksw_MUTE && !params.note_on[chan]) //read new qtz note only in Note/Key mode and Note Off
+			if ((params.key_sw[chan]==ksw_KEYS || params.key_sw[chan]==ksw_NOTE) && !params.note_on[chan]) //read new qtz note only in Note/Key mode and Note Off
+			//if (params.key_sw[chan]!=ksw_MUTE && !params.note_on[chan]) //read new qtz note only in Note/Key mode and Note Off
 				params.qtz_note_changed[chan] = 1;
 		}
 		else {
