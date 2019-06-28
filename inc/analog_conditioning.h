@@ -65,6 +65,8 @@ typedef struct o_analog {
 
 } o_analog;
 
+uint8_t analog_jack_plugged(enum AnalogElements jacknum);
+
 void setup_iir_filters(void);
 void setup_fir_filters(void);
 void setup_brackets(void);

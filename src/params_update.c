@@ -454,9 +454,10 @@ static uint8_t new_key_armed[NUM_CHANNELS] = {0};
 void read_ext_trigs(void)
 {
 	uint8_t chan;
+	uint8_t chans_in_ext_trig_mode=0;
 
-	static uint8_t last_trig_level[NUM_CHANNELS]={0};
-	uint8_t trig_level[NUM_CHANNELS]={0};
+	static uint8_t last_trig_level[NUM_CHANNELS+1]={0};
+	uint8_t trig_level[NUM_CHANNELS+1]={0};
 
 	trig_level[0] = audio_in_gate;
 	trig_level[1] = analog[DISP_CV].raw_val > 2048;
@@ -464,31 +465,40 @@ void read_ext_trigs(void)
 	trig_level[3] = analog[DISPPAT_CV].raw_val > 2048;
 	trig_level[4] = analog[LATITUDE_CV].raw_val > 2048;
 	trig_level[5] = analog[WTSEL_SPREAD_CV].raw_val > 2048;
+	trig_level[6] = analog[CHORD_CV].raw_val > 2048;
 
 	for (chan=0; chan<NUM_CHANNELS; chan++)
 	{
-		if (params.key_sw[chan] == ksw_KEYS_EXT_TRIG)
+		if (params.key_sw[chan]==ksw_KEYS_EXT_TRIG)
 		{
-			if (trig_level[chan] && !last_trig_level[chan])
+			chans_in_ext_trig_mode++;
+
+			if (analog_jack_plugged(A_VOCT+chan) && trig_level[chan] && !last_trig_level[chan])
 			{
 				lfos.cycle_pos[chan] = 0; //allow re-trigger with jack
 				params.note_on[chan] = 1;
 				params.new_key[chan] = 1;
 				new_key_armed[chan]	 = 0;
-
-				// if (chan==0) DEBUG0_ON;
-				// if (chan==1) DEBUG1_ON;
 			}
-			// else {
-			// 	if (!trig_level[chan] && last_trig_level[chan])
-			// 	{
-			// 		if (chan==0) DEBUG0_OFF;
-			// 		if (chan==1) DEBUG1_OFF;
-			// 	}
-			// }
 		}
 		last_trig_level[chan] = trig_level[chan];
 	}
+
+	//Transpose CV jack must be patched for gate to work on Chord CV 
+	if (chans_in_ext_trig_mode && analog_jack_plugged(TRANSPOSE_CV))
+	{
+		if (trig_level[6] && !last_trig_level[6])
+		{
+			for (chan=0; chan<NUM_CHANNELS; chan++)
+			{
+				lfos.cycle_pos[chan] = 0;
+				params.note_on[chan] = 1;
+				params.new_key[chan] = 1;
+				new_key_armed[chan]	 = 0;
+			}
+		}
+	}
+	last_trig_level[6] = trig_level[6];
 }
 
 void read_noteon(uint8_t i)
@@ -1403,9 +1413,14 @@ void update_spread(int16_t tmp){
 }
 
 
-void update_spread_cv(void){
-
- 	params.spread_cv  = (int8_t)((float)(analog[CHORD_CV].lpf_val)  * (float)(NUM_CHORDS) / 4095.0); //was /1000.0?
+void update_spread_cv(void)
+{
+	if (analog_jack_plugged(TRANSPOSE_CV) 
+		&& (params.key_sw[0]==ksw_KEYS_EXT_TRIG || params.key_sw[1]==ksw_KEYS_EXT_TRIG || params.key_sw[2]==ksw_KEYS_EXT_TRIG 
+	  	||  params.key_sw[3]==ksw_KEYS_EXT_TRIG || params.key_sw[4]==ksw_KEYS_EXT_TRIG || params.key_sw[5]==ksw_KEYS_EXT_TRIG))
+		params.spread_cv = 0;
+	else
+	 	params.spread_cv = (int8_t)((float)(analog[CHORD_CV].lpf_val)  * (float)(NUM_CHORDS) / 4095.0);
 }
 
 void combine_transpose_spread(void){
@@ -1933,10 +1948,10 @@ void read_wtsel_spread_cv(void)
 {
 	if (!UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
 	{
-		if (params.key_sw[5] != ksw_KEYS_EXT_TRIG)
-			params.wtsel_spread_cv = analog[WTSEL_SPREAD_CV].bracketed_val * NUM_WTSEL_SPREADS / 4095;
-		else
+		if (params.key_sw[5]==ksw_KEYS_EXT_TRIG && analog_jack_plugged(F_VOCT))
 			params.wtsel_spread_cv = 0;
+		else
+			params.wtsel_spread_cv = analog[WTSEL_SPREAD_CV].bracketed_val * NUM_WTSEL_SPREADS / 4095;
 	}
 }
 
@@ -2049,17 +2064,17 @@ void update_wt_nav_cv(uint8_t wt_dim)
 {
 	switch (wt_dim) {
 		case 0:
-			if (params.key_sw[2] != ksw_KEYS_EXT_TRIG)
-				params.wt_nav_cv[0] = (float)(analog[DEPTH_CV].bracketed_val) * (float)WT_DIM_SIZE / 4095.0; //0..3
-			else
+			if (params.key_sw[2]==ksw_KEYS_EXT_TRIG && analog_jack_plugged(C_VOCT))
 				params.wt_nav_cv[0] = 0;
+			else
+				params.wt_nav_cv[0] = (float)(analog[DEPTH_CV].bracketed_val) * (float)WT_DIM_SIZE / 4095.0; //0..3
 			break;
 
 		case 1:
-			if (params.key_sw[4] != ksw_KEYS_EXT_TRIG)
-				params.wt_nav_cv[1] = (float)(analog[LATITUDE_CV].bracketed_val) * (float)WT_DIM_SIZE / 4095.0; //0..3
-			else
+			if (params.key_sw[4]==ksw_KEYS_EXT_TRIG && analog_jack_plugged(E_VOCT))
 				params.wt_nav_cv[1] = 0;
+			else
+				params.wt_nav_cv[1] = (float)(analog[LATITUDE_CV].bracketed_val) * (float)WT_DIM_SIZE / 4095.0; //0..3
 			break;
 
 		case 2:
@@ -2090,10 +2105,10 @@ void update_wt_disp(uint8_t clear_lpf){
 			params.dispersion_enc = _WRAP_F(params.dispersion_enc + disp_encoder_motion_lpf, 0 ,2.0);
 
 		// Dispersion cv
-		if (params.key_sw[1] != ksw_KEYS_EXT_TRIG)
-			params.dispersion_cv = ((float)analog[DISP_CV].bracketed_val)/4095.0;
-		else
+		if (params.key_sw[1]==ksw_KEYS_EXT_TRIG && analog_jack_plugged(B_VOCT))
 			params.dispersion_cv = 0;
+		else
+			params.dispersion_cv = ((float)analog[DISP_CV].bracketed_val)/4095.0;
 
 
 		// Pattern encoder
@@ -2102,10 +2117,10 @@ void update_wt_disp(uint8_t clear_lpf){
 			params.disppatt_enc = _WRAP_I8(params.disppatt_enc + patt_encoder_motion, 0, NUM_DISPPAT);
 
 		// Pattern cv
-		if (params.key_sw[3] != ksw_KEYS_EXT_TRIG)
-			params.disppatt_cv = analog[DISPPAT_CV].bracketed_val * NUM_DISPPAT / 4095;
-		else
+		if (params.key_sw[3]==ksw_KEYS_EXT_TRIG && analog_jack_plugged(D_VOCT))
 			params.disppatt_cv = 0;
+		else
+			params.disppatt_cv = analog[DISPPAT_CV].bracketed_val * NUM_DISPPAT / 4095;
 	}
 }
 

@@ -145,15 +145,15 @@ void setup_analog_conditioning(void)
 
 	for (i=0;i<6;i++)	init_switch_gpio(&(analog[ A_VOCT + i ].plug_sense_switch));
 
-		analog[ TRANSPOSE_CV ].fir_lpf_size              = 2;
-		analog[ TRANSPOSE_CV ].iir_lpf_size              = 0;
-		analog[ TRANSPOSE_CV ].bracket_size              = 17;
-		analog[ TRANSPOSE_CV ].polarity                  = (hires_adc_is_bipolar(A_VOCT + i )) ? AP_BIPOLAR : AP_UNIPOLAR;
+	analog[ TRANSPOSE_CV ].fir_lpf_size              = 2;
+	analog[ TRANSPOSE_CV ].iir_lpf_size              = 0;
+	analog[ TRANSPOSE_CV ].bracket_size              = 17;
+	analog[ TRANSPOSE_CV ].polarity                  = (hires_adc_is_bipolar(A_VOCT + i )) ? AP_BIPOLAR : AP_UNIPOLAR;
 
-		analog[ TRANSPOSE_CV ].plug_sense_switch.pin     = GPIO_PIN_1;
-		analog[ TRANSPOSE_CV ].plug_sense_switch.gpio    = GPIOF;
-		analog[ TRANSPOSE_CV ].plug_sense_switch.ptype   = PULLUP;
-		analog[ TRANSPOSE_CV ].plug_sense_switch.pressed = RELEASED;
+	analog[ TRANSPOSE_CV ].plug_sense_switch.pin     = GPIO_PIN_1;
+	analog[ TRANSPOSE_CV ].plug_sense_switch.gpio    = GPIOF;
+	analog[ TRANSPOSE_CV ].plug_sense_switch.ptype   = PULLUP;
+	analog[ TRANSPOSE_CV ].plug_sense_switch.pressed = RELEASED;
 
 	init_switch_gpio(&(analog[ TRANSPOSE_CV ].plug_sense_switch));
 	
@@ -433,6 +433,10 @@ void process_analog_conditioning(void)
 		else							analog[i].bracketed_val = analog[i].raw_val;
 	}
 
+}
+
+uint8_t analog_jack_plugged(enum AnalogElements jacknum) {
+	return analog[jacknum].plug_sense_switch.pressed;
 }
 
 void read_cv_jack_calibration_unplugged_offsets(void)

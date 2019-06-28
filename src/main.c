@@ -255,7 +255,6 @@ int main(void)
 	while(1){
 		read_freq();
 
-		
 		read_switches();
 		update_osc_param_lock();
 
