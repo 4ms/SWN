@@ -589,7 +589,7 @@ void read_LFO_shape(void)
 				{
 					lfos.shape[i] = _WRAP_I16(lfos.shape[i] + enc, 0 , NUM_LFO_SHAPES);
 					led_cont.ongoing_lfoshape[i] = 1;
-					led_cont.lfoshape_timeout[i] = params.key_sw[i]!=ksw_MUTE;;									
+					led_cont.lfoshape_timeout[i] = params.key_sw[i]!=ksw_MUTE;								
 				}
 			}
 		}

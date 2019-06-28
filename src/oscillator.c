@@ -73,10 +73,12 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 	static float 	prev_level[NUM_CHANNELS] = {0.0};
 	float 			interpolated_level, level_inc;
 	float 			audio_in_sum;
+	static uint8_t	audio_gate_ctr=0;
+
 
 	audio_in_sum = 0;
 	for (i_sample = 0; i_sample < MONO_BUFSZ; i_sample++){
-		output_buffer_evens[i_sample]  = 0.0;
+		output_buffer_evens[i_sample] = 0.0;
 		output_buffer_odds[i_sample] = 0.0;
 
 		audio_in_sample = convert_s24_to_s32(*src++);								
@@ -87,7 +89,13 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 
 	//Requires: Min 4V trigger, min 0.25V/ms rise time (@5V = 20ms, @8V = 32ms), 20ms off time between pulses
 	if (audio_in_sum < AUDIO_GATE_THRESHOLD)
-		audio_in_gate = 1;
+	{
+		if (++audio_gate_ctr >= AUDIO_GATE_DEBOUNCE_LENGTH)
+		{
+			audio_in_gate = 1;
+			audio_gate_ctr = 0;
+		}
+	}
 	else 
 		audio_in_gate = 0;
 
