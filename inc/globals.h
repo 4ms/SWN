@@ -31,7 +31,7 @@
 
 // #define FORCE_WRITE_FACTORY_SPHERES 	// <-- Uncomment this to force re-loading of wavetables from const arrays, boot time will increase
 // #define CLEAR_USER_SPHERES_FROM_FLASH 	// <-- Uncomment this to erase user spheres from flash
-// #define SKIP_FACTORY_SPHERES_IN_HEXFILE  // <-- Uncomment this to create a smaller ELF/HEX/BIN file, by not including the factory spheres (you must have them already loaded, of course)
+#define SKIP_FACTORY_SPHERES_IN_HEXFILE  // <-- Uncomment this to create a smaller ELF/HEX/BIN file, by not including the factory spheres (you must have them already loaded, of course)
 
 // Set the PCB version here:
 #define PCB_VERSION 100			//version v1.0
@@ -43,7 +43,7 @@
 #endif
 
 #define FW_MAJOR_VERSION 	1
-#define FW_MINOR_VERSION 	2
+#define FW_MINOR_VERSION 	3
 
 #define ALLOW_LOCKS
 

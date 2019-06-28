@@ -13,9 +13,32 @@ The blue light on the outer ring shows the minor version. For example if the ver
 On the outer light ring, if you imagine it as a clock face, the light just to the right of 12:00 is 0. The next light going around clockwise is 1. Then next light clockwise is 2, etc. The inner ring counts the same but it starts at 1 (and goes to 6). If you would like a picture to help visualize this, see the [SWN User Manual](https://4mscompany.com/SWN/manual/SWN-manual-1.0.pdf), page 29.
 
 
-### Beta Firmware v2.0 (SWN shows version 1.2)
 
-#### New features:
+#### New features in v1.3 (v1.3beta1 is currently in testing):
+
+  * __CV/Gate Mode__: New mode allows you to patch gate signals into the CV jacks to trigger each channel's envelope. CV/Gate mode is designed for connecting a CV/Gate keyboard or sequencer: up to seven CV/Gate channels can be connected (six channel + one global).
+    * To enter CV/Gate Mode: Press the two small buttons to switch from Mute Mode -> Note Mode -> Keyboard Mode -> CV/Gate Mode. The buttons will be dim orange in this mode.
+    * CV/Gate mode is exactly like Keyboard Mode except that each channel's envelope can be fired by sending a gate or trigger into the a CV jack. When a cable is patched into a channel's V/oct jack, another jack will be re-purposed as a gate/trig jack for that channel:
+       * Channel A's trigger: Waveform In jack
+       * Channel B's trigger: Dispersion CV jack
+       * Channel C's trigger: Depth CV jack
+       * Channel D's trigger: Dispersion Pat. CV jack
+       * Channel E's trigger: Latitude CV jack
+       * Channel F's trigger: WT Spread CV jack
+       * Global trigger: Spread CV jack
+       * ![(CV Gate Mode jacks)](CVGatemode.png)
+
+    * Note that in CV/Gate mode you can still use a CV jack for its primary feature if you either 1) don't plug into the associated 1V/oct jack, or 2) set that particular channel to Mute, Note, or Keyboard mode. For example, if you only patch 1V/oct CV into Transpose and a gate into Spread CV, then the CV jacks at the bottom will all retain their original purpose (Dispersion, Depth, etc..) 
+    * A subtle difference between CV/Gate Mode and Keyboard mode is that pressing the buttons in CV/Gate mode will play the entire envelope even if you let go of the button early. In Keyboard mode, the envelope stops immediately when you release the button.
+    * Like Note/Keyboard/Mute modes, you can have some channels in CV/Gate mode, and some in other modes. At least one channel has to be in CV/Gate mode to use Spread CV as a global trigger (and Transpose CV has to be patched).
+    * All of the scale modes work in CV/Gate mode, including unquantized (light blue). It's up to you if you want your keyboard/sequencer to quantize, or your SWN, or both. Each channel can have a different scale selected as well.
+    * Tip: If you're using a sequencer, you might want to patch its clock out into the SWN's Clk In jack so the envelope timings will be synced.
+
+  * __Consistent Phase adjustments__: LFO Phase is now adjusted by in steps of 1/24 of the main clock. Previously it used a sequence of ratios which caused small timing differences when globally shifting the phase of all channels with respect to an external clock. LFO Fine Phase is still 1/12 of (Coarse) Phase, so it adjusts 1/288 of a measure per click.
+  * __Shorter Envelopes__: Envelopes in Note and Key mode are now allowed to go much shorter.
+
+
+#### New in Firmware v1.2 (not released publicly):
 
   * __Export Sphere__: in Sphere Recording Mode, enable Monitoring by pressing the green button. Then tap the center knob to export the sphere out the audio jack.
      *  You can use this to transfer your sphere to another SWN by patching the output of your SWN to the other SWN which is set to record a Sphere. 
