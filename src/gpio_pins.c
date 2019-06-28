@@ -187,15 +187,10 @@ void set_gpio_map(void){
 	HW_SW_GPIO[VOCTSW] 						= GPIOE; 
 	HW_SW_PIN[ VOCTSW]						= GPIO_PIN_15;
 
-#if (PCB_VERSION>=24)
 	HW_SW_GPIO[CLK_SENSE] 					= GPIOA; 
 	HW_SW_PIN[ CLK_SENSE]					= GPIO_PIN_10;
-#endif
-
-#if (PCB_VERSION>=24)
 	HW_SW_GPIO[WAVEFORMIN_SENSE] 			= GPIOC; 
 	HW_SW_PIN[ WAVEFORMIN_SENSE]			= GPIO_PIN_7;
-#endif
 
 	
 
@@ -214,15 +209,6 @@ void set_gpio_map(void){
 	HW_MONO_LED_GPIO[mledm_SLIDER_F] 		= GPIOF;
 	HW_MONO_LED_PIN[ mledm_SLIDER_F] 		= GPIO_PIN_2;
 
-#if (PCB_VERSION==23)
-	HW_MONO_LED_GPIO[mledm_CLKIN] 			= GPIOG;
-	HW_MONO_LED_PIN[ mledm_CLKIN] 			= GPIO_PIN_12;
-	HW_MONO_LED_GPIO[mledm_INCLIPL] 		= GPIOC;
-	HW_MONO_LED_PIN[ mledm_INCLIPL] 		= GPIO_PIN_7;
-	HW_MONO_LED_GPIO[mledm_INCLIPR] 		= GPIOC;
-	HW_MONO_LED_PIN[ mledm_INCLIPR] 		= GPIO_PIN_8;
-#endif
-	
 	// INITIALISATIONS
 
 	init_rotaries();
@@ -271,12 +257,9 @@ void init_gpio_pins(void){
 	gpio.Pull 	= GPIO_NOPULL;
 	gpio.Pin 	= CLK_IN_pin;	HAL_GPIO_Init(CLK_IN_GPIO, &gpio);
 
-
-	#if (PCB_VERSION>=24)
 	// BUS CLOCK INPUT
 	gpio.Pull 	= GPIO_PULLDOWN;
 	gpio.Pin 	= BUS_CLK_IN_pin;	HAL_GPIO_Init(BUS_CLK_IN_GPIO, &gpio);
-	#endif
 
 	#if (PCB_VERSION>=25)
 	// BUS SEL INPUT
