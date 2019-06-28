@@ -459,11 +459,11 @@ void read_ext_trigs(void)
 	uint8_t trig_level[NUM_CHANNELS]={0};
 
 	trig_level[0] = audio_in_gate;
-	trig_level[1] = analog[DISP_CV].bracketed_val > 2048;
-	trig_level[2] = analog[DEPTH_CV].bracketed_val > 2048;
-	trig_level[3] = analog[DISPPAT_CV].bracketed_val > 2048;
-	trig_level[4] = analog[LATITUDE_CV].bracketed_val > 2048;
-	trig_level[5] = analog[WTSEL_SPREAD_CV].bracketed_val > 2048;
+	trig_level[1] = analog[DISP_CV].raw_val > 2048;
+	trig_level[2] = analog[DEPTH_CV].raw_val > 2048;
+	trig_level[3] = analog[DISPPAT_CV].raw_val > 2048;
+	trig_level[4] = analog[LATITUDE_CV].raw_val > 2048;
+	trig_level[5] = analog[WTSEL_SPREAD_CV].raw_val > 2048;
 
 	for (chan=0; chan<NUM_CHANNELS; chan++)
 	{
