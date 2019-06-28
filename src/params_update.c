@@ -1959,13 +1959,13 @@ void update_wtsel(void){
 	uint16_t spread_sum;
 	int8_t wtsel_sum;
 	uint8_t chan;
-	uint8_t spread_cv, wtsel_cv;
+	uint8_t wtsel_spread_cv, wtsel_cv;
 
 	for (chan=0; chan<NUM_CHANNELS; chan++)
 	{
-		spread_cv =  params.wtsel_lock[chan] ? 0 : params.wtsel_spread_cv;
+		wtsel_spread_cv =  params.wtsel_lock[chan] ? 0 : params.wtsel_spread_cv;
 		wtsel_cv = params.wtsel_lock[chan] ? 0 : params.wtsel_cv;
-		spread_sum = _WRAP_U8(spread_cv + params.wtsel_spread_enc[chan], 0, NUM_WTSEL_SPREADS);
+		spread_sum = _WRAP_U8(wtsel_spread_cv + params.wtsel_spread_enc[chan], 0, NUM_WTSEL_SPREADS);
 		wtsel_sum = params.wtsel_enc[chan] + wtsel_cv + WTSEL_SPREAD[spread_sum][chan];
 
 		calc_params.wtsel[chan] = _WRAP_I8(wtsel_sum, 0, num_spheres_filled);
@@ -2030,7 +2030,7 @@ void set_wtsel(uint8_t selection)
 
 	for (i=0; i<NUM_CHANNELS; i++)
 	{
-		if (!params.osc_param_lock[i]) {
+		if (!params.wtsel_lock[i]) {
 			params.wtsel_spread_enc[i] = 0;
 			params.wtsel_enc[i] = selection;
 		}
@@ -2146,6 +2146,7 @@ void calc_wt_pos(uint8_t chan){
 	float 	total_disp, total_browse;
 	uint8_t disp_pattern;
 	float 	new_wt_pos = 10;
+	float 	disp_cv, disppat_cv, nav_cv, browse_cv;
 	uint8_t snap_to_int=0;
 
 	if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode) && !switch_pressed(FINE_BUTTON))
@@ -2157,20 +2158,24 @@ void calc_wt_pos(uint8_t chan){
 	nav_enc[2] 	= params.wt_nav_enc[2][chan];
 	
 	// BROWSE
-	total_browse = params.wt_browse_step_pos_enc[chan] + params.wt_browse_step_pos_cv;
+	browse_cv = params.wt_pos_lock[chan] ? 0: params.wt_browse_step_pos_cv;
+	total_browse = params.wt_browse_step_pos_enc[chan] + browse_cv;
 	get_browse_nav(total_browse, &browse_nav[0], &browse_nav[1], &browse_nav[2]);
 
 	// DISPERSION
-	total_disp = _FOLD_F(params.dispersion_enc, 1.0) + params.dispersion_cv;
+	disp_cv = params.wt_pos_lock[chan] ? 0: params.dispersion_cv;
+	total_disp = _FOLD_F(params.dispersion_enc, 1.0) + disp_cv;
 
-	disp_pattern = _WRAP_U8(params.disppatt_enc + params.disppatt_cv, 0, NUM_DISPPAT);
+	disppat_cv = params.wt_pos_lock[chan] ? 0: params.disppatt_cv;
+	disp_pattern = _WRAP_U8(params.disppatt_enc + disppat_cv, 0, NUM_DISPPAT);
 
 	// COMBINING
 	for (wt_dim=0;wt_dim<NUM_WT_DIMENSIONS;wt_dim++){
 
 		disp_amt = WT_DIM_SIZE * total_disp * (WT_SPREAD_PATTERN[disp_pattern][chan][wt_dim])/100.0;
 
-		new_wt_pos = _WRAP_F(disp_amt + browse_nav[wt_dim] + params.wt_nav_cv[wt_dim] + nav_enc[wt_dim], 0, WT_DIM_SIZE);
+		nav_cv = params.wt_pos_lock[chan] ? 0: params.wt_nav_cv[wt_dim];
+		new_wt_pos = _WRAP_F(disp_amt + browse_nav[wt_dim] + nav_cv + nav_enc[wt_dim], 0, WT_DIM_SIZE);
 
 		if (snap_to_int)
 			new_wt_pos = _WRAP_F((int32_t)(new_wt_pos+0.5),0,3);

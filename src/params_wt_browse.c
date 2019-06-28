@@ -239,7 +239,6 @@ void update_wbrowse(int16_t inc)
 	}
 }
 
-
 void update_wbrowse_cv(void)
 {
 	params.wt_browse_step_pos_cv = ((float)analog[WBROWSE_CV].bracketed_val)/(4095.0/27.0);
