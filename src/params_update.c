@@ -831,10 +831,10 @@ void read_all_keymodes(void){
 //Flip Keys to Mute: uncache LFO params
 void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
 {	
-	//Switched from MUTE ==> NOTE:
-	if (new_keymode == ksw_NOTE)
+	if (params.key_sw[chan] != new_keymode)
 	{
-		if(params.key_sw[chan] == ksw_MUTE)
+		//Switched from MUTE
+		if (params.key_sw[chan] == ksw_MUTE)
 		{
 			lfos.muted[chan] = 1; //mute to prevent race condition with update_lfo_wt_pos()
 
@@ -853,19 +853,22 @@ void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
 			lfos.phase_id[chan] = 0;
 			lfos.phase[chan] = 0;
 		}
-	}
 
-	//Switched from NOTE/KEY ==> MUTE
-	else if (new_keymode == ksw_MUTE)
-	{
-		if(params.key_sw[chan] != ksw_MUTE)
-		{		
+		//Switched to MUTE
+		else if (new_keymode == ksw_MUTE)
+		{
 			lfos.muted[chan] = 1; //mute to prevent race condition with update_lfo_wt_pos()
 			cache_uncache_keys_params_and_lfos(chan, UNCACHE);
 		}
+
+		//Switched to Ext Trig
+		else if (new_keymode == ksw_KEYS_EXT_TRIG)
+		{
+			force_all_wt_interp_update();
+		}
+
+		params.key_sw[chan] = new_keymode;
 	}
-	
-	params.key_sw[chan] = new_keymode;
 
 	lfos.muted[chan] = 0;
 }
