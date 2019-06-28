@@ -475,7 +475,17 @@ void read_ext_trigs(void)
 				params.note_on[chan] = 1;
 				params.new_key[chan] = 1;
 				new_key_armed[chan]	 = 0;
+
+				// if (chan==0) DEBUG0_ON;
+				// if (chan==1) DEBUG1_ON;
 			}
+			// else {
+			// 	if (!trig_level[chan] && last_trig_level[chan])
+			// 	{
+			// 		if (chan==0) DEBUG0_OFF;
+			// 		if (chan==1) DEBUG1_OFF;
+			// 	}
+			// }
 		}
 		last_trig_level[chan] = trig_level[chan];
 	}
