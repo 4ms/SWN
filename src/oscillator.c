@@ -67,37 +67,22 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 	uint8_t 		chan;
 	float 			smpl;
 	float			xfade0, xfade1;
-	int32_t			audio_out_sample, audio_in_sample;
+	int32_t			audio_in_sample, outL, outR;
 	float			output_buffer_evens[MONO_BUFSZ], output_buffer_odds[MONO_BUFSZ];
 
+	float 			oscout_status, audiomon_status;
 	static float 	prev_level[NUM_CHANNELS] = {0.0};
 	float 			interpolated_level, level_inc;
 	float 			audio_in_sum;
 	static uint8_t	audio_gate_ctr=0;
 
+	DEBUG0_ON;
+
+	//Todo: use a separate callback for WTTTONE mode, and another one for WTRECORDING/WTMONITORING/WTREC_WAIT
+	oscout_status = 	((ui_mode != WTRECORDING) && (ui_mode != WTMONITORING) && (ui_mode != WTREC_WAIT));
+	audiomon_status = 	((ui_mode == WTRECORDING) || (ui_mode == WTMONITORING) || (ui_mode == WTREC_WAIT) || (ui_mode == WTTTONE));
 
 	audio_in_sum = 0;
-	for (i_sample = 0; i_sample < MONO_BUFSZ; i_sample++){
-		output_buffer_evens[i_sample] = 0.0;
-		output_buffer_odds[i_sample] = 0.0;
-
-		audio_in_sample = convert_s24_to_s32(*src++);								
-		if (audio_in_sample<0) audio_in_sum += audio_in_sample;
-
-		UNUSED(*src++);  // ignore right channel input (not connected in hardware)
-	}
-
-	//Requires: Min 4V trigger, min 0.25V/ms rise time (@5V = 20ms, @8V = 32ms), 20ms off time between pulses
-	if (audio_in_sum < AUDIO_GATE_THRESHOLD)
-	{
-		if (++audio_gate_ctr >= AUDIO_GATE_DEBOUNCE_LENGTH)
-		{
-			audio_in_gate = 1;
-			audio_gate_ctr = 0;
-		}
-	}
-	else 
-		audio_in_gate = 0;
 
 	for (chan = 0; chan < NUM_CHANNELS; chan++)
 	{
@@ -108,8 +93,6 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 
 		for (i_sample = 0; i_sample < MONO_BUFSZ; i_sample++)
 		{
-			// FIXME: try using this instead:
-			// wt_osc.wt_head_pos[chan] = _WRAP_F(wt_osc.wt_head_pos[chan] + wt_osc.wt_head_pos_inc[chan], 0 , F_WT_TABLELEN)
 			wt_osc.wt_head_pos[chan] += wt_osc.wt_head_pos_inc[chan];
 			while (wt_osc.wt_head_pos[chan] >= (float)WT_TABLELEN)
 				wt_osc.wt_head_pos[chan] -= (float)(WT_TABLELEN);
@@ -133,21 +116,54 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 
 			interpolated_level += level_inc;
 
-			if (chan & 1)
+			if (chan==0)
+				output_buffer_odds[i_sample] = smpl;
+			else if (chan==1)
+				output_buffer_evens[i_sample] = smpl;
+			else if (chan & 1)
 				output_buffer_evens[i_sample] += smpl;
 			else 
 				output_buffer_odds[i_sample] += smpl;
 			
 			if (chan==5)
 			{
-				audio_out_sample = (int32_t)(output_buffer_evens[i_sample] * system_settings.master_gain);
-				*dst++ = compress(audio_out_sample);
+				outL=0;
+				outR=0;
 
-				audio_out_sample = (int32_t)(output_buffer_odds[i_sample] *  system_settings.master_gain);
-				*dst++ = compress(audio_out_sample);
+				audio_in_sample = convert_s24_to_s32(*src++);								
+				UNUSED(*src++);  // ignore right channel input (not connected in hardware)
+
+				if (oscout_status) {
+					outL = (int32_t)(output_buffer_evens[i_sample] * system_settings.master_gain);
+					outR = (int32_t)(output_buffer_odds[i_sample] * system_settings.master_gain);
+				}
+				if (audiomon_status) {
+					outL += audio_in_sample;
+					outR += audio_in_sample;
+				}
+
+				*dst++ = compress(outL);
+				*dst++ = compress(outR);
+
+				if (audio_in_sample<0)
+					audio_in_sum += audio_in_sample;
 			}
 		}
 	}
+
+	//Requires: Min 4V trigger, min 0.25V/ms rise time (@5V = 20ms, @8V = 32ms), 20ms off time between pulses
+	if (audio_in_sum < AUDIO_GATE_THRESHOLD)
+	{
+		if (++audio_gate_ctr >= AUDIO_GATE_DEBOUNCE_LENGTH)
+		{
+			audio_in_gate = 1;
+			audio_gate_ctr = 0;
+		}
+	}
+	else 
+		audio_in_gate = 0;
+
+	DEBUG0_OFF;
 }
 
 
