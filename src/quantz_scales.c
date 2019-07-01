@@ -60,7 +60,7 @@ const uint8_t num_qtz_steps[NUM_QTZ_SCALES] = {
 	1,					// NO QTZ
 	7,					// MAJOR
 	7,					// MINOR HARMONIC
-	11					// SEMITONES
+	12					// SEMITONES
 };
 
 const float qtz_scales[NUM_QTZ_SCALES][MAX_NUM_QTZ_STEPS] = {
