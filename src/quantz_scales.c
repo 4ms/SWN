@@ -36,6 +36,7 @@
 //		enum colorCodes		color;
 //		uint8_t				num_qtz_steps;
 //		float				scale[MAX_NUM_QTZ_STEPS];
+//		float				midpt[MAX_NUM_QTZ_STEPS];
 //	};
 //
 //	
@@ -51,7 +52,7 @@
 
 const enum colorCodes qtz_scale_colors[NUM_QTZ_SCALES] = {
 	ledc_LIGHT_BLUE,		// NO QTZ
-	ledc_BRIGHTPINK,				// MAJOR
+	ledc_BRIGHTPINK,		// MAJOR
 	ledc_CORAL,				// MINOR HARMONIC
 	ledc_BLUE				// SEMITONES
 };
@@ -187,8 +188,10 @@ float quantize_to_scale(uint8_t scale_num, float unqtz_freq, uint8_t *qtz_note, 
 					qtz_freq  = qtz_scales[scale_num][note] * (1<<oct);
 					*qtz_note = note;
 					*qtz_oct = oct;
+					break; //found a note, so exit loop
+				} else {
+					break; //Todo: implement better anti-hysteresis
 				}
-				break; //found a note, so exit loop
 			}
 		}
 	}

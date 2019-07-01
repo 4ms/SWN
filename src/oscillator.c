@@ -120,9 +120,9 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 				output_buffer_odds[i_sample] = smpl;
 			else if (chan==1)
 				output_buffer_evens[i_sample] = smpl;
-			else if (chan & 1)
+			else if (chan & 1) //3,5
 				output_buffer_evens[i_sample] += smpl;
-			else 
+			else //2,4
 				output_buffer_odds[i_sample] += smpl;
 			
 			if (chan==5)
