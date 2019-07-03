@@ -863,8 +863,9 @@ void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
 			lfos.to_vca[chan] = 1;
 			lfos.mode[chan] = 0;
 			lfos.shape[chan] = KEY_SHAPE;
-			if(params.indiv_scale[chan]==0)
-				params.indiv_scale[chan]= 1;
+
+			if(params.indiv_scale[chan]==sclm_NONE) //set scale to a useful value because Note auto-triggering is disabled when scale is unquantized
+				params.indiv_scale[chan]=sclm_SEMITONES;
 
 			lfos.cycle_pos[chan] = 1.0;
 			lfos.divmult_id[chan] = LFO_UNITY_DIVMULT_ID+2;
