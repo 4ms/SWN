@@ -31,7 +31,7 @@
 #include "UI_conditioning.h"
 #include "analog_conditioning.h"
 #include "params_update.h"
-
+#include "params_lfo.h"
 
 #include "math.h"
 #include "math_util.h"
@@ -45,14 +45,18 @@ static float adc_lpf[NUM_VOCT_CHANNELS][VOCTCAL_LPF_SIZE];
 
 extern enum 			UI_Modes ui_mode;
 extern SystemCalibrations *system_calibrations;
-extern 	o_analog 	analog[NUM_ANALOG_ELEMENTS];
-extern	o_params params;
+extern o_analog 	analog[NUM_ANALOG_ELEMENTS];
+extern o_params params;
+extern o_lfos lfos;
 
 //Private:
 uint8_t range_check_offset(float offset);
 uint8_t range_check_tracking(float tracking);
 uint8_t calculate_cal_values(uint8_t chan);
 
+static uint8_t note_on_cache[NUM_CHANNELS];
+static uint8_t to_vca_cache[NUM_CHANNELS];
+static enum MuteNoteKeyStates key_sw_cache[NUM_CHANNELS];
 
 void enter_voct_calibrate_mode(void)
 {
@@ -75,6 +79,18 @@ void enter_voct_calibrate_mode(void)
 	//cache all pitch parameters and set them to 1.0 (no xposition, no fine tune, etc)
 	cache_uncache_pitch_params(CACHE);
 	init_pitch_params();
+
+	for (chan=0; chan<NUM_CHANNELS; chan++) {
+		note_on_cache[chan] = params.note_on[chan];
+		to_vca_cache[chan] = lfos.to_vca[chan];
+		key_sw_cache[chan] = params.key_sw[chan];
+
+		params.note_on[chan] = 1;
+		lfos.to_vca[chan] = 0;
+		params.key_sw[chan] = ksw_MUTE;
+	}
+
+
 	for (chan=0;chan<NUM_CHANNELS;chan++)
 		params.oct[chan] = INIT_OCT-1;
 
@@ -84,21 +100,36 @@ void enter_voct_calibrate_mode(void)
 
 void save_exit_voct_calibrate_mode(void)
 {
+	uint8_t chan;
+
 	//Save to flash
 	save_flash_params();
 
 	//uncache all pitch parameters
 	cache_uncache_pitch_params(UNCACHE);
 
+	for (chan=0; chan<NUM_CHANNELS; chan++) {
+		params.note_on[chan] = note_on_cache[chan];
+		lfos.to_vca[chan] = to_vca_cache[chan];
+		params.key_sw[chan] = key_sw_cache[chan];
+	}
+
 	ui_mode = PLAY;
 }
 
 void cancel_voct_calibrate_mode(void)
 {
+	uint8_t chan;
 
 	//uncache all pitch parameters
 	//
 	cache_uncache_pitch_params(UNCACHE);
+	
+	for (chan=0; chan<NUM_CHANNELS; chan++) {
+		params.note_on[chan] = note_on_cache[chan];
+		lfos.to_vca[chan] = to_vca_cache[chan];
+		params.key_sw[chan] = key_sw_cache[chan];
+	}
 
 	ui_mode = PLAY;
 }
