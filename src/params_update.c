@@ -853,7 +853,7 @@ void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
 {	
 	if (params.key_sw[chan] != new_keymode)
 	{
-		//Switched from MUTE
+		//Switched from MUTE to NOTE
 		if (params.key_sw[chan] == ksw_MUTE)
 		{
 			lfos.muted[chan] = 1; //mute to prevent race condition with update_lfo_wt_pos()
@@ -882,9 +882,18 @@ void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
 			cache_uncache_keys_params_and_lfos(chan, UNCACHE);
 		}
 
+		else if (new_keymode == ksw_KEYS)
+		{
+			//Todo: Restore cached scale unless indiv_scale was changed between entering and exiting NOTE mode,
+			// (even if it was changed and changed back) 
+			//params.indiv_scale[chan] = params.indiv_scale_buf[chan];
+		}
+
 		//Switched to Ext Trig
 		else if (new_keymode == ksw_KEYS_EXT_TRIG)
 		{
+			params.indiv_scale[chan] = sclm_NONE;
+
 			force_all_wt_interp_update();
 		}
 
