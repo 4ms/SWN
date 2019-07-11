@@ -34,7 +34,7 @@
 #define SKIP_FACTORY_SPHERES_IN_HEXFILE  // <-- Uncomment this to create a smaller ELF/HEX/BIN file, by not including the factory spheres (you must have them already loaded, of course)
 
 // Set the PCB version here:
-#define PCB_VERSION 100			//version v1.0
+#define PCB_VERSION 100			//version v1.0 and v1.1
 // #define PCB_VERSION 25		//In-house Proto (white PCB)
 // #define PCB_VERSION 24		//Beta version
 
@@ -42,8 +42,8 @@
 	#define PCB_VERSION 100
 #endif
 
-#define FW_MAJOR_VERSION 	1
-#define FW_MINOR_VERSION 	3
+#define FW_MAJOR_VERSION 	2
+#define FW_MINOR_VERSION 	0
 
 #define ALLOW_LOCKS
 
