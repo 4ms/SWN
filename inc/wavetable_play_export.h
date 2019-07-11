@@ -34,8 +34,5 @@
 
 #define REPEAT_EACH_WT 8
 
-int16_t*	get_play_export_ptr(void);
 void 		start_play_export_sphere(void);
-void 		increment_play_export(uint16_t samples);
-void 		stop_play_export_sphere(void);
 void 		animate_play_export_ledring(uint8_t slot_i, o_rgb_led *rgb);
