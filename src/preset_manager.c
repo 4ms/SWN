@@ -270,7 +270,7 @@ uint8_t check_preset_filled(uint32_t preset_num, char *version)
 
 	if (   read_data[0] == preset_signature[0] 
 		&& read_data[1] == preset_signature[1] 
-		// && read_data[2] == preset_signature[2] 
+		&& (read_data[2] == preset_signature[2] || read_data[2] == preset_signature_v1[2])
 		&& read_data[3] == preset_signature[3] )
 	{
 		*version = read_data[2];
