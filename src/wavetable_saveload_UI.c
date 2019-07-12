@@ -186,6 +186,17 @@ void handle_wt_saving_events(int16_t enc_turn)
 		case (WTS_UNCLEAR_CONFIRM):
 			if (preset_press_state)
 				user_sphere_mgr.mode++;				//= WTS_PRESSED_TO_DO_XXXX;
+			
+			if (wtspread_press_state)
+			{
+				if (is_sphere_enabled(user_sphere_mgr.hover_num))
+					user_sphere_mgr.mode			= WTS_PRESSED_TO_DO_DISABLE;
+				else
+					user_sphere_mgr.mode			= WTS_PRESSED_TO_DO_ENABLE;
+
+				user_sphere_mgr.activity_tmr		= SPHERE_SAVE_TIMER_LIMIT;
+				start_ongoing_display_sphere_save();
+			}
 			break;
 
 		case (WTS_PRESSED_TO_DO_LOAD):
