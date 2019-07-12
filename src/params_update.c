@@ -1,7 +1,7 @@
 /*
  * params_update.c - Parameters
  *
- * Authors: Hugo Paris (hugoplho@gmail.com), Dan Green (danngreen1@gmail.com)
+ * Authors: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,6 @@
 #include "flash_params.h"
 #include "math.h"
 #include "sphere_flash_io.h"
-#include "sphere_disppat.h"
 #include "lfo_wavetable_bank.h"
 #include "quantz_scales.h"
 #include "led_cont.h"
@@ -89,8 +88,6 @@ extern const uint8_t ALL_CHANNEL_MASK;
 extern 	SRAM1DATA o_spherebuf spherebuf;
 extern const int16_t TTONE[WT_TABLELEN];
 
-extern float WT_SPREAD_PATTERN[NUM_DISPPAT][NUM_CHANNELS][3];
-
 const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
 	// DEFAULT
 	{ 0  	, 0  	, 0  	, 0  	, 0  	, 0		}  ,  	// NONE
@@ -130,6 +127,57 @@ const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
 	{ 0  	, 0		, 3  	, 7  	, 10	, 17	}  ,  	// m9th
 	{ 0  	, 3		, 7  	, 10  	, 17	, 20	}    	// m11th
   };
+
+const float WT_SPREAD_PATTERN[NUM_DISPPAT][6][3] = 	{	
+	{
+		{1, 	1,      1},
+		{1,   	1, 		1},
+		{1,   	1,    	1},
+		{1,		1,   	1},
+		{1,   	1, 		1},
+		{1,   	1,    	1},			
+	},
+	{
+		{1, 	0,      0},
+		{0,   	1, 		0},
+		{0,   	0,   	1},
+		{-1,	0,   	0},
+		{0,   	-1, 	0},
+		{0,   	0,    	-1},
+	},
+	{
+		{.50, 	1.30,	 .80},
+		{1.2, 	-.30, 	0.60},
+		{.80, 	1.30, 	-1.2},
+		{.50, 	0.20, 	1.50},
+		{-2, 	0, 		.30},
+		{1, 	0.20, 	.30},
+	},															
+	{
+		{-1.2, 	.30, 	0.60},
+		{2, 	1.30, 	1.2},
+		{.50, 	0.30,	 .80},
+		{2, 	2, 		0.30},
+		{0.1, 	0.20, 	1.2},
+		{.50, 	0.20, 	-1.50},
+	},
+	{
+		{-2, 	0.30, 	0.60},
+		{-0.20, -1, 	1.2},
+		{2, 	2,	 	.80},
+		{-2, 	-1.50, 	0.30},
+		{1, 	2, 		1.2},
+		{0.30, 	-2, 	-1.50},
+	},		
+	{
+		{1, 	-3, 	2},
+		{-2,   	2, 		.40},
+		{-1.50,	.40,   1.2},
+		{0.1,	2,   	-2},
+		{1.90,	-2, 	-.80},
+		{0.20,	.90,   -1}
+	}																																																	
+};
 
 extern const float exp_1voct_10_41V[4096];
 
@@ -2205,7 +2253,7 @@ void calc_wt_pos(uint8_t chan){
 	// COMBINING
 	for (wt_dim=0;wt_dim<NUM_WT_DIMENSIONS;wt_dim++){
 
-		disp_amt = WT_DIM_SIZE * total_disp * (WT_SPREAD_PATTERN[disp_pattern][chan][wt_dim])/100.0;
+		disp_amt = WT_DIM_SIZE * total_disp * (WT_SPREAD_PATTERN[disp_pattern][chan][wt_dim]);
 
 		nav_cv = params.wt_pos_lock[chan] ? 0: params.wt_nav_cv[wt_dim];
 		new_wt_pos = _WRAP_F(disp_amt + browse_nav[wt_dim] + nav_cv + nav_enc[wt_dim], 0, WT_DIM_SIZE);
