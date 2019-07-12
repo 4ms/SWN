@@ -76,7 +76,7 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 	float 			audio_in_sum;
 	static uint8_t	audio_gate_ctr=0;
 
-	DEBUG0_ON;
+	// DEBUG0_ON;
 
 	//Todo: use a separate callback for WTTTONE mode, and another one for WTRECORDING/WTMONITORING/WTREC_WAIT
 	oscout_status = 	((ui_mode != WTRECORDING) && (ui_mode != WTMONITORING) && (ui_mode != WTREC_WAIT));
@@ -163,7 +163,7 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 	else 
 		audio_in_gate = 0;
 
-	DEBUG0_OFF;
+	// DEBUG0_OFF;
 }
 
 
