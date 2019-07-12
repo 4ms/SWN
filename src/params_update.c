@@ -504,8 +504,8 @@ void read_ext_trigs(void)
 void read_noteon(uint8_t i)
 {
 
-	if (ui_mode == PLAY){
-		
+	if (ui_mode == PLAY)
+	{
 		// MUTE ON/OFF
 		if (params.key_sw[i] == ksw_MUTE)
 		{
@@ -523,11 +523,13 @@ void read_noteon(uint8_t i)
 					{
 						if (calc_params.lock_change_staged[i]==1) {
 							toggle_lock(i);
-							calc_params.lock_change_staged[i]=2;
+							calc_params.lock_change_staged[i] = 2;
 						 }
 						 else
 							params.note_on[i] = 1 - params.note_on[i];
 					}
+					else
+						calc_params.lock_change_staged[i] = 0;
 				}
 				calc_params.already_handled_button[i] = 0;
 			}
@@ -547,34 +549,50 @@ void read_noteon(uint8_t i)
 				if (!new_key_armed[i]) {
 					new_key_armed[i] = 1;
 
-					if (calc_params.lock_change_staged[i]==1) {
-						toggle_lock(i);
-						calc_params.lock_change_staged[i]=2;
-					 } 
-					 else {
+					// if (calc_params.lock_change_staged[i]==1) {
+					// 	toggle_lock(i);
+					// 	calc_params.lock_change_staged[i]=2;
+					//  } 
+					//  else {
 						params.new_key[i] = 1;
 						params.note_on[i] = 1;
 						if (params.key_sw[i]==ksw_KEYS_EXT_TRIG) //allow re-trigger with button
 							lfos.cycle_pos[i] = 0;
 
-					}
+					// }
 				}
 			}
 
-			// NOTE AUTO EG trig
-			else if( (params.key_sw[i] == ksw_NOTE) && !params.note_on[i] && params.qtz_note_changed[i]==1 ){
-				lfos.cycle_pos[i] = 0;
-				params.note_on[i] = 1;
-			}
-
-			else{
-				new_key_armed[i] = 0;
-				if (params.key_sw[i]==ksw_KEYS) {				
-					params.note_on[i] = 0; 
+			else //button_released(i)
+			{
+				// NOTE AUTO EG trig
+				if( (params.key_sw[i] == ksw_NOTE) && !params.note_on[i] && params.qtz_note_changed[i]==1 ){
 					lfos.cycle_pos[i] = 0;
-				} 
-				else if (params.key_sw[i]==ksw_NOTE){
-					params.new_key[i] = 0;
+					params.note_on[i] = 1;
+				}
+
+				else
+				{
+					new_key_armed[i] = 0;
+					if (params.key_sw[i]==ksw_KEYS) {				
+						params.note_on[i] = 0; 
+						lfos.cycle_pos[i] = 0;
+					} 
+					else if (params.key_sw[i]==ksw_NOTE){
+						params.new_key[i] = 0;
+					}
+
+					if (!calc_params.already_handled_button[i])
+					{
+						if (calc_params.lock_change_staged[i]==1) {
+							toggle_lock(i);
+							calc_params.lock_change_staged[i] = 2;
+						 }
+					}
+					else
+						calc_params.lock_change_staged[i] = 0;
+
+					calc_params.already_handled_button[i] = 0;
 				}
 			}
 		}
@@ -657,9 +675,9 @@ void read_lfoto_vca_vco(uint8_t i){
 			any_button_pressed = 1;
 			calc_params.armed[armf_LFOTOVCA][i] = 0;
 			
-			if(button_pressed(i)){
-				//if (!lfos.locked[i])
-					calc_params.armed[armf_LFOTOVCA][i] = 1;
+			if (button_pressed(i))
+			{
+				calc_params.armed[armf_LFOTOVCA][i] = 1;
 				calc_params.already_handled_button[i] = 1;
 				calc_params.button_safe_release[0] = 1;		
 			}
@@ -797,27 +815,27 @@ void read_all_keymodes(void){
 				calc_params.armed[armf_KEYMODE][i] = 0;
 				
 				if(/*!lfos.locked[i] && */button_pressed(i)){
-					calc_params.armed[armf_KEYMODE][i]   = 1;
+					calc_params.armed[armf_KEYMODE][i]= 1;
 					calc_params.already_handled_button[i] = 1;
-					calc_params.button_safe_release[0]  	 = 1;		
-					calc_params.button_safe_release[1]  	 = 1;		
+					calc_params.button_safe_release[0] = 1;		
+					calc_params.button_safe_release[1] = 1;		
 				}
 			}
 			
 			if (/*!lfos.locked[i] && */ !button_pressed(i) && any_button_pressed && calc_params.armed[armf_KEYMODE][i]){
 				change_keymode[i] = 1;
-				calc_params.armed[armf_KEYMODE][i]   = 0;
+				calc_params.armed[armf_KEYMODE][i] = 0;
 			}
 
 			else if(!any_button_pressed){
 				if (button_pressed(butm_LFOVCA_BUTTON) < MED_PRESSED) {
-					calc_params.button_safe_release[0] 	 = 0;
-					calc_params.button_safe_release[1] 	 = 0;
-					if (!lfos.locked[i]) calc_params.armed[armf_KEYMODE][i] 	 = 1;
+					calc_params.button_safe_release[0] = 0;
+					calc_params.button_safe_release[1] = 0;
+					if (!lfos.locked[i]) calc_params.armed[armf_KEYMODE][i]= 1;
 				} else {
-					calc_params.button_safe_release[0] 	 = 1;
-					calc_params.button_safe_release[1] 	 = 1;
-					if (!lfos.locked[i]) calc_params.armed[armf_KEYMODE][i] 	 = 0;
+					calc_params.button_safe_release[0] = 1;
+					calc_params.button_safe_release[1] = 1;
+					if (!lfos.locked[i]) calc_params.armed[armf_KEYMODE][i]= 0;
 				}
 			}
 		}
@@ -829,8 +847,8 @@ void read_all_keymodes(void){
 				calc_params.armed[armf_KEYMODE][i] = 0;
 			}
 			if (calc_params.button_safe_release[0] && calc_params.button_safe_release[1]){
-				calc_params.button_safe_release[0] 	 = 0;
-				calc_params.button_safe_release[1] 	 = 0;
+				calc_params.button_safe_release[0] = 0;
+				calc_params.button_safe_release[1] = 0;
 				stop_all_displays();
 			}
 			any_button_pressed = 0;
@@ -1189,10 +1207,12 @@ void update_osc_param_lock(void)
 
 	for (chan=0; chan<NUM_CHANNELS; chan++)
 	{
-		if (key_combo_lock_channel(chan)) {
+		if (key_combo_lock_channel(chan))
+		{
 			if (calc_params.lock_change_staged[chan]==0)
 				calc_params.lock_change_staged[chan] = 1;
-		} else
+		}
+		else
 			if (calc_params.lock_change_staged[chan]==2)
 				calc_params.lock_change_staged[chan] = 0;
 	}
