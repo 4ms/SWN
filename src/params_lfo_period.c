@@ -139,7 +139,6 @@ void update_lfo_wt_pos(void)
 void update_lfo_calcs(void)
 {
 	uint8_t chan;
-	float global_divmult_id;
 
 	if (recalc_flagged[REF_CLK]) {
 		recalc_flagged[REF_CLK] = 0;
@@ -165,9 +164,7 @@ void update_lfo_calcs(void)
 			if (!lfos.locked[chan])
 				lfos.divmult_id_global_locked[chan] = lfos.divmult_id[GLO_CLK] + divmult_cv;
 
-			global_divmult_id = (params.key_sw[chan] == ksw_MUTE) ? lfos.divmult_id_global_locked[chan] : LFO_UNITY_DIVMULT_ID;
-
-			lfos.period[chan] = calc_lfo_period(chan, global_divmult_id, lfos.period[REF_CLK]);
+			lfos.period[chan] = calc_lfo_period(chan, lfos.divmult_id_global_locked[chan], lfos.period[REF_CLK]);
 			lfos.inc[chan] = calc_lfo_inc(lfos.period[chan]);
 		}
 	}

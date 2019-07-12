@@ -35,11 +35,6 @@
 #define LFO_MAX_DIVMULT_ID			84
 #define LFO_MIN_DIVMULT_ID			(-30)
 
-#define NOTEKEY_MAX_DIVMULT_ID		50
-#define NOTEKEY_MIN_DIVMULT_ID		6
-
-
-
 #define F_LFO_UPDATE_FREQ				7200.0
 
 //Ratio between LFO output update frequency and period measurement timer update frequency

@@ -444,15 +444,6 @@ void read_lfo_speed(int16_t turn)
 
 		lfos.divmult_id[GLO_CLK] = _CLAMP_F(test_divmult_id, LFO_MIN_DIVMULT_ID, LFO_MAX_DIVMULT_ID);
 
-		// Adjust invididual channels if in note/key mode, because global clock is not used there
-		for (i = 0; i < NUM_CHANNELS; i++)
-		{
-			if (!lfos.locked[i]) {
-				if (params.key_sw[i] != ksw_MUTE)
-					lfos.divmult_id[i] = _CLAMP_F(lfos.divmult_id[i] + turn_amt, NOTEKEY_MIN_DIVMULT_ID, NOTEKEY_MAX_DIVMULT_ID);
-			}
-		}
-
 		flag_all_lfos_recalc();
 
 		if (lfos.use_ext_clock)
@@ -466,18 +457,14 @@ void read_lfo_speed(int16_t turn)
 			if (button_pressed(i))
 			{
 				calc_params.already_handled_button[i] = 1; 
-				//if (!lfos.locked[i]) {
-					if (params.key_sw[i] == ksw_MUTE)
-						lfos.divmult_id[i] = _CLAMP_F(lfos.divmult_id[i] + turn_amt, LFO_MIN_DIVMULT_ID, LFO_MAX_DIVMULT_ID);
-					else 
-						lfos.divmult_id[i] = _CLAMP_F(lfos.divmult_id[i] + turn_amt, NOTEKEY_MIN_DIVMULT_ID, NOTEKEY_MAX_DIVMULT_ID);
 
-					flag_lfo_recalc(i);
+				lfos.divmult_id[i] = _CLAMP_F(lfos.divmult_id[i] + turn_amt, LFO_MIN_DIVMULT_ID, LFO_MAX_DIVMULT_ID);
+				
+				flag_lfo_recalc(i);
 
-					if (lfos.use_ext_clock) {
-						stage_resync(i);
-					}
-				//}
+				if (lfos.use_ext_clock) {
+					stage_resync(i);
+				}
 			}
 		}
 	}
