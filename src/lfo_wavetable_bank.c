@@ -1,18 +1,8 @@
 // This file generated with wavecalc
 // Authors: Hugo Paris, hugoplho@gmail.com, Dan Green danngreen1@gmail.com 
 //
-
-
-// 1) SLPLIT LFO_WAVETABLE[][] ARRAY INTO BANKS BY UPDATING LFO_TO_BANK_END ARRAY BELOW
-// 2) Comment out enused waveforms and remove coma at end of last waveform 
-// 3 Update value for NUM_LFO_GROUPS in lfo_wavetable_bank.h
-// 4) Copy the content of this file into src/lfo_wavetable_bank.c/
-// -------------------------------------------------------
-//
 // Wavetable name: 2018_08_05_HP_BetaTest_LFO_BANKS
 // Wavetable by: Hugo Paris hugoplho@gmail.com
-// Wavefiles for waveforms source directory: ../libraries/2018_08_05_HP_BetaTest_LFO_BANKS/
-// oscillator / lfo: LFO
 
 #include "arm_math.h" 
 #include "lfo_wavetable_bank.h"

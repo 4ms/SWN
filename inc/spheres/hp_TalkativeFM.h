@@ -1,12 +1,3 @@
-// this file was made with wavecalc/main.c
-// Author: Hugo Paris, hugoplho@gmail.com, Dan Green danngreen1@gmail.com 
-
-// ### COPY/PASTE CONTENT BELOW INTO wavetable_array.c ###
-// -------------------------------------------------------
-
-// Wavetable name: hp_TalkativeFM
-// Wavetable by: Hugo Paris hugoplho@gmail.com
-// Wavefiles for waveforms come from: ../libraries/wavefiles/HP_2018_06_22/hp_TalkativeFM/
 const o_waveform hp_TalkativeFM[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE] = 
 
 {

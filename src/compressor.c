@@ -1,5 +1,5 @@
 /*
- * compressor.h - Fast and lightweight soft limiter
+ * compressor.c - Fast and lightweight soft limiter
  * This algorithm produces no distortion below a threshold, and increasingly reduces gain above the threshold
  *
  * Concept for algoritm from https://www.kvraudio.com/forum/viewtopic.php?t=195315

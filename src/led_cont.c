@@ -1,7 +1,7 @@
 /*
- * leds.c - handles SWN LEDs
+ * led_cont.c - handles SWN LEDs
  *
- * Author: Hugo Paris (hugoplho@gmail.com) and Dan Green (danngreen1@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com) 
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

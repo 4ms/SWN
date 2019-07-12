@@ -1,7 +1,7 @@
 /*
  * UI_conditioning.c - Conditions encoder, switch, buttons
  *
- * Author: Hugo Paris (hugoplho@gmail.com), Dan Green (danngreen1@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com),  Hugo Paris (hugoplho@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,6 @@
 
 #include "UI_conditioning.h"
 #include "drivers/rotary_driver.h"
-#include "drivers/button_driver.h"
 #include "drivers/switch_driver.h"
 #include "timekeeper.h"
 
@@ -204,38 +203,45 @@ void update_rotary_presses(uint32_t elapsed_time){
 
 	uint8_t 			i;
 	uint16_t 			t;
-	static uint16_t 	rotary_state_c_buf[NUM_ROTARIES] 	= {0xffff}; 
-	static uint32_t 	detection_tmr[NUM_BUTTONS] 			= {0};	
+	static uint16_t 	rotary_state_c_buf[NUM_ROTARIES] = {0xffff};
+	static uint32_t 	detection_tmr[NUM_BUTTONS] = {0};
 
 	for (i = 0; i < NUM_ROTARIES; i++){
 
-		if (read_rotary_press( &rotary[i])) 	{t = 0xe000;} 
-		else 									{t = 0xe001;}
+		if (read_rotary_press( &rotary[i]))
+			t = 0xe000; 
+		else
+			t = 0xe001;
+
 		rotary_state_c_buf[i] = (rotary_state_c_buf[i] << 1) | t;
 
 		// UP / DOWN
-		rotary[i].hwswitch.pressed 		 = RELEASED;
+		rotary[i].hwswitch.pressed = RELEASED;
 		
 		// LONG PRESSES
-		if (rotary_state_c_buf[i] == 0xe000){
-
-			rotary[i].hwswitch.pressed 		 = PRESSED;
-			if(detection_tmr[i] != BUT_ALREADY_DETECTED){
-				if (detection_tmr[i] < (0xFFFFFFFF - elapsed_time))	{detection_tmr[i] += elapsed_time;}	
-				else 												{detection_tmr[i] = 0xFFFFFFFE;}
+		if (rotary_state_c_buf[i] == 0xe000)
+		{
+			rotary[i].hwswitch.pressed = PRESSED;
+			if (detection_tmr[i] != BUT_ALREADY_DETECTED)
+			{
+				if (detection_tmr[i] < (0xFFFFFFFF - elapsed_time))
+					detection_tmr[i] += elapsed_time;
+				else
+					detection_tmr[i] = 0xFFFFFFFE;
 
 				// Long Press
 				if (detection_tmr[i] > BUT_LONG_PRESS) {			
-					rotary[i].hwswitch.pressed  	= LONG_PRESSED;
+					rotary[i].hwswitch.pressed = LONG_PRESSED;
 				}
+
 				// med Press
 				else if (detection_tmr[i] > BUT_MED_PRESS) {			
-					rotary[i].hwswitch.pressed  	= MED_PRESSED;
+					rotary[i].hwswitch.pressed = MED_PRESSED;
 				}
 
 				// Short Press
 				else if (detection_tmr[i] > BUT_SHORT_PRESS) {				
-					rotary[i].hwswitch.pressed 		 = SHORT_PRESSED; 
+					rotary[i].hwswitch.pressed = SHORT_PRESSED; 
 				}
 			}
 		}
@@ -263,9 +269,9 @@ void start_UI_conditioning_updates(void)
 
 void UI_conditioning_updates(void)
 {
-	static uint32_t 			last_sys_tmr;
-	uint32_t					sys_tmr;
-	uint32_t					elapsed_time;
+	static uint32_t last_sys_tmr;
+	uint32_t sys_tmr;
+	uint32_t elapsed_time;
 
 	sys_tmr = (HAL_GetTick()/TICKS_PER_MS);
 

@@ -33,15 +33,14 @@
 #include "analog_conditioning.h"
 #include "drivers/rotary_driver.h"
 
-// Hardware objects
 o_macro_states 	macro_states;
 o_rotary 		rotary[NUM_ROTARIES];
 o_button 		button[NUM_BUTTONS];
-o_switch  		hwSwitch[NUM_SWITCHES];											//switch position = note when mutes_sw and keys_sw state is both off
+o_switch  		hwSwitch[NUM_SWITCHES];
 o_monoLed   	monoLed[NUM_MONO_LED];
 
 // GPIO map
-extern GPIO_TypeDef 	*HW_ROTARY_SW_GPIO[NUM_ROTARIES];						// Rotaries
+extern GPIO_TypeDef 	*HW_ROTARY_SW_GPIO[NUM_ROTARIES];
 extern uint16_t 	  	HW_ROTARY_SW_PIN[NUM_ROTARIES]; 
 extern uint8_t 	  		HW_ROTARY_SW_PINTYPE[NUM_ROTARIES]; 
 extern uint8_t 	  		HW_ROTARY_TURN_STEP[NUM_ROTARIES]; 
@@ -49,11 +48,11 @@ extern GPIO_TypeDef 	*HW_ROTARY_A_GPIO[NUM_ROTARIES];
 extern uint16_t 	 	HW_ROTARY_A_PIN[NUM_ROTARIES]; 
 extern GPIO_TypeDef 	*HW_ROTARY_B_GPIO[NUM_ROTARIES];
 extern uint16_t	  		HW_ROTARY_B_PIN[NUM_ROTARIES]; 
-extern GPIO_TypeDef 	*HW_BUTTON_SW_GPIO[NUM_BUTTONS];						// Buttons
+extern GPIO_TypeDef 	*HW_BUTTON_SW_GPIO[NUM_BUTTONS];
 extern uint16_t 		HW_BUTTON_SW_PIN[NUM_BUTTONS]; 
-extern GPIO_TypeDef 	*HW_SW_GPIO[NUM_SWITCHES];								// Switches
+extern GPIO_TypeDef 	*HW_SW_GPIO[NUM_SWITCHES];
 extern uint16_t 	  	HW_SW_PIN[NUM_SWITCHES]; 
-extern GPIO_TypeDef 	*HW_MONO_LED_GPIO[NUM_MONO_LED];						// Sliders
+extern GPIO_TypeDef 	*HW_MONO_LED_GPIO[NUM_MONO_LED];
 extern uint16_t 	  	HW_MONO_LED_PIN[NUM_MONO_LED]; 
 
 // init_rotaries()
@@ -67,7 +66,7 @@ void init_rotaries(void){
 		init_rotary_turn(&rotary[i].turn);
 
 		// rotary gpio(s) and pins
-		rotary[i].hwswitch.gpio 	= HW_ROTARY_SW_GPIO[i];					// GPIOs and pins defined in gpio_pins.h
+		rotary[i].hwswitch.gpio 	= HW_ROTARY_SW_GPIO[i];
 		rotary[i].hwswitch.pin 		= HW_ROTARY_SW_PIN[i];
 		rotary[i].hwswitch.ptype 	= HW_ROTARY_SW_PINTYPE[i];
 		rotary[i].turn.step_size 	= HW_ROTARY_TURN_STEP[i];
@@ -88,7 +87,7 @@ void init_buttons(void){
 	for (i=0; i < NUM_BUTTONS; i++){
 
 		// button press
-		button[i].hwswitch.gpio 	= HW_BUTTON_SW_GPIO[i]; 					// GPIOs and pins defined in gpio_pins.h
+		button[i].hwswitch.gpio 	= HW_BUTTON_SW_GPIO[i];
 		button[i].hwswitch.pin 		= HW_BUTTON_SW_PIN[i]; 
 		button[i].hwswitch.ptype 	= PULLUP; //Todo: add HW_BUTTON_SW_PTYPE[i];
 		// button[i].hwswitch.state 	= BUT_UP;
@@ -120,7 +119,7 @@ void init_mono_leds(void){
 	for (i = 0; i < NUM_MONO_LED; i++){
 
 		// LED
-		monoLed[i].gpio = HW_MONO_LED_GPIO[i]; 						// GPIOs and pins defined in gpio_pins.h
+		monoLed[i].gpio = HW_MONO_LED_GPIO[i];
 		monoLed[i].pin  = HW_MONO_LED_PIN[i]; 
 	}
 

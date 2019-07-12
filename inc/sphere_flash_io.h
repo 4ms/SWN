@@ -1,7 +1,7 @@
 /*
  * sphere_flash_io.h - Spherical Wavetable Navigator I/O with external FLASH memory
  *
- * Author: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,6 +59,4 @@ uint8_t is_factory_sphere0_present(void);
 
 enum SphereTypes get_spheretype(uint32_t wt_num);
 void read_all_spheretypes(void);
-uint8_t is_spheretype_factory(uint8_t wt_num);
-uint8_t is_spheretype_user(uint8_t wt_num);
 uint8_t is_sphere_filled(uint8_t wt_num);

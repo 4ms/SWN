@@ -1,7 +1,7 @@
  /*
  * pca9685_driver.h - Driver for PCA9685 16-channel LED driver chips over I2C bus
  *
- * Author: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

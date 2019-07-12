@@ -1,7 +1,7 @@
 /*
  * system_settings.c - Global system settings and modes that are user-editable during runtime
  *
- * Author: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -70,17 +70,11 @@ uint8_t range_check_system_settings(o_systemSettings *sys_sets)
 		range_errors++;
 	}
 
-	range_errors+=range_check_global_brightness(sys_sets);
+	if (isnan(sys_sets->global_brightness) || (sys_sets->global_brightness > 2.0) || (sys_sets->global_brightness < (1.0/1000.0)))
+	{
+		sys_sets->global_brightness = 0.8;
+		range_errors++;
+	}
 
 	return range_errors;
-}
-
-uint8_t range_check_global_brightness(o_systemSettings *sys_sets)
-{
-	if (isnan(sys_sets->global_brightness) || (sys_sets->global_brightness > 2.0) || (sys_sets->global_brightness < 0.001)){
-		sys_sets->global_brightness = 0.8;
-		return 1;
-	}
-	else
-		return 0;
 }

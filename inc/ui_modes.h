@@ -1,7 +1,7 @@
 /*
  * ui_modes.h - handles ui mode selection
  *
- * Author: Hugo Paris (hugoplho@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com),  Hugo Paris (hugoplho@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

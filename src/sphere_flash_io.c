@@ -1,7 +1,7 @@
 /*
  * sphere_flash_io.c - Spherical Wavetable Navigator I/O with external FLASH memory
  *
- * Author: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -320,16 +320,6 @@ void read_all_spheretypes(void)
 
 uint8_t is_sphere_filled(uint8_t wt_num){
 	if (sphere_types[wt_num] == SPHERE_TYPE_FACTORY || sphere_types[wt_num] == SPHERE_TYPE_USER) return 1;
-	else return 0;
-}
-
-uint8_t is_spheretype_factory(uint8_t wt_num){
-	if 	(sphere_types[wt_num] == SPHERE_TYPE_FACTORY) return 1;
-	else return 0;
-}
-
-uint8_t is_spheretype_user(uint8_t wt_num){
-	if (sphere_types[wt_num] == SPHERE_TYPE_USER) return 1;
 	else return 0;
 }
 

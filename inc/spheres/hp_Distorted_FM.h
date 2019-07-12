@@ -1,12 +1,3 @@
-// this file was made with wavecalc/main.c
-// Author: Hugo Paris, hugoplho@gmail.com, Dan Green danngreen1@gmail.com 
-
-// ### COPY/PASTE CONTENT BELOW INTO wavetable_array.c ###
-// -------------------------------------------------------
-
-// Wavetable name: hp_Distorted_FM
-// Wavetable by: Hugo Paris hugoplho@gmail.com
-// Wavefiles for waveforms come from: ../libraries/wavefiles/HP_2018_06_22/hp_Distorted_FM/
 const o_waveform hp_Distorted_FM[WT_DIM_SIZE][WT_DIM_SIZE][WT_DIM_SIZE] = 
 
 {

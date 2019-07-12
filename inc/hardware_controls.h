@@ -1,7 +1,7 @@
 /*
  * hardware_controls.h - hardware setup
  *
- * Author: Hugo Paris (hugoplho@gmail.com), Dan Green (danngreen1@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,6 @@
 #include <stm32f7xx.h>
 #include "globals.h"
 
-// LIST OF HARDWARE -------------------------------------------- //
 
 enum rotaryMap{				
 	rotm_OCT,				//  0 <<not an LED encoder
@@ -90,7 +89,6 @@ enum Switches{
 };
 
 
-// HARDWARE "STATES" -------------------------------------------- //
 enum VoctVcaStates {
 	SW_VOCT,
 	SW_VCA,
@@ -161,11 +159,11 @@ enum PressTypes {
 
 // HARDWARE "CLASSES" -------------------------------------------- //
 
-typedef struct o_macro_states{
+typedef struct o_macro_states {
 	uint8_t all_af_buttons_released;
 } o_macro_states;
 
-typedef struct o_switch{
+typedef struct o_switch {
 	enum PressTypes		pressed;
 	GPIO_TypeDef 	   *gpio;
 	uint32_t			pin;
@@ -173,7 +171,7 @@ typedef struct o_switch{
 } o_switch;
 
 
-typedef struct o_turn{
+typedef struct o_turn {
 	uint8_t				state;
 	int8_t				queue;
 	GPIO_TypeDef 	   *A_gpio;
@@ -183,19 +181,16 @@ typedef struct o_turn{
 	enum StepTypes 		step_size; 
 } o_turn;
 
-typedef struct o_rotary{
-	// o_rgbLed 			rgbLed;	//ToDo: We aren't using this anywhere, so should we keep it? Or point it to the led.cont entry? or vice-versa?
+typedef struct o_rotary {
 	o_turn				turn;
 	o_switch			hwswitch;
 } o_rotary;
 
 typedef struct o_button{
-	// o_rgbLed 			rgbLed; //ToDo: We aren't using this anywhere, so should we keep it? Or point it to the led.cont entry? or vice-versa?
-									//Then is o_button any different than o_switch
 	o_switch		    hwswitch;
 } o_button;
 
-typedef struct o_monoLed{
+typedef struct o_monoLed {
 	GPIO_TypeDef 	   *gpio;
 	uint32_t			pin;
 } o_monoLed;

@@ -1,5 +1,5 @@
 /*
- * flashram_spidma.c - External FLASH RAM SPI driver using DMA chip
+ * flashram_spidma.c - External FLASH RAM SPI driver using DMA
  *
  * Author: Dan Green (danngreen1@gmail.com)
  * (c) 2019

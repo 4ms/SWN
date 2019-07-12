@@ -1,7 +1,7 @@
 /*
  * system_settings.h
  *
- * Author: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com)
+ * Author: Dan Green (danngreen1@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,4 +59,3 @@ typedef struct o_systemSettings
 
 void default_system_settings(void);
 uint8_t range_check_system_settings(o_systemSettings *sys_sets);
-uint8_t range_check_global_brightness(o_systemSettings *sys_sets);

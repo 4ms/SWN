@@ -1,7 +1,8 @@
 /*
  * params_update.h
  *
- * Author: Hugo Paris (hugoplho@gmail.com), Dan Green (danngreen1@gmail.com)
+ * Authors: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com)
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -47,6 +48,7 @@
 #define NUM_WTSEL_SPREADS	18
 #define NUM_SCALES			2
 #define NOTES_PER_SCALE		NUM_OUTRING_LEDS +1
+#define NUM_DISPPAT			6
 
 //WAVETABLE
 #define XFADE_TIME_SEC					0.001

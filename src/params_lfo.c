@@ -1,7 +1,7 @@
 /*
  * params_lfo.c
  *
- * Author: Hugo Paris (hugoplho@gmail.com)
+ * Authors: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
