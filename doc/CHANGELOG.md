@@ -14,7 +14,7 @@ On the outer light ring, if you imagine it as a clock face, the light just to th
 
 
 
-#### New features in v1.3 (v1.3beta1 is currently in testing):
+#### New features in v2.0:
 
   * __CV/Gate Mode__: New mode allows you to patch gate signals into the CV jacks to trigger each channel's envelope. CV/Gate mode is designed for connecting a CV/Gate keyboard or sequencer: up to seven CV/Gate channels can be connected (six channel + one global).
     * To enter CV/Gate Mode: Press the two small buttons to switch from Mute Mode -> Note Mode -> Keyboard Mode -> CV/Gate Mode. The buttons will be dim orange in this mode.
