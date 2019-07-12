@@ -774,7 +774,7 @@ void get_wt_color(uint8_t wt_num, o_rgb_led *rgb)
 
 		rgb->c_red 		= (2048.0 * inv_fade) + 150.0;
 		rgb->c_green  	= 0;
-		rgb->c_blue 	= (100.0 * fade);
+		rgb->c_blue 	= (200.0 * fade);
 	}
 	else if (wt_num < MAX_TOTAL_SPHERES) {
 		scaled_wt_num = _SCALE_U2U((wt_num-NUM_FACTORY_SPHERES) % 18, 0, 17, 1024, 4095);
