@@ -7,6 +7,10 @@ COMBO 			= build/combo
 BOOTLOADER_DIR 	= ../SWN-bootloader
 BOOTLOADER_HEX 	= ../SWN-bootloader/bootloader.hex
 
+FIRMWARE_RELEASE_DIR = LOCAL/Firmwares
+FIRMWARE_RELEASE_NAME = SWN_firmware
+
+
 STARTUP 		= startup_stm32f765xx.s
 SYSTEM 			= system_stm32f7xx.c
 LOADFILE 		= STM32F765ZGTx_FLASH.ld
@@ -195,8 +199,6 @@ $(BUILDDIR)/%.o: %.c $(wildcard inc/*.h) $(wildcard inc/drivers/*.h) $(wildcard 
 	$(CC) -c $(CFLAGS) $< -o $@
 
 
-# build/stm32/core/src/arm_bitreversal2.o: AS = $(ARCH)-gcc -x assembler-with-cpp
-
 $(BUILDDIR)/%.o: %.s
 	mkdir -p $(dir $@)
 	$(AS) $(AFLAGS) $< -o $@ > $(addprefix $(BUILDDIR)/, $(addsuffix .lst, $(basename $<)))
@@ -219,3 +221,9 @@ fsk-wav: $(BIN)
 	python stm_audio_bootloader/fsk/encoder.py \
 		-s 44100 -b 16 -n 8 -z 4 -p 256 -g 16384 -k 1800 \
 		$(BIN)
+
+release: wav
+	@read -p "Version (example: v2.0): " RELEASEVERSION && \
+	mv "$(BUILDDIR)/$(BINARYNAME).wav" "$(FIRMWARE_RELEASE_DIR)/$(FIRMWARE_RELEASE_NAME)_$$RELEASEVERSION.wav" && \
+	zip -j "$(FIRMWARE_RELEASE_DIR)/$(FIRMWARE_RELEASE_NAME)_$$RELEASEVERSION.zip" "$(FIRMWARE_RELEASE_DIR)/$(FIRMWARE_RELEASE_NAME)_$$RELEASEVERSION.wav"
+
