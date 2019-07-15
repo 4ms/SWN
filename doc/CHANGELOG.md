@@ -13,7 +13,19 @@ The blue light on the outer ring shows the minor version. For example if the ver
 On the outer light ring, if you imagine it as a clock face, the light just to the right of 12:00 is 0. The next light going around clockwise is 1. Then next light clockwise is 2, etc. The inner ring counts the same but it starts at 1 (and goes to 6). If you would like a picture to help visualize this, see the [SWN User Manual](https://4mscompany.com/SWN/manual/SWN-manual-1.0.pdf), page 29.
 
 
+#### Changes in v2.1:
 
+  * Chords in the list of chords (Spread knob or CV) have been modified:
+    * Chord 9: First note lowered by one semitone to make a minor third.
+    * Chord 17: Top note lowered three semitones to make a major 9th.
+    * Chord 18: Top two notes lowered three semitones to make a major 11th.
+    * Chord 25: Top note lowered three semitones to make a minor 9th.
+    * Chord 26: Top two notes lowered three semitones to make a minor 11th.
+
+  * Spread CV response changed so you can select any of the 26 chords with the black keys on a keyboard (C#0 to C#5)
+ 
+  * Spread knob had a bug where sometimes turning clockwise from the first chord would go to chord 25, instead of 26.
+  
 #### New features in v2.0:
 
   * __CV/Gate Mode__: New mode allows you to patch gate signals into the CV jacks to trigger each channel's envelope. CV/Gate mode is designed for connecting a CV/Gate keyboard or sequencer: up to seven CV/Gate channels can be connected (six channel + one global).
