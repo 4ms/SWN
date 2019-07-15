@@ -1506,7 +1506,7 @@ void combine_transpose_spread(void){
 	for (chan=0; chan<NUM_CHANNELS; chan++)
 	{
 		spread_cv = params.osc_param_lock[chan] ? 0: params.spread_cv;
-		chord_num = _WRAP_U8(spread_cv + params.spread_enc[chan], 0, NUM_CHORDS);
+		chord_num = _WRAP_I8(spread_cv + params.spread_enc[chan], 0, NUM_CHORDS);
 
 		calc_params.transpose[chan] = params.transpose_enc[chan] + CHORD_LIST[chord_num][chan];
 	}
