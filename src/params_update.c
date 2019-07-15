@@ -1463,17 +1463,6 @@ void update_spread(int16_t tmp){
 
 	uint8_t chan;
 
-	// Locking and chord spread: The way this works now is if you lock a channel and change chords
-	// with the encoder, the locked channel gets "left behind": If you unlock it
-	// later and then change chords, the old chord number will be offset.
-	// This is good for having, for example, channels 1-3 doing one chord and channels
-	// 4-6 doing another chord. Changing Spread will offset both chords within the CHORD table
-	//
-	// Another way to do it would be to always have all 6 channels on the same chord,
-	// and when a channel is unlocked it jumps to the current chord.
-	// This way might be easier for the user to understand what's going on, and easier
-	// to get back to "normal" without having to recall a preset, but is 
-	// less verstatile
 	for (chan=0; chan<NUM_CHANNELS; chan++){ 								
 		if (!params.osc_param_lock[chan])
 			params.spread_enc[chan] += tmp;
@@ -1489,7 +1478,7 @@ void update_spread_cv(void)
 	  	||  params.key_sw[3]==ksw_KEYS_EXT_TRIG || params.key_sw[4]==ksw_KEYS_EXT_TRIG || params.key_sw[5]==ksw_KEYS_EXT_TRIG))
 		params.spread_cv = 0;
 	else
-	 	params.spread_cv = (int8_t)((float)(analog[CHORD_CV].lpf_val)  * (float)(NUM_CHORDS) / 4095.0);
+	 	params.spread_cv = (int8_t)((float)(analog[CHORD_CV].bracketed_val)  * (float)(NUM_CHORDS) / (4095.0*1.04));//4% down-scaling allows black keys to select chords (C#0 to C#5)
 }
 
 void combine_transpose_spread(void){
@@ -1497,11 +1486,6 @@ void combine_transpose_spread(void){
 	uint8_t chan;
 	uint8_t chord_num;
 	uint8_t spread_cv;
-
-	//If user applies Spread_CV while some channels are locked, and then later unlocks
-	//those channels, the channels will immediately jump to their proper "chord" position
-	//selected by the CV amount. 
-
 
 	for (chan=0; chan<NUM_CHANNELS; chan++)
 	{
@@ -1513,6 +1497,7 @@ void combine_transpose_spread(void){
 }
 
 // trim_array() trims extra steps beyond MAX/MIN values, when all elements are beyond threshold of display_min or display_max
+// It serves to clip values while still preserving the spacing between them 
 void trim_array(int32_t *a, uint32_t num_elements, int32_t display_min, int32_t display_max){
 	
 	uint8_t chan;
