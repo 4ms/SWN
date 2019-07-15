@@ -104,7 +104,7 @@ const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
 
 	// MINOR
 	{ 0  	, 0  	, 3  	, 3  	, 7  	, 7		}  ,  	// m3rd
-	{ -8 	, -5 	, 0  	, 3  	, 7  	, 7 	}  , 	// m3rd w inv
+	{ -9 	, -5 	, 0  	, 3  	, 7  	, 7 	}  , 	// m3rd w inv*
 	{ -12 	, -5 	, 0  	, 3  	, 7  	, 12 	}  ,	// m3rd w/ oct
 
 	// MAJOR EXT chords (6th, 7th 9th, 11th)
@@ -114,8 +114,8 @@ const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
 	{ 0  	, 0  	, 4  	, 4  	, 7  	, 11	}  ,  	// M7th
 	{ -12  	, 0  	, 4  	, 7  	, 11  	, 11	}  ,  	// M7th w/oct
 	{ -12  	, -1	, 0  	, 4  	, 7  	, 11	}  ,  	// M7th w/ inv
-	{ 0  	, 0		, 4  	, 7  	, 11	, 17	}  ,  	// M9th
-	{ 0  	, 4		, 7  	, 11  	, 17	, 21	}  ,  	// M11th
+	{ 0  	, 0		, 4  	, 7  	, 11	, 14	}  ,  	// M9th*
+	{ 0  	, 4		, 7  	, 11  	, 14	, 18	}  ,  	// M11th*
 
 	// MINOR EXT chords (6th, 7th 9th, 11th)
 	{ 0  	, 0  	, 3  	, 3  	, 7  	, 9		}  ,  	// m6th
@@ -124,8 +124,8 @@ const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
 	{ 0  	, 0  	, 3  	, 3  	, 7  	, 10	}  ,  	// m7th
 	{ -12  	, 0  	, 3  	, 7  	, 10  	, 10	}  ,  	// m7th w/oct
 	{ -12  	, -2	, 0  	, 3  	, 7  	, 10	}  ,  	// m7th w/ inv
-	{ 0  	, 0		, 3  	, 7  	, 10	, 17	}  ,  	// m9th
-	{ 0  	, 3		, 7  	, 10  	, 17	, 20	}    	// m11th
+	{ 0  	, 0		, 3  	, 7  	, 10	, 14	}  ,  	// m9th*
+	{ 0  	, 3		, 7  	, 10  	, 14	, 17	}    	// m11th*
   };
 
 const float WT_SPREAD_PATTERN[NUM_DISPPAT][6][3] = 	{	
