@@ -88,7 +88,8 @@ extern const uint8_t ALL_CHANNEL_MASK;
 extern 	SRAM1DATA o_spherebuf spherebuf;
 extern const int16_t TTONE[WT_TABLELEN];
 
-const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
+const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] =
+{
 	// DEFAULT
 	{ 0  	, 0  	, 0  	, 0  	, 0  	, 0		}  ,  	// NONE
 
@@ -99,12 +100,12 @@ const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
 
 	// MAJOR
 	{ 0  	, 0  	, 4  	, 4  	, 7  	, 7		}  ,  	// M3rd
-	{ -7 	, -5 	, 0  	, 4  	, 7  	, 7 	}  , 	// M3rd w inv
+	{ -8 	, -5 	, 0  	, 4  	, 7  	, 7 	}  , 	// M3rd w inv
 	{ -12 	, -5 	, 0  	, 4  	, 7  	, 12 	}  ,	// M3rd w/ oct
 
 	// MINOR
 	{ 0  	, 0  	, 3  	, 3  	, 7  	, 7		}  ,  	// m3rd
-	{ -9 	, -5 	, 0  	, 3  	, 7  	, 7 	}  , 	// m3rd w inv*
+	{ -9 	, -5 	, 0  	, 3  	, 7  	, 7 	}  , 	// m3rd w inv
 	{ -12 	, -5 	, 0  	, 3  	, 7  	, 12 	}  ,	// m3rd w/ oct
 
 	// MAJOR EXT chords (6th, 7th 9th, 11th)
@@ -114,8 +115,8 @@ const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
 	{ 0  	, 0  	, 4  	, 4  	, 7  	, 11	}  ,  	// M7th
 	{ -12  	, 0  	, 4  	, 7  	, 11  	, 11	}  ,  	// M7th w/oct
 	{ -12  	, -1	, 0  	, 4  	, 7  	, 11	}  ,  	// M7th w/ inv
-	{ 0  	, 0		, 4  	, 7  	, 11	, 14	}  ,  	// M9th*
-	{ 0  	, 4		, 7  	, 11  	, 14	, 18	}  ,  	// M11th*
+	{ 0  	, 0		, 4  	, 7  	, 11	, 14	}  ,  	// M9th
+	{ 0  	, 4		, 7  	, 11  	, 14	, 18	}  ,  	// M11th
 
 	// MINOR EXT chords (6th, 7th 9th, 11th)
 	{ 0  	, 0  	, 3  	, 3  	, 7  	, 9		}  ,  	// m6th
@@ -124,11 +125,11 @@ const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] = {
 	{ 0  	, 0  	, 3  	, 3  	, 7  	, 10	}  ,  	// m7th
 	{ -12  	, 0  	, 3  	, 7  	, 10  	, 10	}  ,  	// m7th w/oct
 	{ -12  	, -2	, 0  	, 3  	, 7  	, 10	}  ,  	// m7th w/ inv
-	{ 0  	, 0		, 3  	, 7  	, 10	, 14	}  ,  	// m9th*
-	{ 0  	, 3		, 7  	, 10  	, 14	, 17	}    	// m11th*
+	{ 0  	, 0		, 3  	, 7  	, 10	, 14	}  ,  	// m9th
+	{ 0  	, 3		, 7  	, 10  	, 14	, 17	}    	// m11th
   };
 
-const float WT_SPREAD_PATTERN[NUM_DISPPAT][6][3] = 	{	
+const float DISP_PATTERN[NUM_DISPPAT][6][3] = 	{	
 	{
 		{1, 	1,      1},
 		{1,   	1, 		1},
@@ -146,20 +147,20 @@ const float WT_SPREAD_PATTERN[NUM_DISPPAT][6][3] = 	{
 		{0,   	0,    	-1},
 	},
 	{
-		{.50, 	1.30,	 .80},
-		{1.2, 	-.30, 	0.60},
-		{.80, 	1.30, 	-1.2},
-		{.50, 	0.20, 	1.50},
-		{-2, 	0, 		.30},
-		{1, 	0.20, 	.30},
+		{0.50, 	1.30,	0.80},
+		{1.20, 	-.30, 	0.60},
+		{0.80, 	1.30, 	-1.2},
+		{0.50, 	0.20, 	1.50},
+		{-2.0, 	0, 		0.30},
+		{1.0, 	0.20, 	0.30},
 	},															
 	{
-		{-1.2, 	.30, 	0.60},
-		{2, 	1.30, 	1.2},
-		{.50, 	0.30,	 .80},
-		{2, 	2, 		0.30},
-		{0.1, 	0.20, 	1.2},
-		{.50, 	0.20, 	-1.50},
+		{-1.2, 	0.30, 	0.60},
+		{2.00, 	1.30, 	1.20},
+		{0.50, 	0.30,	0.80},
+		{2.00, 	2.00, 	0.30},
+		{0.10, 	0.20, 	1.20},
+		{0.50, 	0.20, 	-1.5},
 	},
 	{
 		{-2, 	0.30, 	0.60},
@@ -2238,7 +2239,7 @@ void calc_wt_pos(uint8_t chan){
 	// COMBINING
 	for (wt_dim=0;wt_dim<NUM_WT_DIMENSIONS;wt_dim++){
 
-		disp_amt = WT_DIM_SIZE * total_disp * (WT_SPREAD_PATTERN[disp_pattern][chan][wt_dim]);
+		disp_amt = WT_DIM_SIZE * total_disp * (DISP_PATTERN[disp_pattern][chan][wt_dim]);
 
 		nav_cv = params.wt_pos_lock[chan] ? 0: params.wt_nav_cv[wt_dim];
 		new_wt_pos = _WRAP_F(disp_amt + browse_nav[wt_dim] + nav_cv + nav_enc[wt_dim], 0, WT_DIM_SIZE);
