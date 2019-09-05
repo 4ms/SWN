@@ -311,7 +311,7 @@ int main(void)
 	set_gpio_map();
 	init_gpio_pins();
 
-	LEDDriver_Init(10);
+	LEDDriver_init_direct(10);
 	init_pwm_leds();
 
 	mono_led_on(mledm_SLIDER_A);
