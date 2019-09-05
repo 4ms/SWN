@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:SWN-cache
-EELAYER 29 0
+EELAYER 30 0
 EELAYER END
 $Descr B 17000 11000
 encoding utf-8
@@ -343,7 +343,7 @@ F 3 "" H 8450 4475 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 4ms-ic:LD1117ADT IC10
+L 4ms-vreg:LD1117ADT IC10
 U 1 1 593794F5
 P 7550 3975
 AR Path="/593794F5" Ref="IC10"  Part="1" 
@@ -689,7 +689,7 @@ F 3 "" H 11350 2850 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 4ms-ic:MCP1703x-XX02E U23
+L 4ms-vreg:MCP1703x-XX02E U23
 U 1 1 59BC1766
 P 10850 2650
 F 0 "U23" H 10850 3000 50  0000 C CNN

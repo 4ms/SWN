@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:SWN-cache
-EELAYER 29 0
+EELAYER 30 0
 EELAYER END
 $Descr B 17000 11000
 encoding utf-8
@@ -585,7 +585,7 @@ F 3 "" H 3550 6575 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 4ms-ic:MCP1703x-XX02E IC?
+L 4ms-vreg:MCP1703x-XX02E IC?
 U 1 1 59BB4DD6
 P 4150 6450
 AR Path="/59A8B3C0/59BB4DD6" Ref="IC?"  Part="1" 

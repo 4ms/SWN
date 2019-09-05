@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:SWN-cache
-EELAYER 29 0
+EELAYER 30 0
 EELAYER END
 $Descr B 17000 11000
 encoding utf-8
@@ -1621,7 +1621,7 @@ F 3 "" H 9450 9600 60  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 4ms-ic:KA78L05 V?
+L 4ms-vreg:KA78L05 V?
 U 1 1 59B9CC96
 P 8550 9150
 AR Path="/59A8B3C0/59B9CC96" Ref="V?"  Part="1" 
@@ -2707,9 +2707,11 @@ Connection ~ 7850 9100
 Wire Wire Line
 	7850 9100 7250 9100
 $Comp
-L 4ms-ic:ADR_VREF V2
+L 4ms-vreg:ADR_VREF V2
 U 1 1 5B35F5EF
 P 4350 7900
+AR Path="/5B35F5EF" Ref="V2"  Part="1" 
+AR Path="/59AF0AB3/5B35F5EF" Ref="V2"  Part="1" 
 F 0 "V2" H 4125 8225 70  0000 L BNN
 F 1 "ADR381ARTZ" H 4100 8125 70  0000 L BNN
 F 2 "4ms_Package_SOT:SOT23-3_PO132" H 4340 7690 65  0001 L TNN
