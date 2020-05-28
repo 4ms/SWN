@@ -29,8 +29,8 @@ SOURCES  += $(wildcard src/drivers/*.c)
 SOURCES  += $(wildcard $(CORE)/src/*.c)
 SOURCES  += $(wildcard $(CORE)/src/*.s)
 
-
 OBJECTS   = $(addprefix $(BUILDDIR)/, $(addsuffix .o, $(basename $(SOURCES))))
+DEPS = $(OBJECTS:.o=.d)
 
 INCLUDES += -I$(DEVICE)/include \
 			-I$(CORE)/include \
@@ -45,7 +45,8 @@ BIN 	= $(BUILDDIR)/$(BINARYNAME).bin
 
 ARCH 	= arm-none-eabi
 CC 		= $(ARCH)-gcc
-LD 		= $(ARCH)-gcc -Wl,-Map,build/main.map
+CXX		= $(ARCH)-g++
+LD 		= $(ARCH)-g++
 AS 		= $(ARCH)-as
 OBJCPY 	= $(ARCH)-objcopy
 OBJDMP 	= $(ARCH)-objdump
@@ -59,77 +60,101 @@ FPU = -mfpu=fpv5-d16
 FLOAT-ABI = -mfloat-abi=hard 
 MCU = $(CPU) -mthumb -mlittle-endian $(FPU) $(FLOAT-ABI) 
 
-ARCH_CFLAGS = -DARM_MATH_CM7 -D'__FPU_PRESENT=1' -DUSE_HAL_DRIVER -DSTM32F765xx 
-#-D'USE_HAL_I2C_REGISTER_CALLBACKS=1'
+ARCH_CFLAGS = 	-DARM_MATH_CM7 \
+				-D'__FPU_PRESENT=1' \
+				-DUSE_HAL_DRIVER \
+				-DSTM32F765xx
 
-OPTIMIZED_CFLAGS = -g2 -O3 -fno-common
+OPTFLAG = -O3
 
-CFLAGS  = $(OPTIMIZED_CFLAGS) -Wall
-CFLAGS += $(ARCH_CFLAGS) $(MCU) 
-CFLAGS += -I. $(INCLUDES) 
-#CFLAGS += -fdata-sections -ffunction-sections
-#CFLAGS += -fstack-usage -fstack-check
+CFLAGS = -g3 -Wall \
+	$(ARCH_CFLAGS) $(MCU) \
+	-I. $(INCLUDES) \
+	-fno-common \
+	-fdata-sections -ffunction-sections \
+	# -specs=nano.specs \
 
-C0FLAGS  = -O0 -g -Wall
-C0FLAGS += $(ARCH_CFLAGS) $(MCU)
-C0FLAGS += -I.  $(INCLUDES)
+#CFLAGS  = $(OPTIMIZED_CFLAGS) -Wall
+#CFLAGS += $(ARCH_CFLAGS) $(MCU) 
+#CFLAGS += -I. $(INCLUDES) 
+##CFLAGS += -fdata-sections -ffunction-sections
+##CFLAGS += -fstack-usage -fstack-check
+
+DEPFLAGS = -MMD -MP -MF $(BUILDDIR)/$(basename $<).d
+
+CXXFLAGS=$(CFLAGS) \
+	-std=c++17 \
+	-fno-rtti \
+	-fno-exceptions \
+	-ffreestanding \
+	-Werror=return-type \
+	-Wdouble-promotion \
+	-Wno-register \
 
 AFLAGS = $(MCU) 
-LDSCRIPT = $(DEVICE)/$(LOADFILE)
-#-lrdimon is required to use math.h, -lc is required because it defines __errno for librdimon
-LFLAGS  = $(MCU) -v --specs=nano.specs -T $(LDSCRIPT)  -lc -lrdimon
 
-# build/src/hardware_tests.o: CFLAGS = $(C0FLAGS)
+LDSCRIPT = $(DEVICE)/$(LOADFILE)
+
+##-lrdimon is required to use math.h, -lc is required because it defines __errno for librdimon
+#LFLAGS  = $(MCU) -v --specs=nano.specs -T $(LDSCRIPT)  -lc -lrdimon
+
+LFLAGS =  -Wl,-Map,build/main.map,--cref \
+	-Wl,--gc-sections \
+	$(MCU) \
+	-T $(LDSCRIPT)
+	# -specs=nano.specs -T $(LDSCRIPT) \
+
+# build/src/hardware_tests.o: OPTFLAG = -O0
 
 #-----------------------------------
 # Uncomment to compile unoptimized:
 
 # # Main:
 # # -----
-# build/src/main.o: CFLAGS = $(C0FLAGS)
+# build/src/main.o: OPTFLAG = -O0
 #
 # # LFOS
 # # -------
-# build/src/params_lfo.o: CFLAGS = $(C0FLAGS)
-# build/src/params_lfo_clk.o: CFLAGS = $(C0FLAGS)
-# build/src/params_lfo_period.o: CFLAGS = $(C0FLAGS)
+# build/src/params_lfo.o: OPTFLAG = -O0
+# build/src/params_lfo_clk.o: OPTFLAG = -O0
+# build/src/params_lfo_period.o: OPTFLAG = -O0
 
 # # Audio
 # # ------
-# build/src/oscillator.o: CFLAGS = $(C0FLAGS)
-# build/src/audio_util.o: CFLAGS = $(C0FLAGS)
-# build/src/wavetable_editing.o: CFLAGS = $(C0FLAGS)
-# build/src/wavetable_saveload.o: CFLAGS = $(C0FLAGS)
-# build/src/wavetable_recording.o: CFLAGS = $(C0FLAGS)
-# build/src/wavetable_effects.o: CFLAGS = $(C0FLAGS)
-# build/src/resample.o: CFLAGS = $(C0FLAGS)
-# build/src/fft_filter.o: CFLAGS = $(C0FLAGS)
+# build/src/oscillator.o: OPTFLAG = -O0
+# build/src/audio_util.o: OPTFLAG = -O0
+# build/src/wavetable_editing.o: OPTFLAG = -O0
+# build/src/wavetable_saveload.o: OPTFLAG = -O0
+# build/src/wavetable_recording.o: OPTFLAG = -O0
+# build/src/wavetable_effects.o: OPTFLAG = -O0
+# build/src/resample.o: OPTFLAG = -O0
+# build/src/fft_filter.o: OPTFLAG = -O0
 
 
 # # Parameters
 # # ----------
-# build/src/params_update.o: CFLAGS = $(C0FLAGS)
-# build/src/params_wt_browse.o: CFLAGS = $(C0FLAGS)
+# build/src/params_update.o: OPTFLAG = -O0
+# build/src/params_wt_browse.o: OPTFLAG = -O0
 
-# build/src/analog_conditioning.o: CFLAGS = $(C0FLAGS)
-# build/src/UI_conditioning.o: CFLAGS = $(C0FLAGS)
-# build/src/quantz_scales.o: CFLAGS = $(C0FLAGS)
-# build/src/led_cont.o: CFLAGS = $(C0FLAGS)
-# build/src/ui_modes.o: CFLAGS = $(C0FLAGS)
+# build/src/analog_conditioning.o: OPTFLAG = -O0
+# build/src/UI_conditioning.o: OPTFLAG = -O0
+# build/src/quantz_scales.o: OPTFLAG = -O0
+# build/src/led_cont.o: OPTFLAG = -O0
+# build/src/ui_modes.o: OPTFLAG = -O0
 
 
 # Timers
-# build/src/timekeeper.o: CFLAGS = $(C0FLAGS)
+# build/src/timekeeper.o: OPTFLAG = -O0
 
 # # Special Modes
 # # -------------
-# build/src/calibration.o: CFLAGS = $(C0FLAGS)
-# build/src/system_mode.o: CFLAGS = $(C0FLAGS)
-# build/src/led_color_adjust.o: CFLAGS = $(C0FLAGS)
+# build/src/calibration.o: OPTFLAG = -O0
+# build/src/system_mode.o: OPTFLAG = -O0
+# build/src/led_color_adjust.o: OPTFLAG = -O0
 #
-# build/src/preset_manager.o: CFLAGS = $(C0FLAGS)
-# build/src/preset_manager_UI.o: CFLAGS = $(C0FLAGS)
-# build/src/preset_manager_undo.o: CFLAGS = $(C0FLAGS)
+# build/src/preset_manager.o: OPTFLAG = -O0
+# build/src/preset_manager_UI.o: OPTFLAG = -O0
+# build/src/preset_manager_undo.o: OPTFLAG = -O0
 #
 
 
@@ -138,34 +163,34 @@ LFLAGS  = $(MCU) -v --specs=nano.specs -T $(LDSCRIPT)  -lc -lrdimon
 # # --------
 #
 # ADC
-# build/src/drivers/adc_builtin_driver.o: CFLAGS = $(C0FLAGS)
-# build/src/drivers/ads8634_driver.o: CFLAGS = $(C0FLAGS)
-# build/src/adc_interface.o: CFLAGS = $(C0FLAGS)
-# build/src/analog_conditioning.o: CFLAGS = $(C0FLAGS)
+# build/src/drivers/adc_builtin_driver.o: OPTFLAG = -O0
+# build/src/drivers/ads8634_driver.o: OPTFLAG = -O0
+# build/src/adc_interface.o: OPTFLAG = -O0
+# build/src/analog_conditioning.o: OPTFLAG = -O0
 #
 # GPIO Setup
-# build/src/gpio_pins.o: CFLAGS = $(C0FLAGS)
-# build/src/hardware_controls.o: CFLAGS = $(C0FLAGS)
+# build/src/gpio_pins.o: OPTFLAG = -O0
+# build/src/hardware_controls.o: OPTFLAG = -O0
 #
 # GPIO Controls
-# build/src/drivers/button_driver.o: CFLAGS = $(C0FLAGS)
-# build/src/drivers/mono_led_driver.o: CFLAGS = $(C0FLAGS)
-# build/src/drivers/rotary_driver.o: CFLAGS = $(C0FLAGS)
-# build/src/drivers/switch_driver.o: CFLAGS = $(C0FLAGS)
+# build/src/drivers/button_driver.o: OPTFLAG = -O0
+# build/src/drivers/mono_led_driver.o: OPTFLAG = -O0
+# build/src/drivers/rotary_driver.o: OPTFLAG = -O0
+# build/src/drivers/switch_driver.o: OPTFLAG = -O0
 #
 # PWM LEDs
-# build/src/drivers/pca9685_driver.o: CFLAGS = $(C0FLAGS)
-# build/stm32/periph/src/stm32f7xx_hal_i2c.o: CFLAGS = $(C0FLAGS)
-# build/src/drivers/leds_pwm.o: CFLAGS = $(C0FLAGS)
+# build/src/drivers/pca9685_driver.o: OPTFLAG = -O0
+# build/stm32/periph/src/stm32f7xx_hal_i2c.o: OPTFLAG = -O0
+# build/src/drivers/leds_pwm.o: OPTFLAG = -O0
 #
 # PWM Timer outputs
-# build/src/envout_pwm.o: CFLAGS = $(C0FLAGS)
+# build/src/envout_pwm.o: OPTFLAG = -O0
 #
 # External Flash
-# build/src/drivers/flash_S25FL127.o: CFLAGS = $(C0FLAGS)
-# build/src/drivers/flashram_spidma.o: CFLAGS = $(C0FLAGS)
-# build/src/sphere_flash_io.o: CFLAGS = $(C0FLAGS)
-# build/src/wavetable_play_export.o: CFLAGS = $(C0FLAGS)
+# build/src/drivers/flash_S25FL127.o: OPTFLAG = -O0
+# build/src/drivers/flashram_spidma.o: OPTFLAG = -O0
+# build/src/sphere_flash_io.o: OPTFLAG = -O0
+# build/src/wavetable_play_export.o: OPTFLAG = -O0
 
 
 #-----------------------------------
@@ -185,31 +210,45 @@ $(BIN): $(ELF)
 	$(OBJDMP) -x --syms $< > $(addsuffix .dmp, $(basename $<))
 	ls -l $@ $<
 
-
 $(HEX): $(ELF)
 	$(OBJCPY) --output-target=ihex $< $@
 	$(SZ) $(SZOPTS) $(ELF)
 
 $(ELF): $(OBJECTS) 
-	$(LD) $(LFLAGS) -o $@ $(OBJECTS)
+	@echo "Linking..."
+	@$(LD) $(LFLAGS) -o $@ $(OBJECTS)
 
+$(BUILDDIR)/%.o: %.c $(BUILDDIR)/%.d
+	@mkdir -p $(dir $@)
+	@echo "Compiling $< at $(OPTFLAG)"
+	@$(CC) -c $(DEPFLAGS) $(OPTFLAG) $(CFLAGS) $< -o $@
 
-$(BUILDDIR)/%.o: %.c $(wildcard inc/*.h) $(wildcard inc/drivers/*.h) $(wildcard inc/tests/*.h)
-	mkdir -p $(dir $@)
-	$(CC) -c $(CFLAGS) $< -o $@
+$(BUILDDIR)/%.o: %.cpp $(BUILDDIR)/%.d
+	@mkdir -p $(dir $@)
+	@echo "Compiling $< at $(OPTFLAG)"
+	@$(CXX) -c $(DEPFLAGS) $(OPTFLAG) $(CXXFLAGS) $< -o $@
 
+$(BUILDDIR)/%.o: %.cc $(BUILDDIR)/%.d
+	@mkdir -p $(dir $@)
+	@echo "Compiling $< at $(OPTFLAG)"
+	@$(CXX) -c $(DEPFLAGS) $(OPTFLAG) $(CXXFLAGS) $< -o $@
 
 $(BUILDDIR)/%.o: %.s
 	mkdir -p $(dir $@)
 	$(AS) $(AFLAGS) $< -o $@ > $(addprefix $(BUILDDIR)/, $(addsuffix .lst, $(basename $<)))
 
-
 flash: $(BIN)
 	st-flash write $(BIN) 0x08010000
 
 clean:
-	rm -rf build
-	
+	rm -rf $(BUILDDIR)
+
+%.d: ;
+
+ifneq "$(MAKECMDGOALS)" "clean"
+-include $(DEPS)
+endif
+
 wav: fsk-wav
 
 qpsk-wav: $(BIN)
