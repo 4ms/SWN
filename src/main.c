@@ -63,7 +63,7 @@
 #include "params_lfo.h"
 #include "led_color_adjust.h"
 #include "sphere.h"
-#include "wavetable_recording.h" 
+#include "wavetable_recording.h"
 #include "wavetable_editing.h"
 #include "wavetable_saveload.h"
 #include "analog_conditioning.h"
@@ -89,7 +89,7 @@ int main(void)
 	//
 	// System Init: Interrupt vector table location, HAL (systick) and System Clocks
 	//
-   	SetVectorTable(HAS_BOOTLOADER ? 0x00210000 : 0x00200000);
+	SetVectorTable(HAS_BOOTLOADER ? 0x00210000 : 0x00200000);
 
 	HAL_Init();
 	SystemClock_Config();
@@ -98,7 +98,7 @@ int main(void)
 	SCB_DisableICache(); //not needed because we're running from FLASH on the ITCM bus, using ART and Prefetch
 
 	SCB_InvalidateDCache();
-	SCB_EnableDCache();	
+	SCB_EnableDCache();
 
 	__HAL_RCC_DMA2_CLK_DISABLE();
 
@@ -115,12 +115,12 @@ int main(void)
 	init_gpio_pins();
 
 	if (key_combo_enter_hardwaretest() || !is_hardwaretest_already_done() || FORCE_HW_TEST)
-	{	
+	{
 		do_hardware_test();
 		while(1){;} //force reboot after hw test
 	}
 
-	init_timekeeper(); 
+	init_timekeeper();
 
 	init_pwm_leds();
 
@@ -135,26 +135,24 @@ int main(void)
 	init_lfos();
 	init_encoders();
 	init_lfo_to_vc_mode();
-	
+
 	//External FLASH
 	sFLASH_init();
 
-	//Test first sector before Wavetables
-	// sFLASH_test_sector( sFLASH_get_sector_addr(PRESET_SECTOR_START) );
 
 	//Initialize param values (do not start updating them yet)
 	init_wt_osc();
 	init_params();
 	init_pitch_params();
 	init_quantz_scales();
-	
+
 	cache_uncache_keys_params_and_lfos(0, CACHE);
 	cache_uncache_keys_params_and_lfos(1, CACHE);
 	cache_uncache_keys_params_and_lfos(2, CACHE);
 	cache_uncache_keys_params_and_lfos(3, CACHE);
 	cache_uncache_keys_params_and_lfos(4, CACHE);
 	cache_uncache_keys_params_and_lfos(5, CACHE);
-	
+
 	//Start outputing on the PWM OUT jacks
 	init_envout_pwm();
 
@@ -163,13 +161,18 @@ int main(void)
 
 	init_sphere_flash();
 
-	#ifdef CLEAR_USER_SPHERES_FROM_FLASH
-		empty_all_user_spheres();
-	#endif
+#ifdef ERASE_ALL_WAVETABLES
+	for (uint8_t ww=0; ww<12; ww++)
+		sFLASH_erase_sector( sFLASH_get_sector_addr(WT_SECTOR_START+ww) );
+#endif
 
-	#ifdef FORCE_WRITE_FACTORY_SPHERES
-		write_fatory_spheres_to_extflash();
-	#endif
+#ifdef CLEAR_USER_SPHERES_FROM_FLASH
+	empty_all_user_spheres();
+#endif
+
+#ifdef FORCE_WRITE_FACTORY_SPHERES
+	write_factory_spheres_to_extflash();
+#endif
 
 	// Load system_calibrations from internal flash if it's present
 	if (HAS_INTERNAL_FLASH)
@@ -180,14 +183,13 @@ int main(void)
 		{
 			factory_reset_all_calibrations();
 			factory_reset();
-			write_fatory_spheres_to_extflash();
+			write_factory_spheres_to_extflash();
 		}
-	} 
-	else 
+	}
+	else
 		factory_reset_all_calibrations();
 
-	if (!is_factory_sphere0_present())
-		write_fatory_spheres_to_extflash();
+	restore_factory_spheres_to_extflash();
 
 	read_all_spheretypes();
 	update_number_of_user_spheres_filled();
@@ -206,7 +208,7 @@ int main(void)
 	start_UI_conditioning_updates();
 
 	HAL_Delay(800);
-	
+
 	if (check_enter_led_adjust_mode())
 	{
 		enter_led_adjust_mode();
@@ -259,7 +261,7 @@ int main(void)
 		update_osc_param_lock();
 
 		check_ui_mode_requests();
-		
+
 		read_load_save_encoder(); // Call from main loop because it can initiate a preset load/save call to sFLASH. If this is moved to an interrupt, then make sure it's lower priority than WT_INTERP
 		check_bus_sel_event();	// FixMe: call from more adequate location (should be updated at about the data rate)
 
@@ -281,12 +283,12 @@ void SystemClock_Config(void)
 	RCC_ClkInitTypeDef RCC_ClkInitStruct;
 	RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
-	//Configure the main internal regulator output voltage 
+	//Configure the main internal regulator output voltage
 	__HAL_RCC_PWR_CLK_ENABLE();
 
 	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-	//Initializes the CPU, AHB and APB busses clocks 
+	//Initializes the CPU, AHB and APB busses clocks
 	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
 	RCC_OscInitStruct.HSEState = RCC_HSE_ON;
 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -298,11 +300,11 @@ void SystemClock_Config(void)
 	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
 		_Error_Handler(__FILE__, __LINE__);
 
-	//Activate the OverDrive to reach the 216 MHz Frequency 
+	//Activate the OverDrive to reach the 216 MHz Frequency
 	if (HAL_PWREx_EnableOverDrive() != HAL_OK)
 		_Error_Handler(__FILE__, __LINE__);
 
-	//Initializes the CPU, AHB and APB busses clocks 
+	//Initializes the CPU, AHB and APB busses clocks
 	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
 	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
 	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
@@ -313,7 +315,7 @@ void SystemClock_Config(void)
 		_Error_Handler(__FILE__, __LINE__);
 
 
-	//Note: Do not start the SAI clock (I2S) at this time. 
+	//Note: Do not start the SAI clock (I2S) at this time.
 	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2C2 | RCC_PERIPHCLK_I2C1;;
 
 	PeriphClkInitStruct.PLLI2S.PLLI2SP 	= RCC_PLLP_DIV2;
@@ -327,16 +329,16 @@ void SystemClock_Config(void)
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
-	//Enables the Clock Security System 
+	//Enables the Clock Security System
 	HAL_RCC_EnableCSS();
 
 	// Configure the Systick interrupt time for HAL_GetTick()
 	HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/(1000*TICKS_PER_MS));
 
-	//Configure the Systick 
+	//Configure the Systick
 	HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
-	// SysTick_IRQn interrupt configuration 
+	// SysTick_IRQn interrupt configuration
 	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 

@@ -1,9 +1,9 @@
 
-#ifdef SKIP_FACTORY_SPHERES_IN_HEXFILE
+// #ifdef SKIP_FACTORY_SPHERES_IN_HEXFILE
 
-	const void *wavetable_list[] = {0};
+// 	const void *wavetable_list[] = {0};
 
-#else
+// #else
 
 	// #include "spheres/hp_909_8bit.h"
 	#include "spheres/hp_909hits_01.h"
@@ -51,4 +51,4 @@
 		// (void *)wavetable_Jero_Spirals_JQ //no so
 	};
 
-#endif
+// #endif

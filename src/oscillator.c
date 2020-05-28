@@ -184,7 +184,7 @@ void update_oscillators(void){
 		
 		if ((ui_mode != SELECT_PARAMS) && (ui_mode != RGB_COLOR_ADJUST)) {
 
-			read_noteon(chan);		
+			read_noteon(chan);
 
 			if(ui_mode == PLAY)
 			{

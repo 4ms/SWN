@@ -65,16 +65,39 @@ void init_sphere_flash(void)
 	cleared_user_sphere_signature[3]='\0';
 }
 
-void write_fatory_spheres_to_extflash(void)
+void write_factory_spheres_to_extflash(void)
 {
 	#ifndef SKIP_FACTORY_SPHERES_IN_HEXFILE
 	uint32_t wt_num;
 
-	for (wt_num=0;wt_num<NUM_FACTORY_SPHERES;wt_num++)
-	{
+	for (wt_num=0;wt_num<NUM_FACTORY_SPHERES;wt_num++) {
 		save_sphere_to_flash(wt_num, SPHERE_TYPE_FACTORY, (int16_t *)wavetable_list[wt_num]);
 	}
 	#endif
+}
+uint8_t is_wav_name(char *name) {
+	uint32_t max_strlen = 31;
+	uint8_t found = 0;
+	while (!found && max_strlen--) {
+		if (name[0]=='w' && name[1]=='a' && name[2]=='v')
+			found = 1;
+		if (name[0]=='s' && name[1]=='o' && name[2]=='p' && name[3]=='r')
+			found = 1;
+		name++;
+	}
+	return found;
+}
+
+void restore_factory_spheres_to_extflash(void)
+{
+	uint32_t wt_num;
+
+	for (wt_num=0;wt_num<NUM_FACTORY_SPHERES;wt_num++) {
+		if (read_spheretype(wt_num) != SPHERE_TYPE_FACTORY) {
+			if (is_wav_name((char *)(wavetable_list[wt_num])))
+				save_sphere_to_flash(wt_num, SPHERE_TYPE_FACTORY, (int16_t *)wavetable_list[wt_num]);
+		}
+	}
 }
 
 uint32_t get_wt_addr(uint16_t wt_num)
@@ -323,10 +346,11 @@ uint8_t is_sphere_filled(uint8_t wt_num){
 	else return 0;
 }
 
-uint8_t is_factory_sphere0_present(void){
-	if (read_spheretype(0)==SPHERE_TYPE_FACTORY)
-		return 1;
-	else
-		return 0;
+uint8_t all_factory_spheres_present(void){
+	for (uint8_t i=0; i<NUM_FACTORY_SPHERES; i++) {
+		if (read_spheretype(i)!=SPHERE_TYPE_FACTORY)
+			return 0;
+	}
+	return 1;
 }
 

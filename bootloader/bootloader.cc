@@ -441,7 +441,7 @@ int main(void)
 						{
 							set_pwm_led_rgb(led_outring_map[i%NUM_LED_OUTRING], &rgb_off);
 							set_pwm_led_rgb(led_outring_map[NUM_LED_OUTRING-(i%NUM_LED_OUTRING)], &rgb_off);
-							
+						
 							i++;
 							set_pwm_led_rgb(led_outring_map[i%NUM_LED_OUTRING], &rgb_green);
 							set_pwm_led_rgb(led_outring_map[NUM_LED_OUTRING-(i%NUM_LED_OUTRING)], &rgb_blue);

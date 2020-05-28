@@ -45,10 +45,6 @@ static inline uint8_t key_combo_enter_hardwaretest(void)
 		&& read_switch_state(&rotary[rotm_LFOSHAPE].hwswitch) \
 	);}
  //use GPIO pin reading, not UI-conditioned values in order to minimize sources of error other than hardware
-
-																	// && read_switch_state(&rotary[rotm_OCT].hwswitch) 
-																	// && read_switch_state(&button[butm_LFOVCA_BUTTON].hwswitch)
-																	// && read_switch_state(&button[butm_LFOMODE_BUTTON].hwswitch) 
-
 uint8_t is_hardwaretest_already_done(void);
 void do_hardware_test(void);
+

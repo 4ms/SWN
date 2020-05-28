@@ -47,6 +47,7 @@
 #include "external_flash_layout.h"
 #include "timekeeper.h"
 #include "envout_pwm.h"
+#include "sphere_flash_io.h"
 
 #include <math.h>
 
@@ -125,6 +126,7 @@ void do_hardware_test(void)
 	{
 		factory_reset_all_calibrations();
 		factory_reset();
+		restore_factory_spheres_to_extflash();
 	}
 	//Animate success and force a hard reboot
 	while (1) {

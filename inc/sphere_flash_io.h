@@ -41,7 +41,8 @@ enum SphereTypes {
 };
 
 void init_sphere_flash(void);
-void write_fatory_spheres_to_extflash(void);
+void write_factory_spheres_to_extflash(void);
+void restore_factory_spheres_to_extflash(void);
 
 void load_extflash_wavetable(uint8_t wt_num, o_waveform *waveform, uint8_t x, uint8_t y, uint8_t z);
 void load_extflash_wave_raw(uint8_t wt_num, int16_t *waveform, uint8_t x, uint8_t y, uint8_t z);
@@ -55,7 +56,7 @@ enum SphereTypes read_spheretype(uint32_t wt_num);
 void empty_all_user_spheres(void);
 enum SphereTypes clear_user_sphere(uint8_t wt_num);
 enum SphereTypes unclear_user_sphere(uint8_t wt_num);
-uint8_t is_factory_sphere0_present(void);
+uint8_t all_factory_spheres_present(void);
 
 enum SphereTypes get_spheretype(uint32_t wt_num);
 void read_all_spheretypes(void);

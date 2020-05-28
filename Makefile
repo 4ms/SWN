@@ -4,8 +4,8 @@
 BINARYNAME 		= main
 
 COMBO 			= build/combo
-BOOTLOADER_DIR 	= ../SWN-bootloader
-BOOTLOADER_HEX 	= ../SWN-bootloader/bootloader.hex
+BOOTLOADER_DIR 	= bootloader
+BOOTLOADER_HEX 	= bootloader/build/bootloader.hex
 
 FIRMWARE_RELEASE_DIR = LOCAL/Firmwares
 FIRMWARE_RELEASE_NAME = SWN_firmware

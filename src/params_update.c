@@ -58,7 +58,7 @@
 #include "params_lfo_clk.h"
 #include "params_lfo_period.h"
 #include "params_lfo.h"
-#include "flash_params.h" 
+#include "flash_params.h"
 #include "ui_modes.h"
 #include "oscillator.h"
 #include "wavetable_saveload_UI.h"
@@ -129,14 +129,14 @@ const int8_t 		CHORD_LIST[NUM_CHORDS][NUM_CHANNELS] =
 	{ 0  	, 3		, 7  	, 10  	, 14	, 17	}    	// m11th
   };
 
-const float DISP_PATTERN[NUM_DISPPAT][6][3] = 	{	
+const float DISP_PATTERN[NUM_DISPPAT][6][3] = 	{
 	{
 		{1, 	1,      1},
 		{1,   	1, 		1},
 		{1,   	1,    	1},
 		{1,		1,   	1},
 		{1,   	1, 		1},
-		{1,   	1,    	1},			
+		{1,   	1,    	1},
 	},
 	{
 		{1, 	0,      0},
@@ -153,7 +153,7 @@ const float DISP_PATTERN[NUM_DISPPAT][6][3] = 	{
 		{0.50, 	0.20, 	1.50},
 		{-2.0, 	0, 		0.30},
 		{1.0, 	0.20, 	0.30},
-	},															
+	},
 	{
 		{-1.2, 	0.30, 	0.60},
 		{2.00, 	1.30, 	1.20},
@@ -169,7 +169,7 @@ const float DISP_PATTERN[NUM_DISPPAT][6][3] = 	{
 		{-2, 	-1.50, 	0.30},
 		{1, 	2, 		1.2},
 		{0.30, 	-2, 	-1.50},
-	},		
+	},
 	{
 		{1, 	-3, 	2},
 		{-2,   	2, 		.40},
@@ -177,7 +177,7 @@ const float DISP_PATTERN[NUM_DISPPAT][6][3] = 	{
 		{0.1,	2,   	-2},
 		{1.90,	-2, 	-.80},
 		{0.20,	.90,   -1}
-	}																																																	
+	}
 };
 
 extern const float exp_1voct_10_41V[4096];
@@ -191,14 +191,14 @@ o_waveform 	waveform[NUM_CHANNELS][2][2][2];
 
 //Todo: replace with init_param_object(&params), plus a few other differences
 void init_params(void){
-	
+
 	uint8_t  i;
 	uint16_t j;
 
 	// global & display
 	params.dispersion_enc				= 0;
 	params.disppatt_enc 				= 1;
-	params.noise_on 					= 0; 
+	params.noise_on 					= 0;
 	params.spread_cv 					= 0;
 
 	for (i=0;i<NUM_CHANNELS;i++){
@@ -209,11 +209,11 @@ void init_params(void){
 
 		// individual locks
 		params.osc_param_lock[i]				= 0;
-	 	params.wtsel_lock[i]					= 0;
-	 	params.wt_pos_lock[i]					= 0;
+		params.wtsel_lock[i]					= 0;
+		params.wt_pos_lock[i]					= 0;
 
 		params.wtsel_spread_enc[i] 				= 0;
-	 	calc_params.wtsel[i]					= 1; 
+		calc_params.wtsel[i]					= 1;
 	 	params.wtsel_enc[i]						= 0;
 		params.wt_bank[i]						= 0;
 
@@ -270,7 +270,7 @@ void init_param_object(o_params *t_params){
 	// global & display
 	t_params->dispersion_enc			= 0;
 	t_params->disppatt_enc 				= 1;
-	t_params->noise_on 					= 0; 
+	t_params->noise_on 					= 0;
 	t_params->spread_cv 				= 0;
 
 	// individual params
@@ -343,8 +343,8 @@ void set_pitch_params_to_ttone(void) {
 	{
 		params.finetune[chan] 	  				= 0;
 		compute_tuning(chan);
-		
-		params.transpose_enc[chan] 	  			= TTONE_TRANSPOSE;				
+
+		params.transpose_enc[chan] 	  			= TTONE_TRANSPOSE;
 		params.spread_enc[chan] 				= 0;
 
 		params.oct[chan] 	  					= TTONE_OCT;
@@ -396,7 +396,7 @@ void check_reset_navigation(void)
 			if (!params.wtsel_lock[i])
 			{
 				params.wtsel_spread_enc[i] 				= 0;
-			 	calc_params.wtsel[i]					= 1; 
+			 	calc_params.wtsel[i]					= 1;
 			 	params.wtsel_enc[i]						= 0;
 				params.wt_bank[i]						= 0;
 				req_wt_interp_update(i);
@@ -429,7 +429,7 @@ void cache_uncache_nav_params(enum CacheUncache cache_uncache)
 			cached_wt_browse_step_pos_enc[i] = params.wt_browse_step_pos_enc[i];
 		}
 	}
-	else 
+	else
 	{
 		params.dispersion_enc = cached_dispersion_enc;
 		for (i=0;i<NUM_CHANNELS;i++)
@@ -484,7 +484,7 @@ void cache_uncache_pitch_params(enum CacheUncache cache_uncache)
 				params.oct[chan] 	  			= oct[chan];
 				params.indiv_scale[chan] 	  	= indiv_scale[chan];
 				params.indiv_scale_buf[chan]   	= indiv_scale_buf[chan];
-				break;		
+				break;
 		}
 	}
 }
@@ -524,7 +524,7 @@ void read_ext_trigs(void)
 		last_trig_level[chan] = trig_level[chan];
 	}
 
-	//Transpose CV jack must be patched for gate to work on Chord CV 
+	//Transpose CV jack must be patched for gate to work on Chord CV
 	if (chans_in_ext_trig_mode && analog_jack_plugged(TRANSPOSE_CV))
 	{
 		if (trig_level[6] && !last_trig_level[6])
@@ -553,12 +553,12 @@ void read_noteon(uint8_t i)
 			{
 				calc_params.armed[armf_NOTE_ON][i] = 1;
 			}
-			
+
 			else if (button_released(i))
 			{
 				if (calc_params.armed[armf_NOTE_ON][i])
 				{
-					calc_params.armed[armf_NOTE_ON][i] = 0;	
+					calc_params.armed[armf_NOTE_ON][i] = 0;
 					if (!calc_params.already_handled_button[i])
 					{
 						if (calc_params.lock_change_staged[i]==1) {
@@ -576,7 +576,7 @@ void read_noteon(uint8_t i)
 		}
 
 
-		// NOTE/KEYS Presses 
+		// NOTE/KEYS Presses
 		// ... and auto-notes at qtz crossings
 		else
 		{
@@ -592,7 +592,7 @@ void read_noteon(uint8_t i)
 					// if (calc_params.lock_change_staged[i]==1) {
 					// 	toggle_lock(i);
 					// 	calc_params.lock_change_staged[i]=2;
-					//  } 
+					//  }
 					//  else {
 						params.new_key[i] = 1;
 						params.note_on[i] = 1;
@@ -614,10 +614,10 @@ void read_noteon(uint8_t i)
 				else
 				{
 					new_key_armed[i] = 0;
-					if (params.key_sw[i]==ksw_KEYS) {				
-						params.note_on[i] = 0; 
+					if (params.key_sw[i]==ksw_KEYS) {
+						params.note_on[i] = 0;
 						lfos.cycle_pos[i] = 0;
-					} 
+					}
 					else if (params.key_sw[i]==ksw_NOTE){
 						params.new_key[i] = 0;
 					}
@@ -627,7 +627,7 @@ void read_noteon(uint8_t i)
 						if (calc_params.lock_change_staged[i]==1) {
 							toggle_lock(i);
 							calc_params.lock_change_staged[i] = 2;
-						 }
+						}
 					}
 					else
 						calc_params.lock_change_staged[i] = 0;
@@ -652,7 +652,7 @@ void read_level(uint8_t chan)
 	float new_gain;
 	float level;
 
-	if (!params.note_on[chan])	
+	if (!params.note_on[chan])
 		calc_params.level[chan] = 0.0;
 
 	else {
@@ -696,7 +696,7 @@ float read_vca_cv(uint8_t chan)
 			return ((analog[A_VOCT + chan].lpf_val / 2047.5) * F_SCALING_MAX_VCACV_GAIN);
 		else {
 			return (_CLAMP_F(analog[A_VOCT + chan].lpf_val - 2048.0, 0.0, 2048.0) / 2048.0 ) * F_SCALING_MAX_VCACV_GAIN;
-		}	
+		}
 	}
 }
 
@@ -706,7 +706,7 @@ float read_vca_cv(uint8_t chan)
 void read_lfoto_vca_vco(uint8_t i){
 
 	static uint8_t any_button_pressed;
-	
+
 	if (button_pressed(butm_LFOVCA_BUTTON) && !calc_params.keymode_pressed && (params.key_sw[i] == ksw_MUTE)  ) {
 
 		start_ongoing_display_lfo_tovca();
@@ -714,15 +714,15 @@ void read_lfoto_vca_vco(uint8_t i){
 		if (!macro_states.all_af_buttons_released){
 			any_button_pressed = 1;
 			calc_params.armed[armf_LFOTOVCA][i] = 0;
-			
+
 			if (button_pressed(i))
 			{
 				calc_params.armed[armf_LFOTOVCA][i] = 1;
 				calc_params.already_handled_button[i] = 1;
-				calc_params.button_safe_release[0] = 1;		
+				calc_params.button_safe_release[0] = 1;
 			}
 		}
-		
+
 		if (!button_pressed(i) && any_button_pressed && calc_params.armed[armf_LFOTOVCA][i]){
 			//if (!lfos.locked[i])
 				lfos.to_vca[i] = 1 - lfos.to_vca[i];
@@ -744,7 +744,7 @@ void read_lfoto_vca_vco(uint8_t i){
 	else if (!button_pressed(butm_LFOVCA_BUTTON))
 	{
 		if (calc_params.armed[armf_LFOTOVCA][i]){
-			//if (!lfos.locked[i]) 
+			//if (!lfos.locked[i])
 				lfos.to_vca[i] = 1 - lfos.to_vca[i];
 			calc_params.armed[armf_LFOTOVCA][i] = 0;
 		}
@@ -766,7 +766,7 @@ void read_lfomode(uint8_t i)
 	if (!lfos.audio_mode[i])
 	{
 		if (cached[i]){ // uncache lfo mode when exiting audio range
-			cache_uncache_lfomode(i, UNCACHE); 
+			cache_uncache_lfomode(i, UNCACHE);
 			cached[i] = 0;
 		}
 
@@ -777,7 +777,7 @@ void read_lfomode(uint8_t i)
 			if (!macro_states.all_af_buttons_released){
 				any_button_pressed = 1;
 				calc_params.armed[armf_LFOMODE][i] = 0;
-				
+
 				if(button_pressed(i)){
 					//if (!lfos.locked[i])
 						calc_params.armed[armf_LFOMODE][i] = 1;
@@ -785,7 +785,7 @@ void read_lfomode(uint8_t i)
 					calc_params.button_safe_release[1] = 1;
 				}
 			}
-			
+
 			if (!button_pressed(i) && any_button_pressed && calc_params.armed[armf_LFOMODE][i]){
 				//if (!lfos.locked[i]) {
 					lfos.mode[i] ++;
@@ -849,19 +849,19 @@ void read_all_keymodes(void){
 
 			calc_params.armed[armf_LFOMODE][i]  = 0;
 			calc_params.armed[armf_LFOTOVCA][i] = 0;
-			
+
 			if (!macro_states.all_af_buttons_released){
 				any_button_pressed = 1;
 				calc_params.armed[armf_KEYMODE][i] = 0;
-				
+
 				if(/*!lfos.locked[i] && */button_pressed(i)){
 					calc_params.armed[armf_KEYMODE][i]= 1;
 					calc_params.already_handled_button[i] = 1;
-					calc_params.button_safe_release[0] = 1;		
-					calc_params.button_safe_release[1] = 1;		
+					calc_params.button_safe_release[0] = 1;
+					calc_params.button_safe_release[1] = 1;
 				}
 			}
-			
+
 			if (/*!lfos.locked[i] && */ !button_pressed(i) && any_button_pressed && calc_params.armed[armf_KEYMODE][i]){
 				change_keymode[i] = 1;
 				calc_params.armed[armf_KEYMODE][i] = 0;
@@ -908,7 +908,7 @@ void read_all_keymodes(void){
 //Flip Note to Keys: do nothing
 //Flip Keys to Mute: uncache LFO params
 void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
-{	
+{
 	if (params.key_sw[chan] != new_keymode)
 	{
 		//Switched from MUTE to NOTE
@@ -943,7 +943,7 @@ void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
 		else if (new_keymode == ksw_KEYS)
 		{
 			//Todo: Restore cached scale unless indiv_scale was changed between entering and exiting NOTE mode,
-			// (even if it was changed and changed back) 
+			// (even if it was changed and changed back)
 			//params.indiv_scale[chan] = params.indiv_scale_buf[chan];
 		}
 
@@ -972,7 +972,7 @@ void cache_uncache_keymodes(enum CacheUncache cache_uncache)
 		}
 		else {
 			apply_keymode(chan, cached_key_sw[chan]);
-		} 
+		}
 	}
 }
 
@@ -984,7 +984,7 @@ void apply_all_keymodes(enum MuteNoteKeyStates new_keymode)
 
 void cache_uncache_keys_params_and_lfos(uint8_t chan, enum CacheUncache cache_uncache)
 {
-	if (cache_uncache==CACHE) 
+	if (cache_uncache==CACHE)
 	{
 		lfos.divmult_id_buf[chan] 		= lfos.divmult_id[chan];
 		lfos.shape_buf[chan] 			= lfos.shape[chan];
@@ -994,9 +994,9 @@ void cache_uncache_keys_params_and_lfos(uint8_t chan, enum CacheUncache cache_un
 		lfos.to_vca_buf[chan] 			= lfos.to_vca[chan];
 
 		params.note_on_buf[chan]  		= params.note_on[chan];
-		params.indiv_scale_buf[chan] 	= params.indiv_scale[chan];	
+		params.indiv_scale_buf[chan] 	= params.indiv_scale[chan];
 	}
-	else 
+	else
 	{
 		// set_lfo_divmult_id(chan, lfos.divmult_id_buf[chan]);
 		lfos.divmult_id[chan]			= lfos.divmult_id_buf[chan];
@@ -1022,18 +1022,18 @@ void cache_uncache_keys_params_and_lfos(uint8_t chan, enum CacheUncache cache_un
 /*** Move to params_pitch.c ***/
 
 void update_transpose_cv(void)
-{		
+{
 	// Calculate pitch multiplier from transpose jack CV
 	params.transpose_cv = calc_expo_pitch(TRANSPOSE_CV, analog[TRANSPOSE_CV].lpf_val);
 }
 
 void update_pitch(uint8_t chan)
-{	
+{
 	float ch_freq, ch_freq_adc, qtz_ch_freq;
 	uint8_t note;
 	int8_t oct;
 	int16_t oct_clamped;
-	
+
 	if ( params.key_sw[chan]==ksw_MUTE || params.key_sw[chan]==ksw_KEYS_EXT_TRIG || params.new_key[chan] || ((params.key_sw[chan] == ksw_NOTE) && !params.note_on[chan]) )
 	{
 		// Calculate pitch multiplier from individual jack 1V/oct CV
@@ -1047,7 +1047,7 @@ void update_pitch(uint8_t chan)
 			calc_params.voct[chan] = calc_expo_pitch(A_VOCT+chan, ch_freq_adc);
 		} else
 			calc_params.voct[chan] = 1.0;
-		
+
 		if (!params.osc_param_lock[chan])
 			calc_params.voct[chan] *= params.transpose_cv;
 
@@ -1058,16 +1058,16 @@ void update_pitch(uint8_t chan)
 	oct_clamped = _CLAMP_I16(params.oct[chan], MIN_OCT , MAX_OCT);
 	if (oct_clamped < 0)
 		ch_freq /= (float)(1 << (-oct_clamped));
-	else 
+	else
 		ch_freq *= (1 << oct_clamped);
 
 	if (params.indiv_scale[chan]==sclm_NONE)
 	{
-  		calc_params.qtz_freq[chan] = ch_freq;
+		calc_params.qtz_freq[chan] = ch_freq;
 	}
 	else
   	{
-//Todo: 
+//Todo:
 //	  	qtz_ch_freq = quantize_to_scale(params.indiv_scale[chan], ch_freq, &note, &oct, prev_qtz_note[chan], prev_qtz_oct[chan]);
 	  	qtz_ch_freq = quantize_to_scale(params.indiv_scale[chan], ch_freq, &note, &oct);
 
@@ -1094,7 +1094,7 @@ void update_pitch(uint8_t chan)
 }
 
 void update_wt_head_pos_inc(uint8_t chan){
-  	wt_osc.wt_head_pos_inc[chan] = (calc_params.pitch[chan] * F_WT_TABLELEN) / F_SAMPLERATE ;	
+  	wt_osc.wt_head_pos_inc[chan] = (calc_params.pitch[chan] * F_WT_TABLELEN) / F_SAMPLERATE ;
 }
 
 /*** Move to params_pitch.c ***/
@@ -1107,7 +1107,7 @@ void update_noise(uint8_t chan)
 	//If the channel is fine-tuned to 0, then don't apply noise
 	params.noise_on = (params.finetune[chan]==0) ? 0 : 1;
 
-	if (params.noise_on) 
+	if (params.noise_on)
 	{
 		if ( noise_poll_ctr++ > RANDOM_UPDATE_TIME)
 		{
@@ -1137,22 +1137,22 @@ void read_freq(void){
 	// if (key_combo_osc_lock_pressed()){update_osc_param_lock();}
 	// else {
 
-		tmp1 = pop_encoder_q (pec_OCT  );	
-		tmp2 = pop_encoder_q (sec_SCALE);	
+		tmp1 = pop_encoder_q (pec_OCT  );
+		tmp2 = pop_encoder_q (sec_SCALE);
 		tmp3 = pop_encoder_q (pec_TRANSPOSE );
 		tmp4 = pop_encoder_q (sec_OSC_SPREAD);
 
 		// ---------------------
 		// 	OCT / SCALE
 		// ---------------------
-		
+
 		if (tmp1)  		{update_oct  	(tmp1);}
 		else if (tmp2) 	{update_scale 	(tmp2);}
 
 		// ----------------------------------------------
 		// 		TRANSPOSE / TUNE / CHORD / DETUNE SPREAD
 		// ----------------------------------------------
-		
+
 		else if(tmp3){
 			if (switch_pressed(FINE_BUTTON)) { update_finetune (tmp3); }
 			else 			  		  		 { update_transpose(tmp3); }
@@ -1164,30 +1164,30 @@ void read_freq(void){
 		}
 
 
-		if (key_combo_reset_detuning())	{ 
+		if (key_combo_reset_detuning())	{
 			if (reset_detuning_enabled) {
 				retune_oscillators();
 				reset_detuning_enabled = 0;
 			}
-		} else reset_detuning_enabled = 1; 
+		} else reset_detuning_enabled = 1;
 
-		if (key_combo_reset_transpose())	{ 
+		if (key_combo_reset_transpose())	{
 			if (reset_transpose_enabled) {
 				reset_notes();
 				reset_transpose_enabled = 0;
 			}
-		} else reset_transpose_enabled = 1; 
+		} else reset_transpose_enabled = 1;
 
-		if (key_combo_reset_octaves())	{ 
+		if (key_combo_reset_octaves())	{
 			if (reset_octaves_enabled) {
 				reset_octaves();
 				reset_octaves_enabled = 0;
 			}
-		} else reset_octaves_enabled = 1; 
+		} else reset_octaves_enabled = 1;
 
 	// }
 	update_spread_cv();
-}	
+}
 
 
 void cache_uncache_locks(enum CacheUncache cache_uncache)
@@ -1275,10 +1275,10 @@ void update_oct(int16_t tmp)
 
 		//Clamp to active range, but preserve relative spacing
 		trim_array(oct, NUM_CHANNELS, MIN_OCT, MAX_OCT);
-		
+
 		//don't allow any channel to be more than MAX_OCT away from active range
 		for (i = 0; i < NUM_CHANNELS; i++)
-			params.oct[i] = _CLAMP_I16(oct[i], -MAX_OCT, MAX_OCT*2); 
+			params.oct[i] = _CLAMP_I16(oct[i], -MAX_OCT, MAX_OCT*2);
 	}
 }
 
@@ -1362,9 +1362,9 @@ void retune_oscillators(void)
 
 	for (i=0; i<NUM_CHANNELS; i++){
 		if (!params.osc_param_lock[i]) {
-			params.finetune[i] = 0;													
+			params.finetune[i] = 0;
 			compute_tuning(i);
-			chan_mask += 1<<i;		
+			chan_mask += 1<<i;
 		}
 	}
 	resync_audio_osc(chan_mask);
@@ -1377,7 +1377,7 @@ void resync_audio_osc(uint8_t channels)
 	for (i=0; i<NUM_CHANNELS; i++)
 	{
 		if (channels & (1<<i))
-			wt_osc.wt_head_pos[i] = 0;		
+			wt_osc.wt_head_pos[i] = 0;
 	}
 }
 
@@ -1389,7 +1389,7 @@ void spread_finetune(int16_t tmp)
 	uint8_t do_resync_osc=0;
 
 	for (i = 0; i < NUM_CHANNELS; i++ )
-	{		
+	{
 		if (!params.osc_param_lock[i])
 		{
 			if (i<=2)
@@ -1464,7 +1464,7 @@ void update_spread(int16_t tmp){
 
 	uint8_t chan;
 
-	for (chan=0; chan<NUM_CHANNELS; chan++){ 								
+	for (chan=0; chan<NUM_CHANNELS; chan++){
 		if (!params.osc_param_lock[chan])
 			params.spread_enc[chan] += tmp;
 	}
@@ -1474,8 +1474,8 @@ void update_spread(int16_t tmp){
 
 void update_spread_cv(void)
 {
-	if (analog_jack_plugged(TRANSPOSE_CV) 
-		&& (params.key_sw[0]==ksw_KEYS_EXT_TRIG || params.key_sw[1]==ksw_KEYS_EXT_TRIG || params.key_sw[2]==ksw_KEYS_EXT_TRIG 
+	if (analog_jack_plugged(TRANSPOSE_CV)
+		&& (params.key_sw[0]==ksw_KEYS_EXT_TRIG || params.key_sw[1]==ksw_KEYS_EXT_TRIG || params.key_sw[2]==ksw_KEYS_EXT_TRIG
 	  	||  params.key_sw[3]==ksw_KEYS_EXT_TRIG || params.key_sw[4]==ksw_KEYS_EXT_TRIG || params.key_sw[5]==ksw_KEYS_EXT_TRIG))
 		params.spread_cv = 0;
 	else
@@ -1498,9 +1498,9 @@ void combine_transpose_spread(void){
 }
 
 // trim_array() trims extra steps beyond MAX/MIN values, when all elements are beyond threshold of display_min or display_max
-// It serves to clip values while still preserving the spacing between them 
+// It serves to clip values while still preserving the spacing between them
 void trim_array(int32_t *a, uint32_t num_elements, int32_t display_min, int32_t display_max){
-	
+
 	uint8_t chan;
 	int16_t min,max;
 
@@ -1605,12 +1605,12 @@ void update_wt(void)
 		// ------------
 		// WT SELECTION
 		// -------------
-		
+
 		// spread
 		case 2:
 			read_wtsel_spread();	//updates and wraps wtsel_spread_enc
 			read_wtsel_spread_cv();	//updates wtsel_spread_cv based on cv on the jack
-			
+
 			read_browse_encoder();	//calls read_wtsel() if encoder is pushed+turned and updates wtsel_enc[]
 			read_wtsel_cv();		//updates wtsel_cv based on cv on the jack
 
@@ -1627,7 +1627,7 @@ void update_wt(void)
 
 		case 4:
 			update_wt_disp (0);
-			update_wbrowse_cv();	
+			update_wbrowse_cv();
 		break;
 
 		// depth
@@ -1638,13 +1638,13 @@ void update_wt(void)
 
 		// latitude
 		case 9:
-			update_wt_nav_cv(1);	
+			update_wt_nav_cv(1);
 			read_nav_encoder(1);
 		break;
 
 		// longitude
 		case 12:
-			update_wt_nav_cv(2);	
+			update_wt_nav_cv(2);
 			read_nav_encoder(2);
 		break;
 
@@ -1662,7 +1662,7 @@ void update_wt(void)
 }
 
 void read_nav_encoder(uint8_t dim){
-	
+
 	uint8_t i;
 	int16_t enc;
 	uint8_t	WT_ENCODERS[3] = {pec_DEPTH, pec_LATITUDE, pec_LONGITUDE};
@@ -1685,7 +1685,7 @@ void read_nav_encoder(uint8_t dim){
 				wt_pos_increment = enc * (switch_pressed(FINE_BUTTON) ? F_SCALING_FINE_NAVIGATE : F_SCALING_NAVIGATE);
 
 			update_wt_nav(dim, wt_pos_increment);
-		}	
+		}
 	}
 }
 
@@ -1695,8 +1695,8 @@ void read_browse_encoder(void)
 	int16_t enc, enc2;
 	int16_t i,j,k;
 	static uint8_t set_new_global_brightness=0;
-	static uint8_t browse_pressed = 0; 
-	static uint8_t browse_moved = 0; 
+	static uint8_t browse_pressed = 0;
+	static uint8_t browse_moved = 0;
 
 	enc = pop_encoder_q(pec_WBROWSE);
 	enc2 = pop_encoder_q(sec_WTSEL);
@@ -1717,8 +1717,8 @@ void read_browse_encoder(void)
 			}
 		}
 	}
-	
-	if (ui_mode == WTEDITING && !macro_states.all_af_buttons_released) 
+
+	if (ui_mode == WTEDITING && !macro_states.all_af_buttons_released)
 	{
 		params.dispersion_enc = 0;
 		// params.disppatt_enc = 1;
@@ -1738,7 +1738,7 @@ void read_browse_encoder(void)
 				start_ongoing_display_globright();
 				system_settings.global_brightness = _CLAMP_F(system_settings.global_brightness + ((float)enc * F_SCALING_NAVIGATE_GLOBAL_BRIGHTNESS), F_MIN_GLOBAL_BRIGHTNESS, 1.0);
 				set_new_global_brightness =1;
-			} 
+			}
 		}
 		if (!rotary_pressed(rotm_PRESET) && set_new_global_brightness) {
 			save_flash_params();
@@ -1762,7 +1762,7 @@ void read_browse_encoder(void)
 					}
 				}
 			}
-		}	
+		}
 
 		else if (ui_mode == PLAY) {
 			read_wtsel(enc2);
@@ -1789,12 +1789,12 @@ void update_wt_interp(void)
 {
 	int8_t chan;
 	uint8_t x[2],y[2],z[2];
-	
+
 	static uint8_t loadx[2][NUM_CHANNELS]={0}, loady[2][NUM_CHANNELS]={0}, loadz[2][NUM_CHANNELS]={0};
 	static int16_t	*p_waveform[NUM_CHANNELS][8]; // addresses for 8x waveforms used for interpolation
-	static uint8_t	old_x0[NUM_CHANNELS] = {0xFF};	
-	static uint8_t	old_y0[NUM_CHANNELS] = {0xFF};	
-	static uint8_t	old_z0[NUM_CHANNELS] = {0xFF};	
+	static uint8_t	old_x0[NUM_CHANNELS] = {0xFF};
+	static uint8_t	old_y0[NUM_CHANNELS] = {0xFF};
+	static uint8_t	old_z0[NUM_CHANNELS] = {0xFF};
 	static uint8_t	old_bank[NUM_CHANNELS] = {0xFF};
 
 	static enum WTFlashLoadQueueStates state[NUM_CHANNELS] = {WT_FLASH_NO_ACTION};
@@ -1889,31 +1889,31 @@ void update_wt_interp(void)
 
 
 void interp_wt(uint8_t chan, int16_t *p_waveform[8]){
-	
+
 	uint16_t  i = 0;
 	// float xfade0, xfade1, yfade0, yfade1;
 
 	if (ui_mode == WTTTONE) {
-	    while (i < WT_TABLELEN){ 
+	    while (i < WT_TABLELEN){
 		    wt_osc.mc[1 - wt_osc.buffer_sel[chan]][chan][i] = (float)(TTONE[i]);
 		    i++;
 		}
 	}
 	else{
-	    while (i < WT_TABLELEN){ 
+	    while (i < WT_TABLELEN){
 	    	//100us
 	        wt_osc.mc[1 - wt_osc.buffer_sel[chan]][chan][i] =
-	            ( 
+	            (
 		            ( (float) ( *(p_waveform[0] + i))  * wt_osc.m_frac_inv[0][chan] + (float) ( *(p_waveform[1] + i))  * wt_osc.m_frac[0][chan] )  * wt_osc.m_frac_inv[1][chan] +
-		            ( (float) ( *(p_waveform[2] + i))  * wt_osc.m_frac_inv[0][chan] + (float) ( *(p_waveform[3] + i))  * wt_osc.m_frac[0][chan] )  * wt_osc.m_frac    [1][chan]  
+		            ( (float) ( *(p_waveform[2] + i))  * wt_osc.m_frac_inv[0][chan] + (float) ( *(p_waveform[3] + i))  * wt_osc.m_frac[0][chan] )  * wt_osc.m_frac    [1][chan]
 	            ) * wt_osc.m_frac_inv[2][chan]
 
-	            +  
+	            +
 
-	            (   
+	            (
 	              	( (float) ( *(p_waveform[4] + i))  * wt_osc.m_frac_inv[0][chan] + (float) ( *(p_waveform[5] + i))   * wt_osc.m_frac[0][chan] )   * wt_osc.m_frac_inv[1][chan] +
-	            	( (float) ( *(p_waveform[6] + i))  * wt_osc.m_frac_inv[0][chan] + (float) ( *(p_waveform[7] + i))   * wt_osc.m_frac[0][chan] )   * wt_osc.m_frac    [1][chan]  
-	            ) * wt_osc.m_frac[2][chan];   
+	            	( (float) ( *(p_waveform[6] + i))  * wt_osc.m_frac_inv[0][chan] + (float) ( *(p_waveform[7] + i))   * wt_osc.m_frac[0][chan] )   * wt_osc.m_frac    [1][chan]
+	            ) * wt_osc.m_frac[2][chan];
 
 	        i++;
 		}
@@ -1990,7 +1990,7 @@ void read_wtsel_spread(void)
 	if (wtsel_spread && !UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
 	{
 		for (chan=0; chan<NUM_CHANNELS; chan++)
-		{ 
+		{
 			if (!params.wtsel_lock[chan])
 				params.wtsel_spread_enc[chan] = _WRAP_I16(params.wtsel_spread_enc[chan] + wtsel_spread, 0, NUM_WTSEL_SPREADS);
 		}
@@ -2015,12 +2015,12 @@ int8_t calc_wtspread_offset(uint8_t spread_amt, uint8_t chan)
 	int8_t offset_per_spread = (int8_t)chan - ((int8_t)NUM_CHANNELS/2);
 
 	if (chan >= (NUM_CHANNELS/2))
-		offset_per_spread++; 
+		offset_per_spread++;
 
 	return (int8_t)spread_amt * offset_per_spread;
 
 	//0: -3, 1: -2, 2: -1, 3: 1, 4: 2, 5: 3
-} 
+}
 
 void update_wtsel(void){
 	uint16_t spread_sum;
@@ -2044,9 +2044,9 @@ void update_wt_bank(void)
 	uint8_t i;
 	uint8_t test_bank;
 
-	for (i=0; i<NUM_CHANNELS; i++){	
+	for (i=0; i<NUM_CHANNELS; i++){
 		test_bank = sphere_index_to_bank(calc_params.wtsel[i]);
-		
+
 		if ((params.wt_bank[i]!=test_bank) ) {
 			params.wt_bank[i] = test_bank;
 			req_wt_interp_update(i);
@@ -2114,7 +2114,7 @@ void set_wtsel(uint8_t selection)
 
 
 void update_wt_nav(uint8_t wt_dim, float wt_nav_increment)
-{	
+{
 	if (wt_nav_increment)
 	{
 		change_param_f(params.wt_nav_enc[wt_dim], wt_nav_increment);
@@ -2179,7 +2179,7 @@ void update_wt_disp(uint8_t clear_lpf){
 
 
 		// Pattern encoder
-		patt_encoder_motion = pop_encoder_q(sec_DISPPATT);															
+		patt_encoder_motion = pop_encoder_q(sec_DISPPATT);
 		if(patt_encoder_motion)
 			params.disppatt_enc = _WRAP_I8(params.disppatt_enc + patt_encoder_motion, 0, NUM_DISPPAT);
 
@@ -2202,7 +2202,7 @@ void update_wt_disp(uint8_t clear_lpf){
 //
 // params.wt_browse_step_pos_enc[dim][chan] float 0..27
 // params.wt_browse_step_pos_cv[dim] float 0..27
-// 
+//
 // params.wt_nav_enc[dim][chan] float 0..3
 // params.wt_nav_cv[dim] float 0..3
 //
@@ -2223,7 +2223,7 @@ void calc_wt_pos(uint8_t chan){
 	nav_enc[0] 	= params.wt_nav_enc[0][chan];
 	nav_enc[1] 	= params.wt_nav_enc[1][chan];
 	nav_enc[2] 	= params.wt_nav_enc[2][chan];
-	
+
 	// BROWSE
 	browse_cv = params.wt_pos_lock[chan] ? 0: params.wt_browse_step_pos_cv;
 	total_browse = params.wt_browse_step_pos_enc[chan] + browse_cv;
@@ -2253,23 +2253,23 @@ void calc_wt_pos(uint8_t chan){
 			req_wt_interp_update(chan);
 		}
 	}
-}		
+}
 
-// This uses wt_pos[] to calculate the integer and fractional morph position within the sphere 
+// This uses wt_pos[] to calculate the integer and fractional morph position within the sphere
 void update_wt_pos_interp_params(uint8_t chan, uint8_t wt_dim){
 	wt_osc.m0 		  [wt_dim][chan]	= ((uint8_t)(calc_params.wt_pos[wt_dim][chan]))     % WT_DIM_SIZE;
-	wt_osc.m1 		  [wt_dim][chan]	= ((uint8_t)(calc_params.wt_pos[wt_dim][chan]) + 1) % WT_DIM_SIZE;					
-	wt_osc.m_frac 	  [wt_dim][chan] 	= calc_params.wt_pos[wt_dim][chan] - (float)(wt_osc.m0[wt_dim][chan]);	
+	wt_osc.m1 		  [wt_dim][chan]	= ((uint8_t)(calc_params.wt_pos[wt_dim][chan]) + 1) % WT_DIM_SIZE;
+	wt_osc.m_frac 	  [wt_dim][chan] 	= calc_params.wt_pos[wt_dim][chan] - (float)(wt_osc.m0[wt_dim][chan]);
 	wt_osc.m_frac_inv [wt_dim][chan] 	= 1.0 - wt_osc.m_frac[wt_dim][chan];
-}					
+}
 
 
 void update_all_wt_pos_interp_params(void){
 	uint8_t i, j;
 
-	for(i=0; i<NUM_CHANNELS; i++){	
+	for(i=0; i<NUM_CHANNELS; i++){
 		calc_wt_pos(i);
-		
+
 		for(j=0; j<WT_DIM_SIZE; j++){
 			update_wt_pos_interp_params(i, j);
 		}
@@ -2280,12 +2280,12 @@ void read_load_save_encoder(void){
 	static uint8_t preset_feature_armed = 0;
 	int16_t enc, enc2;
 
-	enc   = pop_encoder_q (pec_LOADPRESET);	
+	enc   = pop_encoder_q (pec_LOADPRESET);
 	enc2  = pop_encoder_q (sec_SAVEPRESET);
 
 	if (rotary_released(rotm_PRESET))
 		preset_feature_armed = 1;
-	
+
 	if (!key_combo_all_but_preset_released()) {
 		preset_feature_armed = 0;
 		exit_preset_manager();
@@ -2294,7 +2294,7 @@ void read_load_save_encoder(void){
 	if (ui_mode==PLAY && key_combo_all_but_preset_released() && preset_feature_armed)
 		handle_preset_events(enc,enc2);
 
-	else if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))	
+	else if (UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
 		handle_wt_saving_events(enc);
 }
 

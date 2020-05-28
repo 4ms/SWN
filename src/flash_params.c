@@ -98,7 +98,7 @@ void firmware_upgrade_post_process(uint8_t old_major, uint8_t old_minor)
 {
 	if (old_major==0 && old_minor<=8)
 	{
-		write_fatory_spheres_to_extflash();
+		restore_factory_spheres_to_extflash();
 	}
 }
 
