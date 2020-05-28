@@ -67,13 +67,13 @@ void init_sphere_flash(void)
 
 void write_factory_spheres_to_extflash(void)
 {
-	#ifndef SKIP_FACTORY_SPHERES_IN_HEXFILE
+#ifndef SKIP_FACTORY_SPHERES_IN_HEXFILE
 	uint32_t wt_num;
 
 	for (wt_num=0;wt_num<NUM_FACTORY_SPHERES;wt_num++) {
 		save_sphere_to_flash(wt_num, SPHERE_TYPE_FACTORY, (int16_t *)wavetable_list[wt_num]);
 	}
-	#endif
+#endif
 }
 uint8_t is_wav_name(char *name) {
 	uint32_t max_strlen = 31;
@@ -90,6 +90,7 @@ uint8_t is_wav_name(char *name) {
 
 void restore_factory_spheres_to_extflash(void)
 {
+#ifndef SKIP_FACTORY_SPHERES_IN_HEXFILE
 	uint32_t wt_num;
 
 	for (wt_num=0;wt_num<NUM_FACTORY_SPHERES;wt_num++) {
@@ -98,6 +99,7 @@ void restore_factory_spheres_to_extflash(void)
 				save_sphere_to_flash(wt_num, SPHERE_TYPE_FACTORY, (int16_t *)wavetable_list[wt_num]);
 		}
 	}
+#endif
 }
 
 uint32_t get_wt_addr(uint16_t wt_num)
