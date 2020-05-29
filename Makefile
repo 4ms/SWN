@@ -29,7 +29,8 @@ SOURCES  += $(wildcard src/drivers/*.c)
 SOURCES  += $(wildcard $(CORE)/src/*.c)
 SOURCES  += $(wildcard $(CORE)/src/*.s)
 
-OBJECTS   = $(addprefix $(BUILDDIR)/, $(addsuffix .o, $(basename $(SOURCES))))
+OBJECTS   = $(addprefix $(BUILDDIR)/, $(addsuffix .o, $(sort $(basename $(SOURCES)))))
+
 DEPS = $(OBJECTS:.o=.d)
 
 INCLUDES += -I$(DEVICE)/include \
@@ -74,12 +75,6 @@ CFLAGS = -g3 -Wall \
 	-fdata-sections -ffunction-sections \
 	# -specs=nano.specs \
 
-#CFLAGS  = $(OPTIMIZED_CFLAGS) -Wall
-#CFLAGS += $(ARCH_CFLAGS) $(MCU) 
-#CFLAGS += -I. $(INCLUDES) 
-##CFLAGS += -fdata-sections -ffunction-sections
-##CFLAGS += -fstack-usage -fstack-check
-
 DEPFLAGS = -MMD -MP -MF $(BUILDDIR)/$(basename $<).d
 
 CXXFLAGS=$(CFLAGS) \
@@ -100,6 +95,7 @@ LDSCRIPT = $(DEVICE)/$(LOADFILE)
 
 LFLAGS =  -Wl,-Map,build/main.map,--cref \
 	-Wl,--gc-sections \
+	-Wl,--start-group \
 	$(MCU) \
 	-T $(LDSCRIPT)
 	# -specs=nano.specs -T $(LDSCRIPT) \
