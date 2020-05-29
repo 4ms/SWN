@@ -247,13 +247,8 @@ endif
 
 wav: fsk-wav
 
-qpsk-wav: $(BIN)
-	python stm_audio_bootloader/qpsk/encoder.py \
-		-t stm32f4 -s 48000 -b 12000 -c 6000 -p 256 \
-		$(BIN)
-
 fsk-wav: $(BIN)
-	python stm_audio_bootloader/fsk/encoder.py \
+	export PYTHONPATH='.' && python stm_audio_bootloader/fsk/encoder.py \
 		-s 44100 -b 16 -n 8 -z 4 -p 256 -g 16384 -k 1800 \
 		$(BIN)
 
