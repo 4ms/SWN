@@ -121,6 +121,7 @@ enum MuteNoteKeyStates {
 	ksw_NOTE,
 	ksw_KEYS,
 	ksw_KEYS_EXT_TRIG,
+	ksw_KEYS_EXT_TRIG_SUSTAIN,
 
 	NUM_MUTE_NOTE_KEY_STATES
 };
@@ -157,6 +158,7 @@ typedef struct o_calc_params{
 	uint8_t		lock_change_staged		[NUM_CHANNELS];
 	enum PanStates	adjusting_pan_state		[NUM_CHANNELS];
 
+	uint8_t		gate_in_is_sustaining	[NUM_CHANNELS]		;
 } o_calc_params;
 
 

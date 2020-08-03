@@ -230,6 +230,8 @@ void init_params(void){
 
 		params.pan[i] = default_pan(i);
 
+		calc_params.gate_in_is_sustaining[i]	= 0;
+
 		calc_wt_pos(i);
 		for (j=0; j<3; j++)
 			update_wt_pos_interp_params(i, j);
@@ -331,6 +333,7 @@ void init_calc_params(void)
 
 		calc_params.prev_qtz_note[chan] = 0xFF;
 		calc_params.prev_qtz_oct[chan] = 0xFF;
+		calc_params.gate_in_is_sustaining[chan] = 0;
 
 		for (j = 0; j < NUM_ARM_FLAGS; j++)
 			calc_params.armed[j][chan] = 0;
@@ -502,12 +505,12 @@ static uint8_t new_key_armed[NUM_CHANNELS] = {0};
 void read_ext_trigs(void)
 {
 	uint8_t chan;
-	uint8_t chans_in_ext_trig_mode=0;
+	uint8_t chans_in_cvgate_mode=0;
 
 	static uint8_t last_trig_level[NUM_CHANNELS+1]={0};
 	uint8_t trig_level[NUM_CHANNELS+1]={0};
 
-	trig_level[0] = audio_in_gate;
+	trig_level[0] = (params.key_sw[0]==ksw_KEYS_EXT_TRIG) ? audio_in_gate : (analog[WTSEL_CV].raw_val > 2048);
 	trig_level[1] = analog[DISP_CV].raw_val > 2048;
 	trig_level[2] = analog[DEPTH_CV].raw_val > 2048;
 	trig_level[3] = analog[DISPPAT_CV].raw_val > 2048;
@@ -517,33 +520,41 @@ void read_ext_trigs(void)
 
 	for (chan=0; chan<NUM_CHANNELS; chan++)
 	{
-		if (params.key_sw[chan]==ksw_KEYS_EXT_TRIG)
+		uint8_t is_sustaining = 0;
+		if (params.key_sw[chan]==ksw_KEYS_EXT_TRIG || params.key_sw[chan]==ksw_KEYS_EXT_TRIG_SUSTAIN)
 		{
-			chans_in_ext_trig_mode++;
-
-			if (analog_jack_plugged(A_VOCT+chan) && trig_level[chan] && !last_trig_level[chan])
-			{
-				lfos.cycle_pos[chan] = 0; //allow re-trigger with jack
-				params.note_on[chan] = 1;
-				params.new_key[chan] = 1;
-				new_key_armed[chan]	 = 0;
+			chans_in_cvgate_mode++;
+			
+			if (analog_jack_plugged(A_VOCT+chan)) {
+				if (trig_level[chan] && !last_trig_level[chan])
+				{
+					lfos.cycle_pos[chan] = 0.f;
+					params.note_on[chan] = 1;
+					params.new_key[chan] = 1;
+					new_key_armed[chan] = 0;
+				}
+				if (params.key_sw[chan]==ksw_KEYS_EXT_TRIG_SUSTAIN && trig_level[chan])
+					is_sustaining = 1;
 			}
 		}
 		last_trig_level[chan] = trig_level[chan];
+		calc_params.gate_in_is_sustaining[chan] = is_sustaining;
 	}
 
 	//Transpose CV jack must be patched for gate to work on Chord CV
-	if (chans_in_ext_trig_mode && analog_jack_plugged(TRANSPOSE_CV))
+	if (chans_in_cvgate_mode && analog_jack_plugged(TRANSPOSE_CV))
 	{
-		if (trig_level[6] && !last_trig_level[6])
+		for (chan=0; chan<NUM_CHANNELS; chan++)
 		{
-			for (chan=0; chan<NUM_CHANNELS; chan++)
+			if (trig_level[6] && !last_trig_level[6])
 			{
-				lfos.cycle_pos[chan] = 0;
+				lfos.cycle_pos[chan] = 0.f;
 				params.note_on[chan] = 1;
 				params.new_key[chan] = 1;
-				new_key_armed[chan]	 = 0;
+				new_key_armed[chan]	= 0;
 			}
+			if (params.key_sw[chan]==ksw_KEYS_EXT_TRIG_SUSTAIN && trig_level[6])
+				calc_params.gate_in_is_sustaining[chan] = 1;
 		}
 	}
 	last_trig_level[6] = trig_level[6];
@@ -604,7 +615,7 @@ void read_noteon(uint8_t i)
 					//  else {
 						params.new_key[i] = 1;
 						params.note_on[i] = 1;
-						if (params.key_sw[i]==ksw_KEYS_EXT_TRIG) //allow re-trigger with button
+						if ((params.key_sw[i]==ksw_KEYS_EXT_TRIG || params.key_sw[i]==ksw_KEYS_EXT_TRIG_SUSTAIN)) //allow re-trigger with button
 							lfos.cycle_pos[i] = 0;
 
 					// }
@@ -983,6 +994,7 @@ void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
 		//Switched to MUTE
 		else if (new_keymode == ksw_MUTE)
 		{
+			calc_params.gate_in_is_sustaining[chan] = 0;
 			lfos.muted[chan] = 1; //mute to prevent race condition with update_lfo_wt_pos()
 			cache_uncache_keys_params_and_lfos(chan, UNCACHE);
 		}
@@ -998,8 +1010,12 @@ void apply_keymode(uint8_t chan, enum MuteNoteKeyStates new_keymode)
 		else if (new_keymode == ksw_KEYS_EXT_TRIG)
 		{
 			params.indiv_scale[chan] = sclm_NONE;
-
-			force_all_wt_interp_update();
+			force_wt_interp_update(chan);
+		}
+		else if (new_keymode == ksw_KEYS_EXT_TRIG_SUSTAIN)
+		{
+			calc_params.gate_in_is_sustaining[chan] = 0;
+			force_wt_interp_update(chan);
 		}
 
 		params.key_sw[chan] = new_keymode;
@@ -1081,7 +1097,7 @@ void update_pitch(uint8_t chan)
 	int8_t oct;
 	int16_t oct_clamped;
 
-	if ( params.key_sw[chan]==ksw_MUTE || params.key_sw[chan]==ksw_KEYS_EXT_TRIG || params.new_key[chan] || ((params.key_sw[chan] == ksw_NOTE) && !params.note_on[chan]) )
+	if ( params.key_sw[chan]==ksw_MUTE || params.key_sw[chan]==ksw_KEYS_EXT_TRIG_SUSTAIN || params.key_sw[chan]==ksw_KEYS_EXT_TRIG || params.new_key[chan] || ((params.key_sw[chan] == ksw_NOTE) && !params.note_on[chan]) )
 	{
 		// Calculate pitch multiplier from individual jack 1V/oct CV
 		if ((params.voct_switch_state[chan] == SW_VOCT) || (params.key_sw[chan] != ksw_MUTE))
@@ -1518,12 +1534,22 @@ void update_spread(int16_t tmp){
 	start_ongoing_display_transpose();
 }
 
+static uint8_t any_key_sw(enum MuteNoteKeyStates state);
+static uint8_t any_key_sw(enum MuteNoteKeyStates state) {
+	if (   params.key_sw[0]==state
+		|| params.key_sw[1]==state
+		|| params.key_sw[2]==state
+		|| params.key_sw[3]==state
+		|| params.key_sw[4]==state
+		|| params.key_sw[5]==state)
+		return 1;
+	else
+		return 0;
+}
 
 void update_spread_cv(void)
 {
-	if (analog_jack_plugged(TRANSPOSE_CV)
-		&& (params.key_sw[0]==ksw_KEYS_EXT_TRIG || params.key_sw[1]==ksw_KEYS_EXT_TRIG || params.key_sw[2]==ksw_KEYS_EXT_TRIG
-	  	||  params.key_sw[3]==ksw_KEYS_EXT_TRIG || params.key_sw[4]==ksw_KEYS_EXT_TRIG || params.key_sw[5]==ksw_KEYS_EXT_TRIG))
+	if (analog_jack_plugged(TRANSPOSE_CV) && (any_key_sw(ksw_KEYS_EXT_TRIG) || any_key_sw(ksw_KEYS_EXT_TRIG_SUSTAIN)))
 		params.spread_cv = 0;
 	else
 	 	params.spread_cv = (int8_t)((float)(analog[CHORD_CV].bracketed_val)  * (float)(NUM_CHORDS) / (4095.0*1.04));//4% down-scaling allows black keys to select chords (C#0 to C#5)
@@ -2050,7 +2076,7 @@ void read_wtsel_spread_cv(void)
 {
 	if (!UIMODE_IS_WT_RECORDING_EDITING(ui_mode))
 	{
-		if (params.key_sw[5]==ksw_KEYS_EXT_TRIG && analog_jack_plugged(F_VOCT))
+		if ((params.key_sw[5]==ksw_KEYS_EXT_TRIG || params.key_sw[5]==ksw_KEYS_EXT_TRIG_SUSTAIN) && analog_jack_plugged(F_VOCT))
 			params.wtsel_spread_cv = 0;
 		else
 			params.wtsel_spread_cv = analog[WTSEL_SPREAD_CV].bracketed_val * NUM_WTSEL_SPREADS / 4095;
@@ -2178,14 +2204,14 @@ void update_wt_nav_cv(uint8_t wt_dim)
 {
 	switch (wt_dim) {
 		case 0:
-			if (params.key_sw[2]==ksw_KEYS_EXT_TRIG && analog_jack_plugged(C_VOCT))
+			if ((params.key_sw[2]==ksw_KEYS_EXT_TRIG || params.key_sw[2]==ksw_KEYS_EXT_TRIG_SUSTAIN) && analog_jack_plugged(C_VOCT))
 				params.wt_nav_cv[0] = 0;
 			else
 				params.wt_nav_cv[0] = (float)(analog[DEPTH_CV].bracketed_val) * (float)WT_DIM_SIZE / 4095.0; //0..3
 			break;
 
 		case 1:
-			if (params.key_sw[4]==ksw_KEYS_EXT_TRIG && analog_jack_plugged(E_VOCT))
+			if ((params.key_sw[4]==ksw_KEYS_EXT_TRIG || params.key_sw[4]==ksw_KEYS_EXT_TRIG_SUSTAIN) && analog_jack_plugged(E_VOCT))
 				params.wt_nav_cv[1] = 0;
 			else
 				params.wt_nav_cv[1] = (float)(analog[LATITUDE_CV].bracketed_val) * (float)WT_DIM_SIZE / 4095.0; //0..3
@@ -2219,7 +2245,7 @@ void update_wt_disp(uint8_t clear_lpf){
 			params.dispersion_enc = _WRAP_F(params.dispersion_enc + disp_encoder_motion_lpf, 0 ,2.0);
 
 		// Dispersion cv
-		if (params.key_sw[1]==ksw_KEYS_EXT_TRIG && analog_jack_plugged(B_VOCT))
+		if ((params.key_sw[1]==ksw_KEYS_EXT_TRIG || params.key_sw[1]==ksw_KEYS_EXT_TRIG_SUSTAIN) && analog_jack_plugged(B_VOCT))
 			params.dispersion_cv = 0;
 		else
 			params.dispersion_cv = ((float)analog[DISP_CV].bracketed_val)/4095.0;
@@ -2231,7 +2257,7 @@ void update_wt_disp(uint8_t clear_lpf){
 			params.disppatt_enc = _WRAP_I8(params.disppatt_enc + patt_encoder_motion, 0, NUM_DISPPAT);
 
 		// Pattern cv
-		if (params.key_sw[3]==ksw_KEYS_EXT_TRIG && analog_jack_plugged(D_VOCT))
+		if ((params.key_sw[3]==ksw_KEYS_EXT_TRIG || params.key_sw[3]==ksw_KEYS_EXT_TRIG_SUSTAIN) && analog_jack_plugged(D_VOCT))
 			params.disppatt_cv = 0;
 		else
 			params.disppatt_cv = analog[DISPPAT_CV].bracketed_val * NUM_DISPPAT / 4095;

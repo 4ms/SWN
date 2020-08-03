@@ -202,7 +202,7 @@ void init_led_cont(void)
 	key_sw_mode_colors[ksw_NOTE] = ledc_PINK;
 	key_sw_mode_colors[ksw_KEYS] = ledc_PURPLE;
 	key_sw_mode_colors[ksw_KEYS_EXT_TRIG] = ledc_GOLD;
-
+	key_sw_mode_colors[ksw_KEYS_EXT_TRIG_SUSTAIN] = ledc_BUTTERCUP;
 }
 
 void update_display_at_encoder_press(void)

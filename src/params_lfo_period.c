@@ -34,17 +34,18 @@
 #include "oscillator.h"
 #include "math_util.h"
 #include "gpio_pins.h"
+#include "lfo_wavetable_bank.h"
 #include <math.h>
 
 extern o_lfos 		lfos;
 extern o_params 	params;
+extern o_calc_params 	calc_params;
 extern o_wt_osc 	wt_osc;
 extern uint16_t 	divmult_cv;
 
-
 const float LFO_DIVMULTS[NUM_DIVMULTS] = {
 	1.0/64.0, 1.0/48.0, 1.0/32.0, 1.0/24.0, 1.0/16.0, 1.0/8.0, 1.0/7.0, 1.0/6.0, 1.0/5.0, 1.0/4.0, 1.0/3.0, 1.0/2.0,\
-	1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 12.0, 16.0, 24.0, 32.0 }; 
+	1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 12.0, 16.0, 24.0, 32.0 };
 
 uint8_t resync_staged[NUM_CHANNELS+1] = {0};
 
@@ -99,8 +100,8 @@ void update_lfo_wt_pos(void)
 	}
 
 	for (chan=0; chan<NUM_CHANNELS; chan++)
-	{	
-		if (lfos.muted[chan]) 
+	{
+		if (lfos.muted[chan])
 			continue;
 
 		else if (params.key_sw[chan] == ksw_MUTE)
@@ -116,24 +117,33 @@ void update_lfo_wt_pos(void)
 		}
 
 		//Note/Key mode: one-shot LFOs (Envelopes)
-		else 
-		{ 
+		else
+		{
 			if (params.note_on[chan] && ((lfos.cycle_pos[chan] + lfos.inc[chan])>=1.0) ) {
 				params.note_on[chan] = 0;
-			} 
+			}
 
 			else if (!params.note_on[chan]) {
 				wt_osc.wt_head_pos[chan] = 0;
 				lfos.cycle_pos[chan] = 0;
 			}
 
+			else if (!calc_params.gate_in_is_sustaining[chan]) {
+				lfos.cycle_pos[chan] += lfos.inc[chan];
+			}
 			else {
-				lfos.cycle_pos[chan] += lfos.inc[chan]; 
-			}			
+				float sustain_pos = lfo_sustain_pos[ lfos.shape[chan] ] / 256.f;
+				uint8_t will_cross_sustain_position = (lfos.cycle_pos[chan]<=sustain_pos) && ((lfos.cycle_pos[chan] + lfos.inc[chan])>sustain_pos);
+				if (will_cross_sustain_position) {
+					lfos.cycle_pos[chan] = sustain_pos;
+				} else {
+					lfos.cycle_pos[chan] += lfos.inc[chan];
+				}
+			}
 		}
 
 		lfos.wt_pos[chan] = _WRAP_F(lfos.cycle_pos[chan] + lfos.phase[chan], 0, 1.0);
-	} 
+	}
 }
 
 void update_lfo_calcs(void)
@@ -171,7 +181,7 @@ void update_lfo_calcs(void)
 }
 
 //	1.0/64.0, 1.0/48.0, 1.0/32.0, 1.0/24.0, 1.0/16.0, 1.0/8.0, 1.0/7.0, 1.0/6.0, 1.0/5.0, 1.0/4.0, 1.0/3.0, 1.0/2.0,
-//	1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 12.0, 16.0, 24.0, 32.0 }; 
+//	1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 12.0, 16.0, 24.0, 32.0 };
 
 
 float calc_divmult_amount(float divmult_id)
@@ -186,8 +196,8 @@ float calc_divmult_amount(float divmult_id)
 
 	else if (i_divmult_id<(NUM_DIVMULTS-1))
 		return _CROSSFADE(LFO_DIVMULTS[i_divmult_id], LFO_DIVMULTS[i_divmult_id+1], xfade);
-	
-	else 
+
+	else
 		return max + 2.0*(divmult_id - (float)NUM_DIVMULTS + 1.0); //x32, x34, x36, ... x166
 }
 
@@ -197,7 +207,7 @@ float calc_divmult_id(float divmult)
 
 	if (divmult <= LFO_DIVMULTS[0]) {
 		return 0.125 * (1.0/LFO_DIVMULTS[0] - 1.0/divmult);
-	} 
+	}
 	else if (divmult >= LFO_DIVMULTS[NUM_DIVMULTS-1]) {
 		return (divmult - LFO_DIVMULTS[NUM_DIVMULTS-1])/2.0 + NUM_DIVMULTS-1;
 	}
@@ -233,7 +243,7 @@ float calc_lfo_period(uint8_t chan, float global_divmult_id, uint32_t base_perio
 {
 	float period, test_period;
 	float chan_divmult_id = lfos.divmult_id[chan];
-	
+
 	test_period = calc_lfo_period_lforange(chan_divmult_id, global_divmult_id, base_period_ms);
 
 	if (!lfos.audio_mode[chan])
@@ -243,7 +253,7 @@ float calc_lfo_period(uint8_t chan, float global_divmult_id, uint32_t base_perio
 			lfos.audio_mode[chan] = 1;
 			period = calc_lfo_period_audiorange(chan_divmult_id, global_divmult_id, base_period_ms);
 		}
-		else 
+		else
 			period = test_period;
 	}
 	else

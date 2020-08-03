@@ -185,7 +185,6 @@ void update_envout_pwm(void){
 		}
 		else if (lfos.mode[j] == lfot_GATE)
 		{
-
 			lfos.envout_pwm[j] = envout_buf > GATE_THRESHOLD ? PWM_MAX : 0;	
 
 			lfos.out_lpf[j] = (float)(lfos.envout_pwm[j]) / (float)(PWM_MAX);
