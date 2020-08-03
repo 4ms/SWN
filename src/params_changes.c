@@ -44,7 +44,7 @@ uint8_t change_param_f(float *param_array, float amount)
 	uint8_t made_changes = 0;
 
 	for (chan = 0; chan < NUM_CHANNELS; chan++)
-	{	
+	{
 		if (button_pressed(chan) || (macro_states.all_af_buttons_released && !params.osc_param_lock[chan]))
 		{
 			param_array[chan] += amount;
@@ -63,7 +63,7 @@ uint8_t change_param_i16(int16_t *param_array, int16_t amount)
 	uint8_t made_changes = 0;
 
 	for (chan = 0; chan < NUM_CHANNELS; chan++)
-	{	
+	{
 		if (button_pressed(chan) || (macro_states.all_af_buttons_released && !params.osc_param_lock[chan]))
 		{
 			param_array[chan] += amount;
@@ -82,7 +82,7 @@ uint8_t change_param_i32(int32_t *param_array, int32_t amount)
 	uint8_t made_changes = 0;
 
 	for (chan = 0; chan < NUM_CHANNELS; chan++)
-	{	
+	{
 		if (button_pressed(chan) || (macro_states.all_af_buttons_released && !params.osc_param_lock[chan]))
 		{
 			param_array[chan] += amount;

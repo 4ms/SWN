@@ -196,47 +196,51 @@ void init_params(void){
 	uint16_t j;
 
 	// global & display
-	params.dispersion_enc				= 0;
-	params.disppatt_enc 				= 1;
-	params.noise_on 					= 0;
-	params.spread_cv 					= 0;
+	params.dispersion_enc = 0;
+	params.disppatt_enc = 1;
+	params.noise_on = 0;
+	params.spread_cv = 0;
 
-	for (i=0;i<NUM_CHANNELS;i++){
-		params.key_sw[i]						= ksw_MUTE;
+	for (i=0; i<NUM_CHANNELS; i++){
+		params.key_sw[i] = ksw_MUTE;
 
-		params.note_on[i] 	  					= 1;
-		calc_params.level[i] 					= 4093;
+		params.note_on[i] = 1;
+		calc_params.level[i] = 4093;
+		calc_params.adjusting_pan_state[i] = pan_INACTIVE;
+		calc_params.cached_level[i] = 0.f;
 
 		// individual locks
-		params.osc_param_lock[i]				= 0;
-		params.wtsel_lock[i]					= 0;
-		params.wt_pos_lock[i]					= 0;
+		params.osc_param_lock[i] = 0;
+		params.wtsel_lock[i] = 0;
+		params.wt_pos_lock[i] = 0;
 
-		params.wtsel_spread_enc[i] 				= 0;
-		calc_params.wtsel[i]					= 1;
-	 	params.wtsel_enc[i]						= 0;
-		params.wt_bank[i]						= 0;
+		params.wtsel_spread_enc[i] = 0;
+		calc_params.wtsel[i] = 1;
+		params.wtsel_enc[i] = 0;
+		params.wt_bank[i] = 0;
 
-		params.wt_browse_step_pos_enc[i] 		= 0;
-	 	params.wt_nav_enc[0][i]					= 0;
-	 	params.wt_nav_enc[1][i]					= 0;
-	 	params.wt_nav_enc[2][i]					= 0;
+		params.wt_browse_step_pos_enc[i] = 0;
+		params.wt_nav_enc[0][i] = 0;
+		params.wt_nav_enc[1][i] = 0;
+		params.wt_nav_enc[2][i] = 0;
 
-	 	params.spread_enc[i]					= 0;
-	 	calc_params.transpose[i]				= 0;
-	 	params.transpose_enc[i]					= 0;
+		params.spread_enc[i] = 0;
+		calc_params.transpose[i] = 0;
+		params.transpose_enc[i] = 0;
+
+		params.pan[i] = default_pan(i);
 
 		calc_wt_pos(i);
-		for ( j = 0; j < 3; j++)
+		for (j=0; j<3; j++)
 			update_wt_pos_interp_params(i, j);
 
 		// flags
-		calc_params.already_handled_button[i]	= 0;
+		calc_params.already_handled_button[i] = 0;
 
-		for (j = 0; j < NUM_ARM_FLAGS; j++)
-			calc_params.armed[j][i] 			= 0;
+		for (j=0; j<NUM_ARM_FLAGS; j++)
+			calc_params.armed[j][i] = 0;
 
-		params.random[i]						= 1.0;
+		params.random[i] = 1.0;
 	}
 
 	for (i=0; i<(MAX_TOTAL_SPHERES/8); i++)
@@ -309,6 +313,7 @@ void init_param_object(o_params *t_params){
 		t_params->indiv_scale[chan] 	  		= 0;
 		t_params->indiv_scale_buf[chan] 	 	= 0;
 
+		t_params->pan[chan]						= default_pan(chan);
 		t_params->qtz_note_changed[chan]		= 0;
 
 	}
@@ -330,6 +335,8 @@ void init_calc_params(void)
 		for (j = 0; j < NUM_ARM_FLAGS; j++)
 			calc_params.armed[j][chan] = 0;
 
+		calc_params.adjusting_pan_state[chan] = pan_INACTIVE;
+		calc_params.cached_level[chan] = 0.f;
 		calc_params.already_handled_button[chan] = 0;
 
 	}
@@ -352,6 +359,7 @@ void set_pitch_params_to_ttone(void) {
 		params.indiv_scale_buf[chan] 	  		= params.indiv_scale[chan];
 
 		params.qtz_note_changed[chan]			= 0;
+
 	}
 
 	combine_transpose_spread();
@@ -644,30 +652,69 @@ void read_noteon(uint8_t i)
 	}
 }
 
-
-void read_level(uint8_t chan)
+float default_pan(uint8_t chan)
 {
-	static uint32_t last_slider_a=0;
-	int16_t slider_motion;
-	float new_gain;
-	float level;
+	return (chan&1) ? 0.f : 1.f;
+}
 
+void read_level_and_pan(uint8_t chan)
+{
+	static float last_slider_val[NUM_CHANNELS] = {0};
+	float slider_val = analog[A_SLIDER + chan].lpf_val;
+	float slider_motion = fabs(analog[A_SLIDER + chan].lpf_val - last_slider_val[chan]);
+	float level = 0.f;
+
+	if (slider_motion > 20)
+	{
+		last_slider_val[chan] = analog[A_SLIDER + chan].lpf_val;
+		if (button_pressed(chan))
+		{
+			calc_params.already_handled_button[chan] = 1;
+			calc_params.adjusting_pan_state[chan] = pan_PANNING;
+			params.pan[chan] = slider_val / 4095.f;
+		}
+	}
+
+	switch (calc_params.adjusting_pan_state[chan]) {
+		case (pan_PANNING):
+			level = calc_params.cached_level[chan];
+			if (!button_pressed(chan)) {
+				calc_params.adjusting_pan_state[chan] = pan_CACHED_LEVEL;
+			}
+			break;
+
+		case (pan_CACHED_LEVEL):
+			level = calc_params.cached_level[chan];
+			if (fabs(slider_val - calc_params.cached_level[chan]) < 10) {
+				calc_params.adjusting_pan_state[chan] = pan_INACTIVE;
+			}
+			break;
+
+		case (pan_INACTIVE):
+			level = slider_val - 20.f;
+			calc_params.cached_level[chan] = level;
+			break;
+	}
+
+	//Adjust level by CV and Mute button
 	if (!params.note_on[chan])
-		calc_params.level[chan] = 0.0;
+		calc_params.level[chan] = 0.f;
 
 	else {
-		level = (float)(analog[A_SLIDER + chan].lpf_val);
-		level -= 20.0;
-
 		if (lfos.to_vca[chan])	level *= lfos.out_lpf[chan];
 
 		level *= read_vca_cv(chan);
 
-		calc_params.level[chan] = _CLAMP_F(level, 0.0, 4095.0);
+		calc_params.level[chan] = _CLAMP_F(level, 0.f, 4095.f);
 	}
 
-	//Set master gain
-	slider_motion = (analog[A_SLIDER].lpf_val - last_slider_a);
+}
+
+void set_master_gain(void)
+{
+	static uint32_t last_slider_a=0;
+	float new_gain;
+	int16_t slider_motion = analog[A_SLIDER].lpf_val - last_slider_a;
 
 	if (abs(slider_motion)>10)
 	{
@@ -1066,7 +1113,7 @@ void update_pitch(uint8_t chan)
 		calc_params.qtz_freq[chan] = ch_freq;
 	}
 	else
-  	{
+	{
 //Todo:
 //	  	qtz_ch_freq = quantize_to_scale(params.indiv_scale[chan], ch_freq, &note, &oct, prev_qtz_note[chan], prev_qtz_oct[chan]);
 	  	qtz_ch_freq = quantize_to_scale(params.indiv_scale[chan], ch_freq, &note, &oct);

@@ -37,12 +37,12 @@
 
 #define F_MIN_FREQ			(0.1)
 #define F_BASE_FREQ			16.35
-#define F_MAX_FREQ			(F_SAMPLERATE*3 - 36000.0) //96300.0 					
+#define F_MAX_FREQ			(F_SAMPLERATE*3 - 36000.0) //96300.0
 #define INIT_OCT			3	// C4 ~261Hz
 #define TTONE_OCT			2	// C2 ~87Hz
 #define TTONE_TRANSPOSE 	5	// F2 if oct at TTONE_OCT
-#define MIN_OCT				(-3)	
-#define MAX_OCT				14	
+#define MIN_OCT				(-3)
+#define MAX_OCT				14
 #define NUM_NOTES 			12
 #define NUM_CHORDS			26
 #define NUM_WTSEL_SPREADS	18
@@ -100,7 +100,7 @@
 #define F_MIN_GLOBAL_BRIGHTNESS					0.01
 #define F_DEFAULT_GLOBAL_BRIGHTNESS				0.8
 
-enum LPFActions 
+enum LPFActions
 {
 	NO_LPF_ACTION,
 	CLEAR_LPF
@@ -108,7 +108,7 @@ enum LPFActions
 
 
 enum armFlags
-{ 
+{
 	armf_NOTE_ON,
 	armf_LFOTOVCA,
 	armf_LFOMODE,
@@ -125,81 +125,95 @@ enum MuteNoteKeyStates {
 	NUM_MUTE_NOTE_KEY_STATES
 };
 
+#define FW_V1_PADDING (NUM_CHANNELS*32 - MAX_TOTAL_SPHERES/8) //padding for future features in o_params
+#define FW_V2_ADDED_PARAMS_SIZE (sizeof(float)*NUM_CHANNELS)
+
+enum PanStates {
+	pan_INACTIVE,
+	pan_PANNING,
+	pan_CACHED_LEVEL,
+};
 
 typedef struct o_calc_params{
-	uint8_t		wtsel 					[NUM_CHANNELS]		;
-	float		wt_pos 					[3][NUM_CHANNELS]	;
-	int32_t 	transpose				[NUM_CHANNELS]		;		//Combination of transpose encoder + chord
-	float 		transposition 			[NUM_CHANNELS]		;		//Calcuated pitch change based on transpose amount
-	float 		tuning 					[NUM_CHANNELS]		;
-	float 		pitch 					[NUM_CHANNELS]		;
-	float		level  					[NUM_CHANNELS]		; 		// FixMe:  try uint16_t to match slider resolution. pay attention to env
-	float 		voct 					[NUM_CHANNELS]		;
-	float		qtz_freq				[NUM_CHANNELS]		;
+	uint8_t		wtsel 					[NUM_CHANNELS];
+	float		wt_pos 					[3][NUM_CHANNELS];
+	int32_t 	transpose				[NUM_CHANNELS];	//Combination of transpose encoder + chord
+	float 		transposition 			[NUM_CHANNELS];	//Calcuated pitch change based on transpose amount
+	float 		tuning 					[NUM_CHANNELS];
+	float 		pitch 					[NUM_CHANNELS];
+	float		level  					[NUM_CHANNELS];
+	float		cached_level			[NUM_CHANNELS];
+	float 		voct 					[NUM_CHANNELS];
+	float		qtz_freq				[NUM_CHANNELS];
 
-	uint8_t 	prev_qtz_note			[NUM_CHANNELS]		;
-	int8_t 		prev_qtz_oct			[NUM_CHANNELS]		;
+	uint8_t 	prev_qtz_note			[NUM_CHANNELS];
+	int8_t 		prev_qtz_oct			[NUM_CHANNELS];
 
 	// FLAGS
-	uint8_t 	already_handled_button 	[NUM_CHANNELS]		; 
-	uint8_t 	button_safe_release		[2]					;
-	uint8_t		keymode_pressed								;
-	enum armFlags armed[NUM_ARM_FLAGS]	[NUM_CHANNELS]		;
-	uint8_t		lock_change_staged		[NUM_CHANNELS]		;
+	uint8_t 	already_handled_button 	[NUM_CHANNELS];
+	uint8_t 	button_safe_release		[2];
+	uint8_t		keymode_pressed;
+	enum armFlags armed[NUM_ARM_FLAGS]	[NUM_CHANNELS];
+	uint8_t		lock_change_staged		[NUM_CHANNELS];
+	enum PanStates	adjusting_pan_state		[NUM_CHANNELS];
+
 } o_calc_params;
 
 
 typedef struct o_params{
 
 	// SHPERES
-	int8_t		wtsel_cv									;
-	int8_t		wtsel_enc				[NUM_CHANNELS]		;
-	uint8_t 	wtsel_spread_cv								;
-	uint8_t 	wt_bank 				[NUM_CHANNELS]		;	//Sphere slot number (physical location in FLASH)
+	int8_t		wtsel_cv;
+	int8_t		wtsel_enc				[NUM_CHANNELS];
+	uint8_t 	wtsel_spread_cv;
+	uint8_t 	wt_bank 				[NUM_CHANNELS];	//Sphere slot number (physical location in FLASH)
 
 	// SPHERE NAVIGATION / BROWSE
-	float		wt_nav_enc				[3][NUM_CHANNELS]	;
-	float		wt_nav_cv				[3]					;
-	float 		dispersion_enc								;
-	float 		dispersion_cv								;
-	int8_t		disppatt_enc 								;
-	int8_t		disppatt_cv									;
-	float		wt_browse_step_pos_enc	[NUM_CHANNELS]		;
-	float		wt_browse_step_pos_cv						;
-	int8_t		wtsel_spread_enc		[NUM_CHANNELS]		;
+	float		wt_nav_enc				[3][NUM_CHANNELS];
+	float		wt_nav_cv				[3];
+	float 		dispersion_enc;
+	float 		dispersion_cv;
+	int8_t		disppatt_enc;
+	int8_t		disppatt_cv;
+	float		wt_browse_step_pos_enc	[NUM_CHANNELS];
+	float		wt_browse_step_pos_cv;
+	int8_t		wtsel_spread_enc		[NUM_CHANNELS];
 
 	// OSCILLATORS
-	int8_t		oct 					[NUM_CHANNELS]		;
-	int16_t 	finetune 				[NUM_CHANNELS]		;
-	int32_t 	transpose_enc			[NUM_CHANNELS]		;
-	float		transpose_cv								;
-	int32_t 	spread_enc				[NUM_CHANNELS]		;
-	uint8_t 	spread_cv 									;
-	int8_t 		indiv_scale 			[NUM_CHANNELS]		;
-	int8_t 		indiv_scale_buf 		[NUM_CHANNELS]		;		//Stashed scale value when in note/key mode
-
-	
-	// KEYS 
-	uint8_t 	note_on 				[NUM_CHANNELS]		;		//Mute state
-	uint8_t		note_on_buf				[NUM_CHANNELS]		;		//Stashed mute state for when in note/key mode
-	uint8_t 	new_key 				[NUM_CHANNELS]		;
-	enum MuteNoteKeyStates	key_sw		[NUM_CHANNELS]		;
-	uint8_t		qtz_note_changed 		[NUM_CHANNELS]		;
+	int8_t		oct 					[NUM_CHANNELS];
+	int16_t 	finetune 				[NUM_CHANNELS];
+	int32_t 	transpose_enc			[NUM_CHANNELS];
+	float		transpose_cv;
+	int32_t 	spread_enc				[NUM_CHANNELS];
+	uint8_t 	spread_cv;
+	int8_t 		indiv_scale 			[NUM_CHANNELS];
+	int8_t 		indiv_scale_buf 		[NUM_CHANNELS];		//Stashed scale value when in note/key mode
 
 
-	// NOISE LINE 
-	float		random 					[NUM_CHANNELS]		;
-	uint8_t		noise_on									;
+	// KEYS
+	uint8_t 	note_on 				[NUM_CHANNELS];		//Mute state
+	uint8_t		note_on_buf				[NUM_CHANNELS];		//Stashed mute state for when in note/key mode
+	uint8_t 	new_key 				[NUM_CHANNELS];
+	enum MuteNoteKeyStates	key_sw		[NUM_CHANNELS];
+	uint8_t		qtz_note_changed 		[NUM_CHANNELS];
 
-	enum VoctVcaStates 	voct_switch_state[NUM_CHANNELS]		;
-	uint8_t 	osc_param_lock 			[NUM_CHANNELS]		;	
-	uint8_t 	wt_pos_lock 			[NUM_CHANNELS]		;	//For v1.0 this is always the same as osc_param_lock
-	uint8_t		wtsel_lock				[NUM_CHANNELS]		;	//For v1.0 this is always the same as osc_param_lock
+
+	// NOISE LINE
+	float		random 					[NUM_CHANNELS];
+	uint8_t		noise_on;
+
+	enum VoctVcaStates 	voct_switch_state[NUM_CHANNELS];
+	uint8_t 	osc_param_lock 			[NUM_CHANNELS];
+	uint8_t 	wt_pos_lock 			[NUM_CHANNELS];	//For v1.0 this is always the same as osc_param_lock
+	uint8_t		wtsel_lock				[NUM_CHANNELS];	//For v1.0 this is always the same as osc_param_lock
 
 	//v1.2:
 	uint8_t		enabled_spheres			[MAX_TOTAL_SPHERES/8];
 
-	uint8_t		PADDING					[NUM_CHANNELS*32 - MAX_TOTAL_SPHERES/8]   ; //padding for future features: 8 x 32b x 6chan, or 32 x 8b x 6chan
+	//v2.0
+	float		pan						[NUM_CHANNELS];
+
+	uint8_t		PADDING					[FW_V1_PADDING - FW_V2_ADDED_PARAMS_SIZE];
 } o_params;
 
 
@@ -216,7 +230,9 @@ void 		cache_uncache_pitch_params(enum CacheUncache cache_uncache);
 
 void 		read_noteon(uint8_t i);
 void 		read_ext_trigs(void);
-void 		read_level(uint8_t chan);
+void 		read_level_and_pan(uint8_t chan);
+float		default_pan(uint8_t chan);
+void 		set_master_gain(void);
 float 		read_vca_cv(uint8_t chan);
 
 void 		read_lfoto_vca_vco(uint8_t i);

@@ -68,11 +68,17 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 	float 			smpl;
 	float			xfade0, xfade1;
 	int32_t			audio_in_sample, outL, outR;
-	float			output_buffer_evens[MONO_BUFSZ], output_buffer_odds[MONO_BUFSZ];
+	float			output_buffer_evens[MONO_BUFSZ] = {0.f};
+	float			output_buffer_odds[MONO_BUFSZ] = {0.f};
 
 	float 			oscout_status, audiomon_status;
-	static float 	prev_level[NUM_CHANNELS] = {0.0};
+
+	static float 	prev_level[NUM_CHANNELS] = {0.f};
 	float 			interpolated_level, level_inc;
+
+	static float 	prev_pan[NUM_CHANNELS] = {0.f};
+	float 			interpolated_pan, pan_inc;
+
 	float 			audio_in_sum;
 	static uint8_t	audio_gate_ctr=0;
 
@@ -86,10 +92,14 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 
 	for (chan = 0; chan < NUM_CHANNELS; chan++)
 	{
-		read_level(chan);
+		read_level_and_pan(chan);
 		level_inc = (calc_params.level[chan] - prev_level[chan]) / MONO_BUFSZ;
 		interpolated_level = prev_level[chan];
 		prev_level[chan] = calc_params.level[chan];
+		
+		pan_inc = (params.pan[chan] - prev_pan[chan]) / MONO_BUFSZ;
+		interpolated_pan = prev_pan[chan];
+		prev_pan[chan] = params.pan[chan];
 
 		for (i_sample = 0; i_sample < MONO_BUFSZ; i_sample++)
 		{
@@ -108,29 +118,23 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 			{
 				wt_osc.wt_xfade[chan] -= XFADE_INC;
 				xfade1 = wt_osc.mc[1-wt_osc.buffer_sel[chan]][chan][wt_osc.rh0[chan]] * wt_osc.rhd_inv[chan] + wt_osc.mc[1-wt_osc.buffer_sel[chan]][chan][wt_osc.rh1[chan]] * wt_osc.rhd[chan];
-				
+
 				smpl = ((xfade0 * (1.0 - wt_osc.wt_xfade[chan])) + (xfade1 * wt_osc.wt_xfade[chan])) * interpolated_level;
 			} else {
 				smpl = xfade0  * interpolated_level;
 			}
-
 			interpolated_level += level_inc;
 
-			if (chan==0)
-				output_buffer_odds[i_sample] = smpl;
-			else if (chan==1)
-				output_buffer_evens[i_sample] = smpl;
-			else if (chan & 1) //3,5
-				output_buffer_evens[i_sample] += smpl;
-			else //2,4
-				output_buffer_odds[i_sample] += smpl;
-			
+			output_buffer_evens[i_sample] += smpl * interpolated_pan;
+			output_buffer_odds[i_sample] += smpl * (1.f - interpolated_pan);
+			interpolated_pan += pan_inc;
+
 			if (chan==5)
 			{
 				outL=0;
 				outR=0;
 
-				audio_in_sample = convert_s24_to_s32(*src++);								
+				audio_in_sample = convert_s24_to_s32(*src++);
 				UNUSED(*src++);  // ignore right channel input (not connected in hardware)
 
 				if (oscout_status) {
@@ -160,7 +164,7 @@ void process_audio_block_codec(int32_t *src, int32_t *dst)
 			audio_gate_ctr = 0;
 		}
 	}
-	else 
+	else
 		audio_in_gate = 0;
 
 	// DEBUG0_OFF;
@@ -178,10 +182,10 @@ void update_oscillators(void){
 	compute_transpositions();
 	update_transpose_cv();
 
-	read_ext_trigs();		
+	read_ext_trigs();
 
 	for (chan = 0; chan < NUM_CHANNELS; chan++){
-		
+
 		if ((ui_mode != SELECT_PARAMS) && (ui_mode != RGB_COLOR_ADJUST)) {
 
 			read_noteon(chan);
@@ -201,7 +205,7 @@ void update_oscillators(void){
 }
 
 void start_osc_updates(void){
-	start_timer_IRQ(OSC_TIM_number, &update_oscillators); 
+	start_timer_IRQ(OSC_TIM_number, &update_oscillators);
 }
 
 void update_sphere_wt(void){
@@ -210,7 +214,7 @@ void update_sphere_wt(void){
 }
 
 void start_osc_interp_updates(void){
-	start_timer_IRQ(WT_INTERP_TIM_number, &update_sphere_wt); 
+	start_timer_IRQ(WT_INTERP_TIM_number, &update_sphere_wt);
 }
 
 void init_wt_osc(void) {

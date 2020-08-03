@@ -44,8 +44,9 @@ extern	o_lfos   		lfos;				//  526 Bytes
 
 o_preset_manager		preset_mgr;
 
-char	preset_signature_v1[4] = {'P', 'R', '9', '\0'};
-char	preset_signature[4] = {'P', 'R', 'A', '\0'};
+char	preset_signature_v1_0[4] = {'P', 'R', '9', '\0'};
+char	preset_signature_v1_2[4] = {'P', 'R', 'A', '\0'};
+char	preset_signature_vLatest[4] = {'P', 'R', 'B', '\0'};
 
 static uint8_t cached_preset[4 + sizeof(o_params) + sizeof(o_lfos)]; //must be global or static because SPIDMA read/writes to it
 
@@ -116,7 +117,7 @@ void store_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 	sFLASH_erase_sector(addr);
 
 	sz = 4;
-	sFLASH_write_buffer((uint8_t *)preset_signature, addr, sz);
+	sFLASH_write_buffer((uint8_t *)preset_signature_vLatest, addr, sz);
 	addr += sz;
 
 	sz = sizeof(o_params);
@@ -154,7 +155,7 @@ void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 	if (preset_num < MAX_PRESETS && preset_mgr.filled[preset_num] && preset_is_filled)
 	{
 		//offset for signature
-		addr += 4; 
+		addr += 4;
 
 		sz = sizeof(o_params);
 		sFLASH_read_buffer((uint8_t *)t_params, addr, sz);
@@ -163,7 +164,7 @@ void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 		sz = sizeof(o_lfos);
 		sFLASH_read_buffer((uint8_t *)t_lfos, addr, sz);
 
-		if (version != preset_signature[2])
+		if (version != preset_signature_vLatest[2])
 			update_preset_version(version, t_params, t_lfos);
 
 		fix_wtsel_wtbank_offset();
@@ -172,7 +173,7 @@ void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 		init_param_object(t_params);
 		init_lfo_object(t_lfos);
 	}
-	
+
 	init_wbrowse_morph();
 
 	resume_timer_IRQ(OSC_TIM_number);
@@ -182,10 +183,15 @@ void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 
 void update_preset_version(char version, o_params *t_params, o_lfos *t_lfos)
 {
-	if (version==preset_signature_v1[2]) {
-		uint8_t i;
-		for (i=0; i<MAX_TOTAL_SPHERES/8; i++)
+	if (version==preset_signature_v1_0[2]) {
+		for (uint8_t i=0; i<MAX_TOTAL_SPHERES/8; i++)
 			t_params->enabled_spheres[i]=0xFF;
+		for (uint8_t i=0; i<NUM_CHANNELS; i++)
+			t_params->pan[i] = default_pan(i);
+	}
+	if (version==preset_signature_v1_2[2]) {
+		for (uint8_t i=0; i<NUM_CHANNELS; i++)
+			t_params->pan[i] = default_pan(i);
 	}
 }
 
@@ -237,10 +243,10 @@ void clear_all_presets(void)
 		addr = get_preset_addr(preset_num);
 		sz = 4;
 		sFLASH_read_buffer((uint8_t *)read_data, addr, sz);
-		if (   read_data[0] == preset_signature[0] 
-			&& read_data[1] == preset_signature[1] 
-			// && read_data[2] == preset_signature[2] 
-			&& read_data[3] == preset_signature[3] )
+		if (   read_data[0] == preset_signature_vLatest[0]
+			&& read_data[1] == preset_signature_vLatest[1]
+			// && read_data[2] == preset_signature_vLatest[2]
+			&& read_data[3] == preset_signature_vLatest[3] )
 		{
 			sz = 4;
 			read_data[0] = 0x00;
@@ -268,19 +274,18 @@ uint8_t check_preset_filled(uint32_t preset_num, char *version)
 
 	sFLASH_read_buffer((uint8_t *)read_data, addr, sz);
 
-	if (   read_data[0] == preset_signature[0] 
-		&& read_data[1] == preset_signature[1] 
-		&& (read_data[2] == preset_signature[2] || read_data[2] == preset_signature_v1[2])
-		&& read_data[3] == preset_signature[3] )
+	if (   read_data[0] == preset_signature_vLatest[0]
+		&& read_data[1] == preset_signature_vLatest[1]
+		&& (read_data[2] == preset_signature_vLatest[2] \
+			|| read_data[2] == preset_signature_v1_0[2] \
+			|| read_data[2] == preset_signature_v1_2[2])
+		&& read_data[3] == preset_signature_vLatest[3] )
 	{
 		*version = read_data[2];
 		return 1;
 	}
 	else
 		return 0;
-
-	// if (strcmp(read_data,  preset_signature)) return 1;
-	// else return 0;
 }
 
 uint32_t get_preset_size(void)
@@ -294,7 +299,7 @@ uint32_t get_preset_addr(uint32_t preset_num)
 
 	if (preset_num >= MAX_PRESETS)
 		preset_num = (MAX_PRESETS-1);
-	
+
 	uint32_t sector_num  = PRESET_SECTOR_START + (preset_num>>1);
 	uint32_t sector_start = sFLASH_get_sector_addr(sector_num);
 
@@ -302,5 +307,5 @@ uint32_t get_preset_addr(uint32_t preset_num)
 	if (preset_num & 1) preset_sector_offset = sFLASH_get_sector_size(sector_num)/2;
 
 	return sector_start +  preset_sector_offset;
+}
 
-}	
