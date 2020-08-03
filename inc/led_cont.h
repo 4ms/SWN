@@ -79,6 +79,9 @@ typedef struct o_led_cont{
 static inline uint8_t lock_flash_state(void) {
 	return (((HAL_GetTick()/TICKS_PER_MS) & 0xFF) > 200);
 }
+static inline uint8_t cached_param_flash_state(void) {
+	return (((HAL_GetTick()/TICKS_PER_MS) & 0x3FF) > 0x3F0);
+}
 
 void 		init_led_cont(void);
 void 		start_led_display(void);

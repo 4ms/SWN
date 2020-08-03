@@ -499,9 +499,13 @@ void update_mono_leds(void){
 		}
 		else{
 			for (i=0;i<NUM_CHANNELS;i++) {
-				exp = exp_1voct_10_41V[(uint32_t)calc_params.level[i]] * system_settings.global_brightness;
+				uint32_t level = (uint32_t)calc_params.level[i]; 
 
-				if ((calc_params.level[i] > 50) && (exp > (slider_pwm*43))){
+				if (calc_params.adjusting_pan_state[i] == pan_CACHED_LEVEL && cached_param_flash_state())
+					level = level < 3000 ? 4095 : 0;
+
+				exp = exp_1voct_10_41V[level] * system_settings.global_brightness;
+				if ((level > 50) && (exp > (slider_pwm*43))){
 					mono_led_on(i);
 				}
 			}
