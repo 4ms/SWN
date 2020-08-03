@@ -2049,7 +2049,10 @@ void read_wtsel(int8_t wtsel)
 
 
 void read_wtsel_cv(void){
-	params.wtsel_cv = analog[WTSEL_CV].bracketed_val * num_spheres_filled / 4095;
+	if ((params.key_sw[0]==ksw_KEYS_EXT_TRIG || params.key_sw[0]==ksw_KEYS_EXT_TRIG_SUSTAIN) && analog_jack_plugged(A_VOCT))
+		params.wtsel_cv = 0;
+	else
+		params.wtsel_cv = analog[WTSEL_CV].bracketed_val * num_spheres_filled / 4095;
 }
 
 
