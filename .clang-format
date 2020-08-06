@@ -1,0 +1,25 @@
+BasedOnStyle : "LLVM"
+Standard : "c++14"
+UseTab : "Always"
+TabWidth : 4
+IndentWidth : 4
+ColumnLimit : 0
+AccessModifierOffset : -4
+AllowShortIfStatementsOnASingleLine : "true"
+AllowShortBlocksOnASingleLine : true
+AlwaysBreakTemplateDeclarations : "true"
+BreakBeforeBraces: "Stroustrup"
+IndentCaseLabels : "true"
+IndentPPDirectives : "BeforeHash"
+BreakConstructorInitializers : "BeforeComma"
+BreakInheritanceList : "BeforeComma"
+SpaceBeforeInheritanceColon : "true"
+SpaceBeforeCtorInitializerColon : "true"
+SpaceBeforeAssignmentOperators : "true"
+SpaceAfterTemplateKeyword : "false"
+SpaceAfterCStyleCast : "false"
+SpaceBeforeParens : "ControlStatements"
+SpaceBeforeRangeBasedForLoopColon : "true"
+SpaceInEmptyParentheses : "false"
+SpacesInAngles : "false"
+SpacesInCStyleCastParentheses : "false"
