@@ -8,7 +8,7 @@ AccessModifierOffset : -4
 AllowShortIfStatementsOnASingleLine : "true"
 AllowShortBlocksOnASingleLine : true
 AlwaysBreakTemplateDeclarations : "true"
-BreakBeforeBraces: "Stroustrup"
+BreakBeforeBraces: "Attach"
 IndentCaseLabels : "true"
 IndentPPDirectives : "BeforeHash"
 BreakConstructorInitializers : "BeforeComma"
