@@ -37,7 +37,11 @@ class Persistent : Storage {
   using data_t = typename Storage::data_t;
   data_t* data_;
 public:
+  Persistent(data_t *data) : data_(data) {}
   Persistent(data_t *data, data_t const &default_data) : data_(data) {
+    init(default_data);
+  }
+  void init(data_t const &default_data) {
     // load to data_, falling back to default_data if not found
     if (!Storage::Read(data_) ||
         !data_->validate()) {

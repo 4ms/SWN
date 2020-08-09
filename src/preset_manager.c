@@ -38,7 +38,7 @@
 #include "preset_manager_undo.h"
 #include "timekeeper.h"
 #include "wavetable_saveload.h"
-//#include "wear_leveler.h"
+#include "startup_preset_storage.h"
 
 extern o_params params; // 868 Bytes
 extern o_lfos lfos;		//  526 Bytes
@@ -67,11 +67,10 @@ static inline void wait_for_flash_ready(void)
 	while (get_flash_state() != sFLASH_NOTBUSY) {}
 }
 
-static void set_startup_preset(uint16_t preset_num);
-
 void init_preset_manager(void)
 {
 	char dummy;
+
 	preset_mgr.hover_num = 0;
 	preset_mgr.mode = PM_INACTIVE;
 	preset_mgr.last_action = PM_INACTIVE;
@@ -85,6 +84,11 @@ void init_preset_manager(void)
 			preset_mgr.filled[i] = 0;
 	}
 
+	init_startup_preset_storage();
+	uint16_t preset_num = get_startup_preset();
+	preset_mgr.hover_num = preset_num;
+	if (preset_num)
+		recall_preset_into_active(preset_num);
 	stash_active_into_undo_buffer();
 	// if (rotary_pressed(rotm_PRESET)) LOCK_PRESET_BANK_2 = 0; //Show Mode
 }
@@ -315,9 +319,5 @@ uint32_t get_preset_addr(uint32_t preset_num)
 	if (preset_num & 1) preset_sector_offset = sFLASH_get_sector_size(sector_num) / 2;
 
 	return sector_start +  preset_sector_offset;
-static void set_startup_preset(uint16_t preset_num)
-{
-static uint16_t get_startup_preset()
-{
 }
 

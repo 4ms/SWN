@@ -25,6 +25,7 @@ SOURCES  += $(wildcard $(PERIPH)/src/*.c)
 SOURCES  += $(DEVICE)/src/$(STARTUP)
 SOURCES  += $(DEVICE)/src/$(SYSTEM)
 SOURCES  += $(wildcard src/*.c)
+SOURCES  += $(wildcard src/*.cc)
 SOURCES  += $(wildcard src/drivers/*.c)
 SOURCES  += $(wildcard $(CORE)/src/*.c)
 SOURCES  += $(wildcard $(CORE)/src/*.s)
@@ -187,7 +188,10 @@ LFLAGS =  -Wl,-Map,build/main.map,--cref \
 # build/src/sphere_flash_io.o: OPTFLAG = -O0
 # build/src/wavetable_play_export.o: OPTFLAG = -O0
 
-
+# Sel Bus
+# build/src/drivers/uart_driver.o: OPTFLAG = -O0
+# build/src/sel_bus.o: OPTFLAG = -O0
+# build/stm32/periph/src/stm32f7xx_hal_uart.o: OPTFLAG = -O0
 #-----------------------------------
 
 
