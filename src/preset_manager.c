@@ -67,6 +67,7 @@ static inline void wait_for_flash_ready(void)
 	while (get_flash_state() != sFLASH_NOTBUSY) {}
 }
 
+static void set_startup_preset(uint16_t preset_num);
 
 void init_preset_manager(void)
 {
@@ -98,12 +99,14 @@ void exit_preset_manager(void)
 void store_preset_from_active(uint32_t preset_num)
 {
 	store_preset(preset_num, &params, &lfos);
+	set_startup_preset(preset_num);
 }
 
 void recall_preset_into_active(uint32_t preset_num)
 {
 	stash_active_into_undo_buffer();
 	recall_preset(preset_num, &params, &lfos);
+	set_startup_preset(preset_num);
 	recalc_active_params();
 }
 
@@ -312,5 +315,9 @@ uint32_t get_preset_addr(uint32_t preset_num)
 	if (preset_num & 1) preset_sector_offset = sFLASH_get_sector_size(sector_num) / 2;
 
 	return sector_start +  preset_sector_offset;
+static void set_startup_preset(uint16_t preset_num)
+{
+static uint16_t get_startup_preset()
+{
 }
 
