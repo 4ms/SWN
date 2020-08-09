@@ -43,33 +43,6 @@ const uint32_t PRESET_ANIMATION_TIME = (NUM_LED_OUTRING*40);
 
 enum PresetMgrStates	last_preset_action=PM_INACTIVE;
 
-void check_bus_sel_event(void)
-{
-	static uint8_t last_pin_state=0;
-
-	uint8_t pin_state = BUS_SEL();
-
-	if (pin_state != last_pin_state)
-	{
-		last_pin_state = pin_state;
-
-		//
-		// Handle MIDI protocol here:
-		//   -- Grab 8-bit data packets
-		//   -- Update state machine based on data:
-		//	 	-- State == reset: Look for MIDI CC commands, ignore all else
-		//	 	-- State == command_received: Read data1 byte. Receving a command resets state 
-		//	 	-- State == data1_received: Read data2 byte. Receving a command resets state 
-		//	 		-- When data2 is received: Validate data1 and data2, and recall or save preset, as requested
-
-		// Hardware pin test:
-		// if (pin_state) start_ongoing_display_preset();
-		// else stop_all_displays();
-
-	}
-}
-
-
 void handle_preset_events(int16_t enc_turn, int16_t enc_pushturn)
 {
 	static uint32_t 	last_time = 0xFFFFFFFF;
@@ -146,10 +119,7 @@ void handle_preset_events(int16_t enc_turn, int16_t enc_pushturn)
 		case (PM_UNDO_HELD):
 			if (just_released)
 			{
-				preset_mgr.mode				= PM_DOING_UNDO;
-				preset_mgr.activity_tmr		= PRESET_TIMER_LIMIT;
-				preset_mgr.animation_ctr	= 1;
-
+				preset_start_undo_animation();
 				undo_preset_action();
 			}
 			break;
@@ -202,11 +172,7 @@ void handle_preset_events(int16_t enc_turn, int16_t enc_pushturn)
 		case (PM_PRESSED_TO_DO_LOAD):
 			if (just_released)
 			{
-				preset_mgr.mode				= PM_DOING_LOAD;
-				preset_mgr.last_action 		= PM_DOING_LOAD;
-				preset_mgr.activity_tmr		= PRESET_TIMER_LIMIT;
-				preset_mgr.animation_ctr	= 1;
-
+				preset_start_load_animation();
 				recall_preset_into_active(preset_mgr.hover_num);
 			}
 			break;
@@ -221,10 +187,7 @@ void handle_preset_events(int16_t enc_turn, int16_t enc_pushturn)
 		case (PM_PRESSED_TO_DO_SAVE):
 			if (just_released)
 			{
-				preset_mgr.mode				= PM_DOING_SAVE;
-				preset_mgr.last_action_slot	= preset_mgr.hover_num;
-				preset_mgr.activity_tmr		= PRESET_TIMER_LIMIT;
-				preset_mgr.animation_ctr	= 1;
+				preset_start_save_animation();
 
 				if (preset_mgr.filled[preset_mgr.hover_num])
 				{
@@ -265,7 +228,6 @@ void handle_preset_events(int16_t enc_turn, int16_t enc_pushturn)
 
 	last_press_state = press_state;
 }
-
 
 enum colorCodes animate_preset_ledring(uint8_t slot_i, uint8_t preset_i)
 {
@@ -360,4 +322,31 @@ enum colorCodes animate_preset_ledring(uint8_t slot_i, uint8_t preset_i)
 		}
 	}
 }
+void preset_set_hover_preset_num(uint16_t preset_num) {
+	preset_mgr.hover_num = preset_num;
+}
+
+void preset_start_load_animation(void) {
+	start_ongoing_display_preset();
+	preset_mgr.mode				= PM_DOING_LOAD;
+	preset_mgr.last_action 		= PM_DOING_LOAD;
+	preset_mgr.activity_tmr		= PRESET_TIMER_LIMIT;
+	preset_mgr.animation_ctr	= 1;
+}
+
+void preset_start_save_animation(void) {
+	start_ongoing_display_preset();
+	preset_mgr.mode				= PM_DOING_SAVE;
+	preset_mgr.last_action_slot	= preset_mgr.hover_num;
+	preset_mgr.activity_tmr		= PRESET_TIMER_LIMIT;
+	preset_mgr.animation_ctr	= 1;
+}
+
+void preset_start_undo_animation(void) {
+	start_ongoing_display_preset();
+	preset_mgr.mode				= PM_DOING_UNDO;
+	preset_mgr.activity_tmr		= PRESET_TIMER_LIMIT;
+	preset_mgr.animation_ctr	= 1;
+}
+
 

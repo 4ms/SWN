@@ -27,22 +27,23 @@
  */
 
 #include "preset_manager.h"
-#include "preset_manager_undo.h"
-#include "wavetable_saveload.h"
+#include "UI_conditioning.h"
+#include "drivers/flashram_spidma.h"
 #include "globals.h"
 #include "gpio_pins.h"
-#include "drivers/flashram_spidma.h"
-#include "math_util.h"
-#include "UI_conditioning.h"
 #include "hardware_controls.h"
-#include "timekeeper.h"
+#include "math_util.h"
 #include "params_lfo_period.h"
 #include "params_wt_browse.h"
+#include "preset_manager_undo.h"
+#include "timekeeper.h"
+#include "wavetable_saveload.h"
+#include "wear_leveler.h"
 
-extern	o_params 		params;				// 868 Bytes
-extern	o_lfos   		lfos;				//  526 Bytes
+extern o_params params; // 868 Bytes
+extern o_lfos lfos;		//  526 Bytes
 
-o_preset_manager		preset_mgr;
+o_preset_manager preset_mgr;
 
 char	preset_signature_v1_0[4] = {'P', 'R', '9', '\0'};
 char	preset_signature_v1_2[4] = {'P', 'R', 'A', '\0'};
@@ -50,8 +51,7 @@ char	preset_signature_vLatest[4] = {'P', 'R', 'B', '\0'};
 
 static uint8_t cached_preset[4 + sizeof(o_params) + sizeof(o_lfos)]; //must be global or static because SPIDMA read/writes to it
 
-static char	read_data[4];
-
+static char read_data[4];
 
 //Todo: pack presets in more tightly:
 //each sector contains 28 presets. next sector is blank for double buffering
@@ -62,19 +62,26 @@ static char	read_data[4];
 //5) word 1 of new active sector will be erased (0xFFFFFFFF == DOUBLE_BUFFER_ACTIVE)
 // When reading a preset, or checking if preset is filled, always read word 1 to see if it's active or inactive. Skip inactive sectors
 
+static inline void wait_for_flash_ready(void)
+{
+	while (get_flash_state() != sFLASH_NOTBUSY) {}
+}
+
+
 void init_preset_manager(void)
 {
 	char dummy;
-	preset_mgr.hover_num 		= 0;
-	preset_mgr.mode				= PM_INACTIVE;
-	preset_mgr.last_action		= PM_INACTIVE;
-	preset_mgr.animation_ctr	= 0;
+	preset_mgr.hover_num = 0;
+	preset_mgr.mode = PM_INACTIVE;
+	preset_mgr.last_action = PM_INACTIVE;
+	preset_mgr.animation_ctr = 0;
 
 	uint16_t i;
-	for (i=0;i<MAX_PRESETS;i++){
-		if (check_preset_filled(i, &dummy)) preset_mgr.filled[i] = 1;
-		else preset_mgr.filled[i] = 0;
-
+	for (i = 0; i < MAX_PRESETS; i++) {
+		if (check_preset_filled(i, &dummy))
+			preset_mgr.filled[i] = 1;
+		else
+			preset_mgr.filled[i] = 0;
 	}
 
 	stash_active_into_undo_buffer();
@@ -83,16 +90,18 @@ void init_preset_manager(void)
 
 void exit_preset_manager(void)
 {
-	preset_mgr.mode 			= PM_INACTIVE;
-	preset_mgr.activity_tmr		= 0;
-	preset_mgr.animation_ctr 	= 0;
+	preset_mgr.mode = PM_INACTIVE;
+	preset_mgr.activity_tmr = 0;
+	preset_mgr.animation_ctr = 0;
 }
 
-void store_preset_from_active(uint32_t preset_num){
+void store_preset_from_active(uint32_t preset_num)
+{
 	store_preset(preset_num, &params, &lfos);
 }
 
-void recall_preset_into_active(uint32_t preset_num){
+void recall_preset_into_active(uint32_t preset_num)
+{
 	stash_active_into_undo_buffer();
 	recall_preset(preset_num, &params, &lfos);
 	recalc_active_params();
@@ -108,10 +117,10 @@ void store_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 	pause_timer_IRQ(OSC_TIM_number);
 	pause_timer_IRQ(WT_INTERP_TIM_number);
 	pause_timer_IRQ(PWM_OUTS_TIM_number);
-	while (get_flash_state() != sFLASH_NOTBUSY) {;}
+	wait_for_flash_ready();
 
 	//store other half of sector in a temp variable
-	other_preset_addr = get_preset_addr((preset_num & 1) ? preset_num-1 : preset_num+1);
+	other_preset_addr = get_preset_addr((preset_num & 1) ? preset_num - 1 : preset_num + 1);
 	sFLASH_read_buffer(cached_preset, other_preset_addr, get_preset_size());
 
 	sFLASH_erase_sector(addr);
@@ -148,12 +157,11 @@ void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 	pause_timer_IRQ(WT_INTERP_TIM_number);
 	pause_timer_IRQ(PWM_OUTS_TIM_number);
 
-	while (get_flash_state() != sFLASH_NOTBUSY) {;}
+	while (get_flash_state() != sFLASH_NOTBUSY) {}
 
 	//Manually checking is not necessary, but we want to make sure this sector is readable, and we already have control of FLASH
 	preset_is_filled = check_preset_filled(preset_num, &version);
-	if (preset_num < MAX_PRESETS && preset_mgr.filled[preset_num] && preset_is_filled)
-	{
+	if (preset_num < MAX_PRESETS && preset_mgr.filled[preset_num] && preset_is_filled) {
 		//offset for signature
 		addr += 4;
 
@@ -168,7 +176,8 @@ void recall_preset(uint32_t preset_num, o_params *t_params, o_lfos *t_lfos)
 			update_preset_version(version, t_params, t_lfos);
 
 		fix_wtsel_wtbank_offset();
-	} else {
+	}
+	else {
 		//Loading an unfilled preset re-initializes params
 		init_param_object(t_params);
 		init_lfo_object(t_lfos);
@@ -195,7 +204,6 @@ void update_preset_version(char version, o_params *t_params, o_lfos *t_lfos)
 	}
 }
 
-
 void clear_preset(uint32_t preset_num)
 {
 	//Write over the preset
@@ -203,10 +211,10 @@ void clear_preset(uint32_t preset_num)
 	uint32_t other_preset_addr;
 
 	pause_timer_IRQ(WT_INTERP_TIM_number);
-	while (get_flash_state() != sFLASH_NOTBUSY) {;}
+	wait_for_flash_ready();
 
 	//store other half of sector in a temp variable
-	other_preset_addr = get_preset_addr((preset_num & 1) ? preset_num-1 : preset_num+1);
+	other_preset_addr = get_preset_addr((preset_num & 1) ? preset_num - 1 : preset_num + 1);
 	sFLASH_read_buffer(cached_preset, other_preset_addr, get_preset_size());
 
 	sFLASH_erase_sector(addr);
@@ -236,10 +244,9 @@ void clear_all_presets(void)
 	uint8_t sz;
 
 	pause_timer_IRQ(WT_INTERP_TIM_number);
-	while (get_flash_state() != sFLASH_NOTBUSY) {;}
+	wait_for_flash_ready();
 
-	for (preset_num=0; preset_num<MAX_PRESETS; preset_num++)
-	{
+	for (preset_num = 0; preset_num < MAX_PRESETS; preset_num++) {
 		addr = get_preset_addr(preset_num);
 		sz = 4;
 		sFLASH_read_buffer((uint8_t *)read_data, addr, sz);
@@ -260,9 +267,7 @@ void clear_all_presets(void)
 	}
 
 	resume_timer_IRQ(WT_INTERP_TIM_number);
-
 }
-
 
 uint8_t check_preset_filled(uint32_t preset_num, char *version)
 {
@@ -270,7 +275,7 @@ uint8_t check_preset_filled(uint32_t preset_num, char *version)
 	uint32_t sz;
 
 	sz = 4;
-	while (get_flash_state() != sFLASH_NOTBUSY) {;}
+	wait_for_flash_ready();
 
 	sFLASH_read_buffer((uint8_t *)read_data, addr, sz);
 
@@ -298,13 +303,13 @@ uint32_t get_preset_addr(uint32_t preset_num)
 	uint32_t preset_sector_offset = 0;
 
 	if (preset_num >= MAX_PRESETS)
-		preset_num = (MAX_PRESETS-1);
+		preset_num = (MAX_PRESETS - 1);
 
-	uint32_t sector_num  = PRESET_SECTOR_START + (preset_num>>1);
+	uint32_t sector_num = PRESET_SECTOR_START + (preset_num >> 1);
 	uint32_t sector_start = sFLASH_get_sector_addr(sector_num);
 
 	//odd numbered presets start in middle of a sector
-	if (preset_num & 1) preset_sector_offset = sFLASH_get_sector_size(sector_num)/2;
+	if (preset_num & 1) preset_sector_offset = sFLASH_get_sector_size(sector_num) / 2;
 
 	return sector_start +  preset_sector_offset;
 }

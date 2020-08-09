@@ -32,5 +32,9 @@
 #include "led_colors.h"
 
 void handle_preset_events(int16_t enc_turn, int16_t enc_pushturn);
-void check_bus_sel_event(void);
 enum colorCodes animate_preset_ledring(uint8_t slot_i, uint8_t preset_i);
+
+void preset_start_load_animation(void);
+void preset_start_save_animation(void);
+void preset_start_undo_animation(void);
+void preset_set_hover_preset_num(uint16_t preset_num);
