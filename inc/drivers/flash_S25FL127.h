@@ -54,6 +54,7 @@
 #define sFLASH_DUMMY_BYTE		0xA5
 
 #define sFLASH_SPI_PAGESIZE		0x100 
+#define sFLASH_PAGESIZE_BITS    8 	 //0x100 = 256 = 8bits
 
 
 //Status register reads:

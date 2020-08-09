@@ -3,6 +3,7 @@
 #include <stm32f7xx.h>
 #include "flash_S25FL127.h"
 
+#define 	SFLASH_SETTINGS_SECTOR 15
 #define 	WT_SECTOR_START 		16
 #define		PRESET_SECTOR_START		217
 #define		PRESETS_PER_SECTOR		2
