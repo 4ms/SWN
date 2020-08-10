@@ -38,7 +38,7 @@
 #include "preset_manager_undo.h"
 #include "timekeeper.h"
 #include "wavetable_saveload.h"
-#include "wear_leveler.h"
+//#include "wear_leveler.h"
 
 extern o_params params; // 868 Bytes
 extern o_lfos lfos;		//  526 Bytes
