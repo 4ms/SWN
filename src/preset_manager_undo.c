@@ -27,6 +27,7 @@
  */
 
 #include "preset_manager.h"
+#include "preset_manager_UI.h"
 #include "preset_manager_undo.h"
 #include "params_update.h"
 #include "params_lfo.h"
@@ -41,6 +42,8 @@ o_lfos   		preset_undo_lfos;
 uint8_t 		preset_undo_buffer_valid = 0;
 
 void undo_preset_action(void){
+	preset_start_undo_animation();
+
 	switch (preset_mgr.last_action)
 	{
 		case PM_DOING_LOAD:

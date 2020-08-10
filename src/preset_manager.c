@@ -36,12 +36,13 @@
 #include "params_lfo_period.h"
 #include "params_wt_browse.h"
 #include "preset_manager_undo.h"
+#include "preset_manager_UI.h"
 #include "timekeeper.h"
 #include "wavetable_saveload.h"
 #include "startup_preset_storage.h"
 
-extern o_params params; // 868 Bytes
-extern o_lfos lfos;		//  526 Bytes
+extern o_params params;
+extern o_lfos lfos;
 
 o_preset_manager preset_mgr;
 
@@ -49,8 +50,8 @@ char	preset_signature_v1_0[4] = {'P', 'R', '9', '\0'};
 char	preset_signature_v1_2[4] = {'P', 'R', 'A', '\0'};
 char	preset_signature_vLatest[4] = {'P', 'R', 'B', '\0'};
 
-static uint8_t cached_preset[4 + sizeof(o_params) + sizeof(o_lfos)]; //must be global or static because SPIDMA read/writes to it
-
+static uint8_t cached_preset[sizeof(preset_signature_vLatest) + sizeof(o_params) + sizeof(o_lfos)];
+static uint8_t animation_enabled = 1;
 static char read_data[4];
 
 //Todo: pack presets in more tightly:
@@ -86,11 +87,15 @@ void init_preset_manager(void)
 
 	init_startup_preset_storage();
 	uint16_t preset_num = get_startup_preset();
-	preset_mgr.hover_num = preset_num;
 	if (preset_num)
+	{
+		animation_enabled = 0;
 		recall_preset_into_active(preset_num);
+		animation_enabled = 1;
+	}
 	stash_active_into_undo_buffer();
-	// if (rotary_pressed(rotm_PRESET)) LOCK_PRESET_BANK_2 = 0; //Show Mode
+
+	// if (rotary_pressed(rotm_PRESET)) LOCK_PRESET_BANK_2 = 0; //Synth-meet Mode
 }
 
 void exit_preset_manager(void)
@@ -102,15 +107,18 @@ void exit_preset_manager(void)
 
 void store_preset_from_active(uint32_t preset_num)
 {
+	preset_start_save_animation();
 	store_preset(preset_num, &params, &lfos);
 	set_startup_preset(preset_num);
 }
 
 void recall_preset_into_active(uint32_t preset_num)
 {
+	preset_mgr.hover_num = preset_num;
+	if (animation_enabled)
+		preset_start_load_animation();
 	stash_active_into_undo_buffer();
 	recall_preset(preset_num, &params, &lfos);
-	set_startup_preset(preset_num);
 	recalc_active_params();
 }
 

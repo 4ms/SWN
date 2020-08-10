@@ -29,6 +29,7 @@
 #include "preset_manager.h"
 #include "preset_manager_UI.h"
 #include "preset_manager_undo.h"
+#include "startup_preset_storage.h"
 #include "led_cont.h"
 #include "globals.h"
 #include "params_update.h"
@@ -89,7 +90,7 @@ void handle_preset_events(int16_t enc_turn, int16_t enc_pushturn)
 
 		start_ongoing_display_preset();
 	}
-	else if (enc_pushturn) 
+	else if (enc_pushturn)
 	{
 		//ToDo: Browse/Preview mode?
 		preset_mgr.hover_num 		= _CLAMP_I16(enc_pushturn + preset_mgr.hover_num, 0, MAX_PRESETS-1);
@@ -119,7 +120,6 @@ void handle_preset_events(int16_t enc_turn, int16_t enc_pushturn)
 		case (PM_UNDO_HELD):
 			if (just_released)
 			{
-				preset_start_undo_animation();
 				undo_preset_action();
 			}
 			break;
@@ -172,8 +172,8 @@ void handle_preset_events(int16_t enc_turn, int16_t enc_pushturn)
 		case (PM_PRESSED_TO_DO_LOAD):
 			if (just_released)
 			{
-				preset_start_load_animation();
 				recall_preset_into_active(preset_mgr.hover_num);
+				set_startup_preset(preset_mgr.hover_num);
 			}
 			break;
 
@@ -187,8 +187,6 @@ void handle_preset_events(int16_t enc_turn, int16_t enc_pushturn)
 		case (PM_PRESSED_TO_DO_SAVE):
 			if (just_released)
 			{
-				preset_start_save_animation();
-
 				if (preset_mgr.filled[preset_mgr.hover_num])
 				{
 					preset_mgr.last_action 		= PM_DOING_SAVE;
@@ -237,7 +235,7 @@ enum colorCodes animate_preset_ledring(uint8_t slot_i, uint8_t preset_i)
 	uint32_t now;
 
 	now = (HAL_GetTick()/TICKS_PER_MS);
-	
+
 	if (preset_mgr.animation_ctr > 0)
 	{
 		if (preset_mgr.mode == PM_DOING_LOAD) {
@@ -270,15 +268,15 @@ enum colorCodes animate_preset_ledring(uint8_t slot_i, uint8_t preset_i)
 			slot_color 		= ledc_DIM_YELLOW;
 			direction 		= 1;
 		}
-		
+
 		if (preset_mgr.animation_ctr > PRESET_ANIMATION_TIME) preset_mgr.animation_ctr = PRESET_ANIMATION_TIME;
-		
+
 		if (slot_i==hover_slot)			return (now & 0x040) ? ledc_OFF : slot_color;			//Flash slot light gold if it's the one being saved into
 		else
-		if ((direction==1) && slot_i<(preset_mgr.animation_ctr/(PRESET_ANIMATION_TIME/NUM_LED_OUTRING))) 
+		if ((direction==1) && slot_i<(preset_mgr.animation_ctr/(PRESET_ANIMATION_TIME/NUM_LED_OUTRING)))
 										return ring_fill_color;											//Turn on lights, one at a time
 		else
-		if ((direction==-1) && (NUM_LED_OUTRING-slot_i)>(preset_mgr.animation_ctr/(PRESET_ANIMATION_TIME/NUM_LED_OUTRING))) 
+		if ((direction==-1) && (NUM_LED_OUTRING-slot_i)>(preset_mgr.animation_ctr/(PRESET_ANIMATION_TIME/NUM_LED_OUTRING)))
 										return ring_fill_color;											//Turn on lights, one at a time
 		else							return ledc_OFF;
 
@@ -316,7 +314,7 @@ enum colorCodes animate_preset_ledring(uint8_t slot_i, uint8_t preset_i)
 					break;
 			}
 		}
-		else {	
+		else {
 			if (preset_mgr.filled[preset_i])			return ledc_DIM_YELLOW;
 			else										return ledc_OFF;
 		}
