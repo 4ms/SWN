@@ -60,15 +60,27 @@ void SetVectorTable(uint32_t reset_address)
 	SCB->VTOR = reset_address & (uint32_t)0x1FFFFF80;
 }
 
-
-typedef void (*EntryPoint)(void);
-void JumpTo(uint32_t address) 
-{
-	uint32_t application_address = *(__IO uint32_t*)(address + 4);
-	EntryPoint application = (EntryPoint)(application_address);
-	__set_MSP(*(__IO uint32_t*)address);
-	application();
+__attribute__((naked)) void branch_to_bootloader(uint32_t r0, uint32_t addr) {
+	__asm volatile (
+		"ldr r2, [r1, #0]\n"    // get address of stack pointer
+		"msr msp, r2\n"         // get stack pointer
+		"ldr r2, [r1, #4]\n"    // get address of destination
+		"bx r2\n"               // branch to bootloader
+	);
 }
+
+void JumpTo(uint32_t address) {
+	branch_to_bootloader(0, address);
+}
+
+// typedef void (*EntryPoint)(void);
+// void JumpTo(uint32_t address) 
+// {
+// 	uint32_t application_address = *(__IO uint32_t*)(address + 4);
+// 	EntryPoint application = (EntryPoint)(application_address);
+// 	__set_MSP(*(__IO uint32_t*)address);
+// 	application();
+// }
 
 
 void SystemClock_Config(void)

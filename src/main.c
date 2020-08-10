@@ -50,7 +50,6 @@
 #include "timekeeper.h"
 #include "drivers/mono_led_driver.h"
 #include "hardware_tests.h"
-#include "bootloader_utils.h"
 #include "hal_handlers.h"
 #include "sphere_flash_io.h"
 #include "system_settings.h"
@@ -76,7 +75,7 @@
 
 //Private functions:
 void SystemClock_Config(void);
-
+void SetVectorTable(uint32_t reset_address);
 
 extern enum 	UI_Modes ui_mode;
 
@@ -352,4 +351,8 @@ void SystemClock_Config(void)
 	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
+void SetVectorTable(uint32_t reset_address)
+{ 
+	SCB->VTOR = reset_address & (uint32_t)0x1FFFFF80;
+}
 
