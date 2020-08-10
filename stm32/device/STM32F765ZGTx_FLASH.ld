@@ -44,7 +44,7 @@ SECTIONS
 	. = ALIGN(4);
 	KEEP(*(.isr_vector)) /* Startup code */
 	. = ALIGN(4);
-  } >FLASHITCM AT >FLASHAXI
+  } >FLASHITCM
 
   /* The program code and other data goes into FLASH */
   .text :
@@ -61,7 +61,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	_etext = .;        /* define a global symbols at end of code */
-  } >FLASHITCM AT >FLASHAXI
+  } >FLASHITCM
 
   /* Constant data goes into FLASH */
   .rodata :
@@ -70,36 +70,36 @@ SECTIONS
 	*(.rodata)         /* .rodata sections (constants, strings, etc.) */
 	*(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
 	. = ALIGN(4);
-  } >FLASHITCM AT >FLASHAXI
+  } >FLASHITCM
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASHITCM AT >FLASHAXI
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASHITCM
 
   .ARM : {
 	__exidx_start = .;
 	*(.ARM.exidx*)
 	__exidx_end = .;
-  } >FLASHITCM AT >FLASHAXI
+  } >FLASHITCM
 
   .preinit_array     :
   {
 	PROVIDE_HIDDEN (__preinit_array_start = .);
 	KEEP (*(.preinit_array*))
 	PROVIDE_HIDDEN (__preinit_array_end = .);
-  } >FLASHITCM AT >FLASHAXI
+  } >FLASHITCM
   .init_array :
   {
 	PROVIDE_HIDDEN (__init_array_start = .);
 	KEEP (*(SORT(.init_array.*)))
 	KEEP (*(.init_array*))
 	PROVIDE_HIDDEN (__init_array_end = .);
-  } >FLASHITCM AT >FLASHAXI
+  } >FLASHITCM
   .fini_array :
   {
 	PROVIDE_HIDDEN (__fini_array_start = .);
 	KEEP (*(SORT(.fini_array.*)))
 	KEEP (*(.fini_array*))
 	PROVIDE_HIDDEN (__fini_array_end = .);
-  } >FLASHITCM AT >FLASHAXI
+  } >FLASHITCM
 
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
@@ -114,7 +114,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	_edata = .;        /* define a global symbol at data end */
-  } >DTCMRAM AT> FLASHAXI
+  } >DTCMRAM /*AT> FLASHAXI*/
 
   
   /* Uninitialized data section */
