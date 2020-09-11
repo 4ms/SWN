@@ -44,7 +44,7 @@
 #endif
 
 #define FW_MAJOR_VERSION 	2
-#define FW_MINOR_VERSION 	1
+#define FW_MINOR_VERSION 	2
 
 #define ALLOW_LOCKS
 
