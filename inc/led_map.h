@@ -40,7 +40,7 @@ typedef struct o_rgb_led
 	uint32_t 	c_red;
 	uint32_t 	c_green;
 	uint32_t 	c_blue;
-	float 		brightness; 
+	float 		brightness;
 } o_rgb_led;
 
 
@@ -54,9 +54,9 @@ enum ledGroups {
 	ledg_ENCODERS,	 		// 7
 	ledg_ALLNONSMD, 		// 8
 	ledg_ALL 				// 9
-};	
+};
 
-enum ledMap {	
+enum ledMap {
 	ledm_F_BUTTON,			//  0
 	NONE1,					//  1
 	NONE2,					//	2
@@ -69,7 +69,7 @@ enum ledMap {
 	ledm_A_BUTTON,			//	9
 								//CLKLED is a single-element LED inserted at this position
 	ledm_STRING6,			//  10
-	NONE4,					//  11	
+	NONE4,					//  11
 	ledm_STRING5,			//  12
 	ledm_LFOCV,				//  13
 	ledm_STRING4,			//  14
@@ -96,7 +96,7 @@ enum ledMap {
 	ledm_INRING5,			//  35
 	ledm_OUTRING14,			//  36
 	ledm_OUTRING13,			//  37
-	NONE5,					//  38	
+	NONE5,					//  38
 	ledm_DEPTH_ENC,			//  39
 	ledm_OUTRING7,			//  40
 	ledm_OUTRING8,			//  41
@@ -108,8 +108,8 @@ enum ledMap {
 	ledm_OUTRING10,			// 	47
 	ledm_OUTRING11,			// 	48
 	ledm_OUTRING12,			// 	49
-	
-	NUM_LED_IDs				
+
+	NUM_LED_IDs
 };
 
 enum singlePwmLedMap {

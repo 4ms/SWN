@@ -266,7 +266,7 @@ int main(void)
 
 		read_switches();
 		update_osc_param_lock();
-
+		read_selbus_buttons();
 		check_ui_mode_requests();
 
 		read_load_save_encoder(); // Call from main loop because it can initiate a preset load/save call to sFLASH. If this is moved to an interrupt, then make sure it's lower priority than WT_INTERP

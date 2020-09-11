@@ -1,8 +1,10 @@
 #include "preset_manager_selbus.h"
 #include "preset_manager.h"
 #include "preset_manager_UI.h"
+#include "system_settings.h"
 
-const uint8_t SAVE_PRESETS_ENABLED = 0;
+extern o_systemSettings	system_settings;
+
 uint32_t queued_preset_num = MAX_PRESETS + 1;
 enum {
 	NO_PRESET_ACTION,
@@ -36,6 +38,9 @@ static void queue_store_preset(uint32_t preset_num)
 
 void sel_bus_queue_recall_preset(uint8_t preset_num)
 {
+	if (system_settings.selbus_can_recall != SELBUS_RECALL_ENABLED)
+		return;
+
 	if (preset_num >= MAX_PRESETS)
 		return;
 
@@ -48,12 +53,28 @@ void sel_bus_queue_recall_preset(uint8_t preset_num)
 
 void sel_bus_queue_save_preset(uint8_t preset_num)
 {
-	if (!SAVE_PRESETS_ENABLED)
+	if (system_settings.selbus_can_save != SELBUS_SAVE_ENABLED)
 		return;
 
 	if (preset_num >= MAX_PRESETS)
 		return;
 
 	queue_store_preset(preset_num);
+}
+
+void sel_bus_toggle_recall_allow(void)
+{
+	if (system_settings.selbus_can_recall == SELBUS_RECALL_DISABLED)
+		system_settings.selbus_can_recall = SELBUS_RECALL_ENABLED;
+	else
+		system_settings.selbus_can_recall = SELBUS_RECALL_DISABLED;
+}
+
+void sel_bus_toggle_save_allow(void)
+{
+	if (system_settings.selbus_can_save == SELBUS_SAVE_DISABLED)
+		system_settings.selbus_can_save = SELBUS_SAVE_ENABLED;
+	else
+		system_settings.selbus_can_save = SELBUS_SAVE_DISABLED;
 }
 

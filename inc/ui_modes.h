@@ -56,7 +56,7 @@ enum UI_Modes {
 	VOCT_CALIBRATE_CANCEL,
 
 	FACTORY_RESET,
-	
+
 	NUM_UI_MODES
 };
 

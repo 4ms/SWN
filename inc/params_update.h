@@ -151,7 +151,7 @@ typedef struct o_calc_params{
 	int8_t 		prev_qtz_oct			[NUM_CHANNELS];
 
 	// FLAGS
-	uint8_t 	already_handled_button 	[NUM_CHANNELS];
+	uint8_t 	already_handled_button 	[NUM_CHANNELS + 2];
 	uint8_t 	button_safe_release		[2];
 	uint8_t		keymode_pressed;
 	enum armFlags armed[NUM_ARM_FLAGS]	[NUM_CHANNELS];
@@ -342,4 +342,6 @@ void 		read_wt_bankCV(void);
 void 		set_num_sphere_filled(uint8_t num_filled);
 
 uint32_t 	abs(int32_t v);
+
+void 		read_selbus_buttons(void);
 

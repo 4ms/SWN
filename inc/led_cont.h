@@ -52,6 +52,7 @@ enum ongoingDisplays{
 	ONGOING_DISPLAY_FX,
 	ONGOING_DISPLAY_SPHERE_SEL,
 	ONGOING_DISPLAY_SPHERE_PLAYEXPORT,
+	ONGOING_DISPLAY_SELBUS,
 
 	NUM_ONGOING_DISPLAYS
 };
@@ -132,6 +133,7 @@ void 		start_ongoing_display_globright(void);
 void 		start_ongoing_display_fx(void);
 void		start_ongoing_display_sphere_sel(void);
 void 		start_ongoing_display_sphere_play_export(void);
+void 		start_ongoing_display_selbus(void);
 void 		stop_all_displays(void);
 
 

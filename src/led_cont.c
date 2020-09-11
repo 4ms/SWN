@@ -1,7 +1,7 @@
 /*
  * led_cont.c - handles SWN LEDs
  *
- * Author: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com) 
+ * Author: Dan Green (danngreen1@gmail.com), Hugo Paris (hugoplho@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,8 +31,8 @@
 #include "led_cont.h"
 #include "led_colors.h"
 #include "envout_pwm.h"
-#include "params_update.h" 
-#include "params_lfo.h" 
+#include "params_update.h"
+#include "params_lfo.h"
 #include "params_lfo_period.h"
 #include "gpio_pins.h"
 #include "flash_params.h"
@@ -54,7 +54,7 @@
 #include "quantz_scales.h"
 #include "calibrate_voct.h"
 #include "wavetable_saveload_UI.h"
-#include "flash_params.h" 
+#include "flash_params.h"
 #include "timekeeper.h"
 #include "ui_modes.h"
 #include "wavetable_play_export.h"
@@ -104,7 +104,7 @@ const uint16_t CH_COLOR_MAP[6][3] = {
 	{ 941  	, 366	, 954	},
 	{ 941 	, 35 	, 947	},
 	{ 954 	, 176	, 21 	},
-	{ 800 	, 1	 	, 50	}	
+	{ 800 	, 1	 	, 50	}
 };
 
 const uint16_t LFO_BANK_COLOR[25][3]= {
@@ -113,13 +113,13 @@ const uint16_t LFO_BANK_COLOR[25][3]= {
 	{ 1		, 94 	, 950	},
 	{ 1		, 12	, 954	},
 	{ 1		, 1		, 379	},
-					
+
 	{ 941  	, 366	, 954	},				// Shades of Pink
 	{ 935 	, 116	, 928	},
 	{ 941 	, 35 	, 947	},
 	{ 954 	, 1		, 282 	},
 	{ 904 	, 1	 	, 126	},
-	
+
 	{ 502	, 309 	, 43 	},				// Shades of Yellow/Orange
 	{ 947 	, 388	, 21	},
 	// { 949 	, 256	, 21 	},
@@ -129,7 +129,7 @@ const uint16_t LFO_BANK_COLOR[25][3]= {
 
 	{ 100  	, 100	, 100	},				// Shade of white
 
-	{  588	, 928	, 199	},				// Shades of Green	
+	{  588	, 928	, 199	},				// Shades of Green
 	{  274	, 954	, 67	},
 	{  83	, 949	, 1		},
 	{  1	, 239	, 1		},
@@ -180,7 +180,7 @@ void init_led_cont(void)
 	{
 		if (i< NUM_CHANNELS)
 			set_rgb_color_brightness(&led_cont.button[i], ledc_WHITE, 1.0/1.7);
-		else 
+		else
 			set_rgb_color_brightness(&led_cont.button[i], ledc_PINK, 1.0/2.5);
 	}
 
@@ -197,7 +197,7 @@ void init_led_cont(void)
 		led_cont.lfoshape_timeout[i] = 0;
 	}
 
-	
+
 	key_sw_mode_colors[ksw_MUTE] = ledc_WHITE;
 	key_sw_mode_colors[ksw_NOTE] = ledc_PINK;
 	key_sw_mode_colors[ksw_KEYS] = ledc_PURPLE;
@@ -268,24 +268,24 @@ void update_button_leds(void){
 
 					else if( (led_cont.ongoing_display == ONGOING_DISPLAY_TRANSPOSE) ){
 						set_rgb_color_by_array(&led_cont.button[i], CH_COLOR_MAP[i], lock_brightness);
-					} 
+					}
 
 					else if( (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SEL) ){
 						led_cont.button[i].brightness = lock_brightness*4.0;
 						get_wt_color(params.wt_bank[i], &led_cont.button[i]);
-					} 
+					}
 
-					else if( (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE) ){		
+					else if( (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE) ){
 						set_rgb_color_by_array(&led_cont.button[i], CH_COLOR_MAP[i], lock_brightness);
-					} 
+					}
 
 					else if ( led_cont.ongoing_display == ONGOING_DISPLAY_OCTAVE){
 						oct = _CLAMP_I16(params.oct[i], MIN_OCT , MAX_OCT) - MIN_OCT;
 						oct = _CLAMP_I16(oct, 0, NUM_LED_OUTRING-1);
 						led_cont.button[i].c_red  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_red;
 						led_cont.button[i].c_green 	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_green;
-						led_cont.button[i].c_blue  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_blue;			
-						led_cont.button[i].brightness  	= F_MAX_BRIGHTNESS * lock_brightness;	
+						led_cont.button[i].c_blue  	= led_cont.outring[OCT_OUTRING_MAP[oct]].c_blue;
+						led_cont.button[i].brightness  	= F_MAX_BRIGHTNESS * lock_brightness;
 					}
 
 					else if ( led_cont.ongoing_display == ONGOING_DISPLAY_LFO_TOVCA){
@@ -313,7 +313,7 @@ void update_button_leds(void){
 
 							tri_period = LFO_MODE_FLASH_PERIOD;
 							tri_phase = (now + animation_phase + ((tri_period*2*(NUM_CHANNELS-i))/NUM_CHANNELS)) % (tri_period*2);
-	
+
 							if (lfos.mode[i]==lfot_TRIG){
 								brightness = (tri_phase < (tri_period/NUM_CHANNELS)) ? 1.0 : 0.05;
 								color = ledc_AQUA;
@@ -335,6 +335,9 @@ void update_button_leds(void){
 						}
 						set_rgb_color_brightness(&led_cont.button[i], color, brightness);
 					}
+					else if ( led_cont.ongoing_display == ONGOING_DISPLAY_SELBUS ) {
+						//nothing
+					}
 				}
 
 				else { //no ongoing_display
@@ -350,7 +353,7 @@ void update_button_leds(void){
 							brightness = F_MAX_BRIGHTNESS - brightness;
 					}
 					else{
-						
+
 						if (params.osc_param_lock[i] && lock_flash_state())
 							brightness = 0;
 						else
@@ -364,25 +367,34 @@ void update_button_leds(void){
 			//LFO buttons:
 			else
 			{
-				if (!calc_params.keymode_pressed)
-				{
-					//No channels are in mute mode ==> dim purple
-					if ((params.key_sw[0] != ksw_MUTE) && 
-						(params.key_sw[1] != ksw_MUTE) && 
-						(params.key_sw[2] != ksw_MUTE) && 
-						(params.key_sw[3] != ksw_MUTE) && 
-						(params.key_sw[4] != ksw_MUTE) && 
-						(params.key_sw[5] != ksw_MUTE) )					set_rgb_color_brightness(&led_cont.button[i], ledc_PURPLE, 0.1);
-					else if (!button_pressed(i))							set_rgb_color(&led_cont.button[i], ledc_PINK);
-					else if (calc_params.button_safe_release[i - NUM_CHANNELS])	set_rgb_color(&led_cont.button[i], ledc_CORAL);
-					else													set_rgb_color(&led_cont.button[i], ledc_MED_BLUE);
+				if (led_cont.ongoing_display == ONGOING_DISPLAY_SELBUS) {
+					color = (system_settings.selbus_can_recall == SELBUS_RECALL_ENABLED) ? ledc_MED_GREEN : ledc_DIM_GREEN;
+					set_rgb_color(&led_cont.button[butm_LFOVCA_BUTTON], color);
+					color = (system_settings.selbus_can_save == SELBUS_SAVE_ENABLED) ? ledc_MED_RED : ledc_DIM_RED;
+					set_rgb_color(&led_cont.button[butm_LFOMODE_BUTTON], color);
 				}
-				else
+				else 
 				{
-					if(calc_params.button_safe_release[i - NUM_CHANNELS])		set_rgb_color(&led_cont.button[i], ledc_CORAL);
-					else													set_rgb_color(&led_cont.button[i], ledc_PURPLE);
+					if (!calc_params.keymode_pressed)
+					{
+						//No channels are in mute mode ==> dim purple
+						if ((params.key_sw[0] != ksw_MUTE) &&
+							(params.key_sw[1] != ksw_MUTE) &&
+							(params.key_sw[2] != ksw_MUTE) &&
+							(params.key_sw[3] != ksw_MUTE) &&
+							(params.key_sw[4] != ksw_MUTE) &&
+							(params.key_sw[5] != ksw_MUTE) )					set_rgb_color_brightness(&led_cont.button[i], ledc_PURPLE, 0.1);
+						else if (!button_pressed(i))							set_rgb_color(&led_cont.button[i], ledc_PINK);
+						else if (calc_params.button_safe_release[i - NUM_CHANNELS])	set_rgb_color(&led_cont.button[i], ledc_CORAL);
+						else													set_rgb_color(&led_cont.button[i], ledc_MED_BLUE);
+					}
+					else
+					{
+						if(calc_params.button_safe_release[i - NUM_CHANNELS])		set_rgb_color(&led_cont.button[i], ledc_CORAL);
+						else													set_rgb_color(&led_cont.button[i], ledc_PURPLE);
+					}
 				}
-			} 
+			}
 
 		} //if (ui_mode==PLAY)
 
@@ -396,11 +408,11 @@ void update_button_leds(void){
 
 				set_rgb_color_brightness(&led_cont.button[i], fx_colors[i], brightness);
 			}
-			
+
 			// rec button
 			else if (i==butm_LFOVCA_BUTTON){
 				if (ui_mode==WTREC_WAIT)		brightness = ((HAL_GetTick()/TICKS_PER_MS) & 0x040) ? 1 : 0;
-			 	else if (ui_mode==WTRECORDING) 	brightness = 1;
+				else if (ui_mode==WTRECORDING) 	brightness = 1;
 				else 							brightness = led_cont.flash_state;
 
 				set_rgb_color_brightness(&led_cont.button[i], ledc_RED, brightness);
@@ -408,15 +420,15 @@ void update_button_leds(void){
 
 			// monitor button
 			else if (i==butm_LFOMODE_BUTTON){
-				
+
 				if (ui_mode==WTTTONE) 			color = ledc_PURPLE;
 				else if (ui_mode==WTREC_WAIT) 	color = ledc_OFF;
 				else 							color = ledc_GREEN;
 
-			  	if (ui_mode == WTEDITING)
-			  		brightness = led_cont.flash_state;
-			  	else 
-			  		brightness = 1;
+				if (ui_mode == WTEDITING)
+					brightness = led_cont.flash_state;
+				else
+					brightness = 1;
 
 				set_rgb_color_brightness(&led_cont.button[i], color, brightness);
 			}
@@ -499,7 +511,7 @@ void update_mono_leds(void){
 		}
 		else{
 			for (i=0;i<NUM_CHANNELS;i++) {
-				uint32_t level = (uint32_t)calc_params.level[i]; 
+				uint32_t level = (uint32_t)calc_params.level[i];
 
 				if (calc_params.adjusting_pan_state[i] == pan_CACHED_LEVEL && cached_param_flash_state())
 					level = level < 3000 ? 4095 : 0;
@@ -597,7 +609,7 @@ void calculate_lfocv_led(void)
 			(params.key_sw[3] == ksw_MUTE) ||
 			(params.key_sw[4] == ksw_MUTE) ||
 			(params.key_sw[5] == ksw_MUTE)	){
-	
+
 		if (led_cont.waiting_for_clockin){
 			led_cont.array[GLO_CLK].c_red 		= 1023 * (1.0 - led_cont.clockin_wait_progress);
 			led_cont.array[GLO_CLK].c_green 	= 1023 * led_cont.clockin_wait_progress;
@@ -613,7 +625,7 @@ void calculate_lfocv_led(void)
 	else{
 		set_rgb_color(&led_cont.array[GLO_CLK], ledc_CORAL);
 	}
-	
+
 	if (lfos.cycle_pos[GLO_CLK] < 0.5)
 		led_cont.array[GLO_CLK].brightness = F_MAX_BRIGHTNESS;
 	else
@@ -625,8 +637,8 @@ void calculate_lfo_leds(void)
 	uint8_t chan=0;
 	float brightness;
 
-    for (chan = 0; chan < NUM_CHANNELS; chan++)
-    {
+	for (chan = 0; chan < NUM_CHANNELS; chan++)
+	{
 		// Audio rate and shape selection- -> LFO static brightness
 		if  ( (params.key_sw[chan] == ksw_MUTE) && (lfos.audio_mode[chan] || led_cont.lfoshape_timeout[chan]) ){
 			brightness 	= lfos.gain[chan];
@@ -641,7 +653,7 @@ void calculate_lfo_leds(void)
 void update_LED_rings(void)
 {
 	uint8_t i;
-	
+
 	calculate_led_ring();
 
 	for (i = 0; i < NUM_LED_OUTRING; i++){
@@ -672,10 +684,10 @@ void calculate_led_ring(void){
 		if (led_cont.ongoing_display == ONGOING_DISPLAY_FX) {
 			display_fx();
 		}
-		else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SAVE) {		
+		else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SAVE) {
 			display_sphere_save();
 		}
-		else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_PLAYEXPORT) {		
+		else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_PLAYEXPORT) {
 			display_sphere_play_export();
 		}
 		else {
@@ -691,9 +703,9 @@ void calculate_led_ring(void){
 		}
 	}
 	else {
-	 	switch (led_cont.ongoing_display)
-	 	{
-			case ONGOING_DISPLAY_TRANSPOSE:	
+		switch (led_cont.ongoing_display)
+		{
+			case ONGOING_DISPLAY_TRANSPOSE:
 				display_transpose();
 				break;
 
@@ -701,15 +713,15 @@ void calculate_led_ring(void){
 				display_finetune();
 				break;
 
-			case ONGOING_DISPLAY_OCTAVE:		
+			case ONGOING_DISPLAY_OCTAVE:
 				display_octave();
 				break;
 
-			case ONGOING_DISPLAY_PRESET:		
+			case ONGOING_DISPLAY_PRESET:
 				display_preset();
 				break;
 
-			case ONGOING_DISPLAY_SPHERE_SEL:		
+			case ONGOING_DISPLAY_SPHERE_SEL:
 				display_sphere_sel();
 				break;
 
@@ -717,7 +729,7 @@ void calculate_led_ring(void){
 				display_wt_pos();
 				flash_wt_lock();
 				break;
-		}	
+		}
 	}
 }
 
@@ -726,7 +738,7 @@ void turn_outring_off(void)
 	uint8_t i;
 
 	for (i =0; i< NUM_LED_OUTRING; i++){
-		led_cont.outring[i].brightness 	= 0; 
+		led_cont.outring[i].brightness 	= 0;
 	}
 }
 
@@ -745,7 +757,7 @@ void display_wtpos_inring(void)
 		led_cont.inring[j].c_red 		= 3 * exp_1voct_10_41V[scaled_wt_pos[0]];
 		led_cont.inring[j].c_green 		= 	  exp_1voct_10_41V[scaled_wt_pos[1]];
 		led_cont.inring[j].c_blue 		= 3 * exp_1voct_10_41V[scaled_wt_pos[2]];
-		led_cont.inring[j].brightness 	= F_MAX_BRIGHTNESS; 
+		led_cont.inring[j].brightness 	= F_MAX_BRIGHTNESS;
 	}
 }
 
@@ -786,32 +798,32 @@ void get_wt_color(uint8_t wt_num, o_rgb_led *rgb)
 		inv_fade = exp_1voct_10_41V[4095-scaled_wt_num+1024] / 1370.0;
 		fade = 1.0-inv_fade;
 
-		if (wt_num < (NUM_FACTORY_SPHERES + 18*1)){ 
+		if (wt_num < (NUM_FACTORY_SPHERES + 18*1)){
 			rgb->c_red  	= (300.0 * fade)+0; //fade=.726 ->463
 			rgb->c_green 	= (2048.0 * inv_fade) + 50; //inv fade = 0.0058 ->62
 			rgb->c_blue 	= 0;
 		}
-		else if (wt_num < (NUM_FACTORY_SPHERES + 18*2)){ 
+		else if (wt_num < (NUM_FACTORY_SPHERES + 18*2)){
 			rgb->c_red  	= 0;
 			rgb->c_green 	= (100.0 * fade)+50;
 			rgb->c_blue 	= (2048.0 * inv_fade) + 50;
 		}
-		else if (wt_num < (NUM_FACTORY_SPHERES + 18*3)){ 
+		else if (wt_num < (NUM_FACTORY_SPHERES + 18*3)){
 			rgb->c_red 		= (2048.0 * inv_fade) + 150;
 			rgb->c_green 	= (50.0 * fade)+0;
 			rgb->c_blue 	= (2048.0 * inv_fade) + 50;
 		}
-		else if (wt_num < (NUM_FACTORY_SPHERES + 18*4)){ 
+		else if (wt_num < (NUM_FACTORY_SPHERES + 18*4)){
 			rgb->c_red 		= (200.0 * fade);
 			rgb->c_green 	= (2048.0 * inv_fade) + 50;
 			rgb->c_blue 	= (2048.0 * inv_fade) + 50;
 		}
-		else if (wt_num < (NUM_FACTORY_SPHERES + 18*5)){ 
+		else if (wt_num < (NUM_FACTORY_SPHERES + 18*5)){
 			rgb->c_red 		= (2800.0 * inv_fade) + 50;
 			rgb->c_green 	= (1600.0 * inv_fade) + 50;
 			rgb->c_blue 	= (100.0 * fade);
 		}
-		else{ 
+		else{
 			rgb->c_red 		= (2048.0 * inv_fade) + 50;
 			rgb->c_green 	= (2048.0 * inv_fade) + 50;
 			rgb->c_blue 	= (2048.0 * inv_fade) + 50;
@@ -844,11 +856,11 @@ void display_wt_pos(void)
 			scaled_wt_pos[2] = _SCALE_F2U16(folded_wt_pos, 0, 1.5, 2048, 4095);
 		}
 
-		j = rotate_origin(i, NUM_LED_OUTRING); 
+		j = rotate_origin(i, NUM_LED_OUTRING);
 		led_cont.outring[j].c_red 		= 3 * exp_1voct_10_41V[scaled_wt_pos[0]];
 		led_cont.outring[j].c_green 	= 	  exp_1voct_10_41V[scaled_wt_pos[1]];
 		led_cont.outring[j].c_blue 		= 3 * exp_1voct_10_41V[scaled_wt_pos[2]];
-		led_cont.outring[j].brightness 	= F_MAX_BRIGHTNESS; 
+		led_cont.outring[j].brightness 	= F_MAX_BRIGHTNESS;
 	}
 
 	for ( i = 0; i < NUM_CHANNELS; i++)
@@ -866,7 +878,7 @@ void display_firmware_version(void)
 	set_rgb_color(&led_cont.encoder[ledrotm_DEPTH], ledc_OFF);
 	set_rgb_color(&led_cont.encoder[ledrotm_LATITUDE], ledc_OFF);
 	set_rgb_color(&led_cont.encoder[ledrotm_LONGITUDE], ledc_OFF);
-		
+
 	set_pwm_led(led_rotary_map[ledrotm_DEPTH], &led_cont.encoder[ledrotm_DEPTH]);
 	set_pwm_led(led_rotary_map[ledrotm_LATITUDE], &led_cont.encoder[ledrotm_LATITUDE]);
 	set_pwm_led(led_rotary_map[ledrotm_LONGITUDE], &led_cont.encoder[ledrotm_LONGITUDE]);
@@ -882,7 +894,7 @@ void display_firmware_version(void)
 	}
 
 	for (i =0; i< NUM_LED_OUTRING; i++)
-		set_rgb_color(&led_cont.outring[i], ledc_OFF); 
+		set_rgb_color(&led_cont.outring[i], ledc_OFF);
 
 	for (i=0; i<NUM_CHANNELS; i++)
 		set_rgb_color(&led_cont.inring[i], ledc_OFF);
@@ -925,12 +937,12 @@ void display_transpose(void)
 	}
 
 	for (i = 0; i < NUM_LED_OUTRING; i++)
-	{	
+	{
 		led_cont.outring[i].brightness = 0;
 		overlap_num[i] = 0;
 		for (chan=0; chan<NUM_CHANNELS; chan++)
 			overlap[i][chan] = 99;
-	}	
+	}
 
 	// Create overlap[led_position][channels_occupying_position] = channel#
 	for (i = 0; i < NUM_CHANNELS; i++)
@@ -1028,7 +1040,7 @@ void display_finetune (void)
 void display_fx(void)
 {
 	uint8_t slot_i, led;
-	enum colorCodes led_color; 
+	enum colorCodes led_color;
 
 	for (slot_i = 0; slot_i < NUM_LED_OUTRING; slot_i++)
 	{
@@ -1071,12 +1083,12 @@ void display_preset(void)
 void display_sphere_save(void)
 {
 	uint8_t slot_i, bank_i, led;
-	
+
 	uint16_t hover_bank;
 	uint8_t slot_color = ledc_OFF;
 
 	uint8_t hover_slot = get_sphere_hover();
-	
+
 	if (hover_slot >= NUM_FACTORY_SPHERES)
 		hover_bank = (hover_slot - NUM_FACTORY_SPHERES) / NUM_LED_OUTRING;
 	else
@@ -1102,7 +1114,7 @@ void display_sphere_save(void)
 void display_sphere_play_export(void)
 {
 	uint8_t slot_i, bank_i;//, led;
-	
+
 	for (slot_i = 0; slot_i < NUM_LED_OUTRING; slot_i++)
 	{
 		// led = rotate_origin(slot_i, NUM_LED_OUTRING);
@@ -1133,12 +1145,12 @@ void display_sphere_sel(void)
 		last_advance_overlap_tmr = now;
 	}
 
-	for (i = 0; i < NUM_LED_OUTRING; i++){	
+	for (i = 0; i < NUM_LED_OUTRING; i++){
 		led_cont.outring[i].brightness = 0;
 		overlap_num[i] = 0;
 		for (chan=0; chan<NUM_CHANNELS; chan++)
 			overlap[i][chan] = 99;
-	}	
+	}
 
 	// Create overlap[led_position][channels_occupying_position] = channel#
 	for (i = 0; i < NUM_CHANNELS; i++)
@@ -1181,12 +1193,12 @@ void display_octave(void)
 	uint8_t i,j;
 	int16_t oct;
 
-	for (i = 0; i < NUM_LED_OUTRING; i++) {	
-		led_cont.outring[i].brightness 	= 0;				
+	for (i = 0; i < NUM_LED_OUTRING; i++) {
+		led_cont.outring[i].brightness 	= 0;
 		led_cont.outring[i].c_red  		= 4032  - 4032 * (OCT_OUTRING_MAP[i])  / 18;
 		led_cont.outring[i].c_green 	= 3800 * (OCT_OUTRING_MAP[i]) / 18;
 		led_cont.outring[i].c_blue  	= 0;
-	}	
+	}
 
 	// Light up LED ring positions corresponding to current indiv oct
 	for (i=0; i<NUM_CHANNELS; i++){
@@ -1204,19 +1216,19 @@ void display_octave(void)
 		else
 		{
 			if(macro_states.all_af_buttons_released) {
-				led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = F_MAX_BRIGHTNESS;				
-				led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;				
+				led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = F_MAX_BRIGHTNESS;
+				led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;
 			}
 			else
 			{
 				if (button_pressed(i) || (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE)){ //Todo: What is FINETUNE doing here?
 					led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = F_MAX_BRIGHTNESS;
 					led_cont.inring[j].brightness = F_MAX_BRIGHTNESS;
-				} 
+				}
 				// idle channels are grey-ed
 				else if (!button_pressed(i)){
-					led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = 0.1;				
-					led_cont.inring[j].brightness = 0.1;				
+					led_cont.outring[OCT_OUTRING_MAP[oct]].brightness = 0.1;
+					led_cont.inring[j].brightness = 0.1;
 				}
 			}
 		}
@@ -1249,14 +1261,14 @@ void update_ongoing_display_timers(void){
 		tick_down = 1;
 
 	else if (led_cont.ongoing_display == ONGOING_DISPLAY_FINETUNE && macro_states.all_af_buttons_released && !rotary_pressed(rotm_TRANSPOSE) && !switch_pressed(FINE_BUTTON) )
-		tick_down = 1;	
+		tick_down = 1;
 
 	else if (led_cont.ongoing_display == ONGOING_DISPLAY_LFO_TOVCA)
 		tick_down = 1;
 
 	else if (led_cont.ongoing_display == ONGOING_DISPLAY_LFO_MODE)
 		tick_down = 1;
-	
+
 	else if (led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SEL)
 		tick_down = 1;
 
@@ -1265,11 +1277,14 @@ void update_ongoing_display_timers(void){
 
 	else if ((led_cont.ongoing_display == ONGOING_DISPLAY_PRESET) && rotary_released(rotm_PRESET))
 		tick_down = 1;
-	
+
 	else if ((led_cont.ongoing_display == ONGOING_DISPLAY_SPHERE_SAVE) && rotary_released(rotm_PRESET))
-		tick_down = 1;	
+		tick_down = 1;
 
 	else if ((led_cont.ongoing_display == ONGOING_DISPLAY_GLOBRIGHT) && rotary_released(rotm_PRESET))
+		tick_down = 1;
+	
+	else if (led_cont.ongoing_display == ONGOING_DISPLAY_SELBUS)
 		tick_down = 1;
 
 	if (!tick_down)
@@ -1307,7 +1322,7 @@ void start_ongoing_display_scale(void){
 
 void start_ongoing_display_transpose(void){
 	led_cont.ongoing_display	= ONGOING_DISPLAY_TRANSPOSE;
-	led_cont.ongoing_timeout  	= TRANSPOSE_TIMER_LIMIT;	
+	led_cont.ongoing_timeout  	= TRANSPOSE_TIMER_LIMIT;
 }
 
 void start_ongoing_display_lfo_tovca(void){
@@ -1324,7 +1339,7 @@ void start_ongoing_display_preset(void)
 {
 	if(led_cont.ongoing_display != ONGOING_DISPLAY_GLOBRIGHT){
 		led_cont.ongoing_display 	= ONGOING_DISPLAY_PRESET;
-		led_cont.ongoing_timeout 	= PRESET_TIMER_LIMIT;	
+		led_cont.ongoing_timeout 	= PRESET_TIMER_LIMIT;
 	}
 }
 
@@ -1350,6 +1365,11 @@ void start_ongoing_display_globright(void){
 void start_ongoing_display_sphere_sel(void){
 	led_cont.ongoing_display = ONGOING_DISPLAY_SPHERE_SEL;
 	led_cont.ongoing_timeout = SPHERE_SEL_TIMER_LIMIT;
+}
+
+void start_ongoing_display_selbus(void) {
+	led_cont.ongoing_display = ONGOING_DISPLAY_SELBUS;
+	led_cont.ongoing_timeout = PRESET_TIMER_LIMIT;
 }
 
 void stop_all_displays(void){

@@ -44,9 +44,9 @@ static inline uint8_t key_combo_enter_immediate_rec		(void)	{ return (key_combo_
 static inline uint8_t key_combo_enter_recording			(void)	{ return  button_pressed(butm_LFOVCA_BUTTON) && !switch_pressed(FINE_BUTTON); }
 static inline uint8_t key_combo_enter_record_one		(void)	{ return  button_pressed(butm_LFOVCA_BUTTON) && switch_pressed(FINE_BUTTON); }
 
-static inline uint8_t key_combo_save_request			(void)	{ return  rotary_short_pressed(rotm_PRESET); }
+static inline uint8_t key_combo_save_request			(void)	{ return  rotary_short_pressed(rotm_PRESET) && !rotary_pressed(rotm_WAVETABLE) && !button_pressed(butm_LFOVCA_BUTTON); }
 static inline uint8_t key_combo_save_confirm			(void)	{ return  rotary_pressed(rotm_PRESET); }
-static inline uint8_t key_combo_load_request			(void)	{ return  rotary_reg_pressed(rotm_PRESET); }
+static inline uint8_t key_combo_load_request			(void)	{ return  rotary_reg_pressed(rotm_PRESET) && !rotary_pressed(rotm_WAVETABLE) && !button_pressed(butm_LFOVCA_BUTTON); }
 static inline uint8_t key_combo_load_confirm			(void)	{ return  rotary_pressed(rotm_PRESET); }
 
 static inline uint8_t key_combo_exit_request			(void)	{ return (rotary_pressed(rotm_LATITUDE) && rotary_pressed(rotm_LONGITUDE) && rotary_pressed(rotm_DEPTH)); }
@@ -75,11 +75,11 @@ static inline uint8_t key_combo_reset_to_factory		(void)	{ return (rotary_long_p
 
 
 // Key Mode
-static inline uint8_t key_combo_keymode_pressed 		(void)	{ return ( button_pressed(butm_LFOVCA_BUTTON) 		&& button_pressed(butm_LFOMODE_BUTTON)); }
-static inline uint8_t key_combo_keymode_short_pressed  	(void)	{ return ( button_short_pressed(butm_LFOVCA_BUTTON) && button_short_pressed(butm_LFOMODE_BUTTON));} 
-static inline uint8_t key_combo_keymode_med_pressed 	(void)	{ return ( button_med_pressed(butm_LFOVCA_BUTTON) 	&& button_med_pressed(butm_LFOMODE_BUTTON));} 
-static inline uint8_t key_combo_keymode_long_pressed 	(void)	{ return ( button_long_pressed(butm_LFOVCA_BUTTON) 	&& button_long_pressed(butm_LFOMODE_BUTTON)); }
-static inline uint8_t key_combo_keymode_released 	 	(void) 	{ return ( button_released(butm_LFOVCA_BUTTON) 		&& button_released(butm_LFOMODE_BUTTON)); }
+static inline uint8_t key_combo_keymode_pressed 		(void)	{ return ( button_pressed(butm_LFOVCA_BUTTON) 		&& button_pressed(butm_LFOMODE_BUTTON) && !rotary_pressed(rotm_PRESET)); }
+// static inline uint8_t key_combo_keymode_short_pressed  	(void)	{ return ( button_short_pressed(butm_LFOVCA_BUTTON) && button_short_pressed(butm_LFOMODE_BUTTON));}
+// static inline uint8_t key_combo_keymode_med_pressed 	(void)	{ return ( button_med_pressed(butm_LFOVCA_BUTTON) 	&& button_med_pressed(butm_LFOMODE_BUTTON));}
+// static inline uint8_t key_combo_keymode_long_pressed 	(void)	{ return ( button_long_pressed(butm_LFOVCA_BUTTON) 	&& button_long_pressed(butm_LFOMODE_BUTTON)); }
+static inline uint8_t key_combo_keymode_released 	 	(void) 	{ return ( button_released(butm_LFOVCA_BUTTON) 		&& button_released(butm_LFOMODE_BUTTON) && !rotary_pressed(rotm_PRESET)); }
 
 // Presets
 static inline uint8_t key_combo_all_but_preset_released (void)	{ return ( button_released(butm_LFOVCA_BUTTON) \
@@ -97,3 +97,23 @@ static inline uint8_t key_combo_lock_channel (uint8_t chan) 	{ return ( button_p
 #else
 static inline uint8_t key_combo_lock_channel (uint8_t chan) 	{ return (0); }
 #endif
+
+static inline uint8_t key_combo_show_selbus_allows(void) { return (rotary_pressed(rotm_PRESET) \
+																	&& !switch_pressed(FINE_BUTTON) \
+																	&& button_pressed(butm_B_BUTTON)); }
+
+static inline uint8_t key_combo_toggle_selbus_recall(void) { return (rotary_pressed(rotm_PRESET) \
+																	&& !switch_pressed(FINE_BUTTON) \
+																	&& button_pressed(butm_LFOVCA_BUTTON) \
+																	&& button_pressed(butm_B_BUTTON)); }
+
+static inline uint8_t key_combo_enable_selbus_save(void) { return (rotary_pressed(rotm_PRESET) \
+																	&& !switch_pressed(FINE_BUTTON) \
+																	&& button_med_pressed(butm_LFOMODE_BUTTON) \
+																	&& button_pressed(butm_B_BUTTON)); }
+
+static inline uint8_t key_combo_disable_selbus_save(void) { return (rotary_pressed(rotm_PRESET) \
+																	&& !switch_pressed(FINE_BUTTON) \
+																	&& button_pressed(butm_LFOMODE_BUTTON) \
+																	&& button_pressed(butm_B_BUTTON)); }
+
