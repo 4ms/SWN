@@ -68,5 +68,6 @@ void UART5_IRQHandler(void)
 			sel_bus_queue_recall_preset(presetNum);
 		}
 	}
-	UART_Start(&midiByte, 1);
+
+	selBus_Start();
 }

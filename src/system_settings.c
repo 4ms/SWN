@@ -40,6 +40,8 @@ void default_system_settings(void)
 	system_settings.transpose_display_mode	= TRANSPOSE_CONTINUOUS;
 	system_settings.lfo_cv_mode 			= LFOCV_SPEED;
 	system_settings.global_brightness 		= 0.8;
+	system_settings.selbus_can_recall 		= SELBUS_RECALL_DISABLED;
+	system_settings.selbus_can_save 		= SELBUS_SAVE_DISABLED;
 }
 
 uint8_t range_check_system_settings(o_systemSettings *sys_sets)
@@ -73,6 +75,18 @@ uint8_t range_check_system_settings(o_systemSettings *sys_sets)
 	if (isnan(sys_sets->global_brightness) || (sys_sets->global_brightness > 2.0) || (sys_sets->global_brightness < (1.0/1000.0)))
 	{
 		sys_sets->global_brightness = 0.8;
+		range_errors++;
+	}
+
+	if (sys_sets->selbus_can_recall != SELBUS_RECALL_ENABLED && sys_sets->selbus_can_recall != SELBUS_RECALL_DISABLED)
+	{
+		sys_sets->selbus_can_recall = SELBUS_RECALL_DISABLED;
+		range_errors++;
+	}
+
+	if (sys_sets->selbus_can_save != SELBUS_SAVE_ENABLED && sys_sets->selbus_can_save != SELBUS_SAVE_DISABLED)
+	{
+		sys_sets->selbus_can_save = SELBUS_SAVE_DISABLED;
 		range_errors++;
 	}
 

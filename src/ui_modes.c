@@ -45,10 +45,8 @@ void check_ui_mode_requests(void){
 	static uint8_t	flag=0;
 
 	if (ui_mode == PLAY){
-
 		if 		(key_combo_enter_editing())			{ arm_ui = WTEDITING;}
 		else if (key_combo_enter_voct_calibrate())	{stop_all_displays(); arm_ui = VOCT_CALIBRATE;} 
-
 		else if (key_combo_reset_to_factory())		{stop_all_displays(); arm_ui = FACTORY_RESET;}
 	}
 

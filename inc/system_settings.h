@@ -48,6 +48,16 @@ enum TransposeDisplayModes {
 	NUM_TRANSPOSE_DISPLAY_MODES
 };
 
+enum SelBusRecallModes {
+	SELBUS_RECALL_DISABLED,
+	SELBUS_RECALL_ENABLED,
+};
+
+enum SelBusSaveModes {
+	SELBUS_SAVE_DISABLED,
+	SELBUS_SAVE_ENABLED,
+};
+
 typedef struct o_systemSettings
 {
 	enum LFOCVModes				lfo_cv_mode;
@@ -55,6 +65,8 @@ typedef struct o_systemSettings
 	enum TransposeDisplayModes	transpose_display_mode;
 	uint8_t						allow_bus_clock;
 	float						global_brightness;
+	enum SelBusRecallModes 		selbus_can_recall;
+	enum SelBusSaveModes 		selbus_can_save;
 } o_systemSettings;
 
 void default_system_settings(void);

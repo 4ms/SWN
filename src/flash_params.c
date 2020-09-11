@@ -100,6 +100,11 @@ void firmware_upgrade_post_process(uint8_t old_major, uint8_t old_minor)
 	{
 		restore_factory_spheres_to_extflash();
 	}
+	if (old_major==2 && old_minor==1)
+	{
+		system_settings.selbus_can_save = SELBUS_SAVE_DISABLED;	
+		system_settings.selbus_can_recall = SELBUS_RECALL_DISABLED;	
+	}
 }
 
 void save_flash_params(void)
