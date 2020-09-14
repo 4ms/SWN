@@ -84,6 +84,7 @@ static inline uint8_t key_combo_keymode_released 	 	(void) 	{ return ( button_re
 // Presets
 static inline uint8_t key_combo_all_but_preset_released (void)	{ return ( button_released(butm_LFOVCA_BUTTON) \
 																		&& button_released(butm_LFOMODE_BUTTON) \
+																		&& button_released(butm_B_BUTTON) \
 																		&& rotary_released(rotm_OCT) \
 																		&& rotary_released(rotm_TRANSPOSE) \
 																		&& rotary_released(rotm_DEPTH) \

@@ -600,7 +600,7 @@ void read_selbus_buttons(void)
 		selbus_action_armed = SELBUS_STORE_SETTINGS;
 	}
 	if (!key_combo_show_selbus_allows()) {
-		stop_all_displays();
+		//stop_all_displays();
 		if (selbus_action_armed == SELBUS_STORE_SETTINGS) {
 			save_flash_params();
 			selbus_action_armed = SELBUS_NO_ACTION;
