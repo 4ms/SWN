@@ -530,19 +530,19 @@ void read_ext_trigs(void)
 		{
 			chans_in_cvgate_mode++;
 
-			if (analog_jack_plugged(A_VOCT+chan)) {
-				if (trig_level[chan] && !last_trig_level[chan])
+			if (analog_jack_plugged(A_VOCT+chan) || button_pressed(chan)) {
+				if ((trig_level[chan] || button_pressed(chan)) && !last_trig_level[chan])
 				{
 					lfos.cycle_pos[chan] = 0.f;
 					params.note_on[chan] = 1;
 					params.new_key[chan] = 1;
 					new_key_armed[chan] = 0;
 				}
-				if (params.key_sw[chan]==ksw_KEYS_EXT_TRIG_SUSTAIN && trig_level[chan])
+				if (params.key_sw[chan]==ksw_KEYS_EXT_TRIG_SUSTAIN && (trig_level[chan] || button_pressed(chan)))
 					is_sustaining = 1;
 			}
 		}
-		last_trig_level[chan] = trig_level[chan];
+		last_trig_level[chan] = (trig_level[chan] || button_pressed(chan));
 		calc_params.gate_in_is_sustaining[chan] = is_sustaining;
 	}
 
@@ -613,7 +613,7 @@ void read_noteon(uint8_t i)
 {
 	if (ui_mode == PLAY)
 	{
-		// MUTE ON/OFF
+		// Button mode: Mute
 		if (params.key_sw[i] == ksw_MUTE)
 		{
 			if (!calc_params.already_handled_button[i] && button_pressed(i))
@@ -642,34 +642,28 @@ void read_noteon(uint8_t i)
 			}
 		}
 
-
-		// NOTE/KEYS Presses
+		// Button Mode: Note/Keyboard/CVGate/CVGateSus
 		// ... and auto-notes at qtz crossings
 		else
 		{
 			if (button_pressed(i))
 			{
-				if (params.key_sw[i]==ksw_NOTE){
+				if (params.key_sw[i]==ksw_NOTE) {
 					lfos.cycle_pos[i] = 5.0/F_MAX_LFO_TABLELEN;  // read 5th element of LFO table to avoid silence at start
 				}
 
 				if (!new_key_armed[i]) {
 					new_key_armed[i] = 1;
-
-					// if (calc_params.lock_change_staged[i]==1) {
-					//	toggle_lock(i);
-					//	calc_params.lock_change_staged[i]=2;
-					//  }
-					//  else {
-						params.new_key[i] = 1;
-						params.note_on[i] = 1;
-						if ((params.key_sw[i]==ksw_KEYS_EXT_TRIG || params.key_sw[i]==ksw_KEYS_EXT_TRIG_SUSTAIN)) //allow re-trigger with button
-							lfos.cycle_pos[i] = 0;
-
-					// }
+					params.new_key[i] = 1;
+					params.note_on[i] = 1;
+					if (params.key_sw[i]==ksw_KEYS_EXT_TRIG)
+						lfos.cycle_pos[i] = 0;
 				}
+				// if (params.key_sw[i]==ksw_KEYS_EXT_TRIG_SUSTAIN) {
+				// 	calc_params.gate_in_is_sustaining[i] = 1;
+				// 	lfos.cycle_pos[i] = 0;
+				// }
 			}
-
 			else //button_released(i)
 			{
 				// NOTE AUTO EG trig
@@ -677,7 +671,6 @@ void read_noteon(uint8_t i)
 					lfos.cycle_pos[i] = 0;
 					params.note_on[i] = 1;
 				}
-
 				else
 				{
 					new_key_armed[i] = 0;
@@ -880,8 +873,8 @@ void read_lfomode(uint8_t i)
 			cached[i] = 0;
 		}
 
-		else if (button_pressed(butm_LFOMODE_BUTTON) 
-				&& !calc_params.keymode_pressed 
+		else if (button_pressed(butm_LFOMODE_BUTTON)
+				&& !calc_params.keymode_pressed
 				&& (params.key_sw[i] == ksw_MUTE)
 				&& !calc_params.already_handled_button[butm_LFOMODE_BUTTON]) {
 
@@ -2100,7 +2093,7 @@ void read_wtsel(int8_t wtsel)
 
 
 void read_wtsel_cv(void){
-	if ((params.key_sw[0]==ksw_KEYS_EXT_TRIG || params.key_sw[0]==ksw_KEYS_EXT_TRIG_SUSTAIN) && analog_jack_plugged(A_VOCT))
+	if ((params.key_sw[0]==ksw_KEYS_EXT_TRIG_SUSTAIN) && analog_jack_plugged(A_VOCT))
 		params.wtsel_cv = 0;
 	else
 		params.wtsel_cv = analog[WTSEL_CV].bracketed_val * num_spheres_filled / 4095;
