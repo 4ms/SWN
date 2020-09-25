@@ -12,7 +12,10 @@ static const uint8_t kMIDICCNumAssignSaveRecall = 16;
 static const uint8_t kMIDICCValChooseSave = 127;
 
 static const uint8_t kMIDICommandMalekkoMakeNoiseSaveRecall = 0xC0;
-static const uint8_t kMIDICommandMakeNoiseSave = 0xF4; 		//https://www.makenoisemusic.com/content/manuals/tempimanual.pdf page 32, "State Save"
+
+//https://www.makenoisemusic.com/content/manuals/tempimanual.pdf page 32, "State Save" and "Save All"
+static const uint8_t kMIDICommandMakeNoiseSave = 0xF4;
+static const uint8_t kMIDIDataMakeNoiseSaveAll = 0x40; 
 
 static uint8_t midiBuffer[3] = {0, 0, 0};
 static uint8_t byteCount = 0;
@@ -80,7 +83,8 @@ void UART5_IRQHandler(void)
 	if (byteCount == 2 && midiBuffer[0] == kMIDICommandMakeNoiseSave)
 	{
 		uint8_t presetNum = midiBuffer[1];
-		sel_bus_queue_save_preset(presetNum);
+		if (presetNum != kMIDIDataMakeNoiseSaveAll)
+			sel_bus_queue_save_preset(presetNum);
 	}
 
 	selBus_Start();
