@@ -107,6 +107,7 @@ void exit_preset_manager(void)
 
 void store_preset_from_active(uint32_t preset_num)
 {
+	preset_mgr.hover_num = preset_num;
 	preset_start_save_animation();
 	store_preset(preset_num, &params, &lfos);
 	set_startup_preset(preset_num);
