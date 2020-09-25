@@ -41,12 +41,13 @@ void UART5_IRQHandler(void)
 
 	HAL_UART_IRQHandler(midiUART);
 
+
 	if (midiByte > 127) // Command byte
 	{
 		midiBuffer[0] = midiByte;
 		byteCount = 1;
 	}
-	else // Data byte
+	else if (byteCount > 0 && byteCount < 3) // Capture first two data bytes after command byte
 	{
 		midiBuffer[byteCount] = midiByte;
 		byteCount++;
