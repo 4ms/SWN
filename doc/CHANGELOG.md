@@ -10,10 +10,32 @@ When the module powers on, the version is displayed with a red and blue light on
 The red light on the inner rings shows the major version.
 The blue light on the outer ring shows the minor version. For example if the version is 1.2 then the major version is 1, and the minor version is 2.
 
-On the outer light ring, if you imagine it as a clock face, the light just to the right of 12:00 is 0. The next light going around clockwise is 1. Then next light clockwise is 2, etc. The inner ring counts the same but it starts at 1 (and goes to 6). If you would like a picture to help visualize this, see the [SWN User Manual](https://4mscompany.com/SWN/manual/SWN-manual-1.0.pdf), page 29.
+On the outer light ring, if you imagine it as a clock face, the light just to the right of 12:00 is 0. The next light going around clockwise is 1. Then next light clockwise is 2, etc. The inner ring counts the same but it starts at 1 (and goes to 6). If you would like a picture to help visualize this, see the [SWN User Manual](https://4mscompany.com/media/SWN/manual/SWN-manual-2.2.pdf), page 39.
 
+#### Changes in v2.2:
+
+Released Oct 12, 2020
+  
+  * CV/Gate/Sustain mode added:
+    * Similar to CV/Gate mode, but envelopes are sustained if gate is sustained
+    * Channel A uses Sphere CV jack instead of Waveform In jack
+
+  * Channel Panning
+    * Each channel can be panned Left/Right by holding down channel button and moving the channel slider
+    * Volume setting is cached and only updated when slider returns to original position
+    * Pan settings are saved and recalled with presets
+  
+  * Select Bus
+    * SWN will respond to Select Bus commands to load or save presets
+    * Loading and/or saving can be disabled by holding down Preset and channel B button, and then pressing the small LFO buttons to enable or disable Loading (green LFO->VCA button) or Saving (red LFO Type button)
+    * Settings are saved after power down
+    * Responds to verbose style commands (e.g. Malekko Varigate) and terse style (e.g. Makenoise Rene mk2)
+ 
+  * SWN now boots up into the last preset that was saved or loaded.
 
 #### Changes in v2.1:
+
+Released July 16, 2019
 
   * Chords in the list of chords (Spread knob or CV) have been modified:
     * Chord 9: First note lowered by one semitone to make a minor third.
@@ -27,6 +49,8 @@ On the outer light ring, if you imagine it as a clock face, the light just to th
   * Spread knob had a bug where sometimes turning clockwise from the first chord would go to chord 25, instead of 26.
   
 #### New features in v2.0:
+
+Released July 12, 2019
 
   * __CV/Gate Mode__: New mode allows you to patch gate signals into the CV jacks to trigger each channel's envelope. CV/Gate mode is designed for connecting a CV/Gate keyboard or sequencer: up to seven CV/Gate channels can be connected (six channel + one global).
     * To enter CV/Gate Mode: Press the two small buttons to switch from Mute Mode -> Note Mode -> Keyboard Mode -> CV/Gate Mode. The buttons will be dim orange in this mode.
