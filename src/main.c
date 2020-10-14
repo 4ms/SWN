@@ -173,6 +173,9 @@ int main(void)
 	empty_all_user_spheres();
 #endif
 
+	if (key_combo_reload_factory_spheres())
+		write_factory_spheres_to_extflash();
+
 #ifdef FORCE_WRITE_FACTORY_SPHERES
 	write_factory_spheres_to_extflash();
 #endif
