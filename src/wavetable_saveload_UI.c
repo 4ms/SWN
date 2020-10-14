@@ -224,8 +224,10 @@ void handle_wt_saving_events(int16_t enc_turn)
 					exit_wtediting();
 				}
 
-				else if (user_sphere_mgr.mode==WTS_DOING_CLEAR)
+				else if (user_sphere_mgr.mode==WTS_DOING_CLEAR) {
 					user_sphere_mgr.filled[user_sphere_mgr.hover_num] = clear_user_sphere(user_sphere_mgr.hover_num);
+					update_number_of_user_spheres_filled();
+				}
 
 				else if (user_sphere_mgr.mode==WTS_DOING_UNCLEAR)
 					user_sphere_mgr.filled[user_sphere_mgr.hover_num] = unclear_user_sphere(user_sphere_mgr.hover_num);
