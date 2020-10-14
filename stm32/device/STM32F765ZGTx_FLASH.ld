@@ -3,6 +3,9 @@ Linker script for STM32F765ZG
 
 FLASHITCM is read-only, so it's the VMA (runtime address)
 FLASHAXI is the only way to write to internal flash memory, so it's the LMA (load address)
+We use >FLASHITCM AT >FLASHAXI do to this
+
+
 */
 
 ENTRY(Reset_Handler)
@@ -16,11 +19,18 @@ _Min_Stack_Size = 0x1800; /* required amount of stack: max for one function is 0
 /* Specify the memory areas */
 MEMORY
 {
+	/* This is for having mostly SRAM:
+	DTCMRAM (xrw)	: ORIGIN = 0x20000000, LENGTH = 128K
+	SRAM (xrw)		: ORIGIN = 0x20020000, LENGTH = 384K
+	*/
+
+	/* This is for using DTCM as main RAM:*/
 	DTCMRAM (xrw)	: ORIGIN = 0x20000000, LENGTH = 128K	/*Everything goes in DTCM RAM by default*/
 	SRAM1 (xrw)		: ORIGIN = 0x20020000, LENGTH = 384K	/*...unless specified to go in SRAM1*/
 
+
 	FLASHAXI (rx)	: ORIGIN = 0x08010000, LENGTH = 1024K /* Start at Sector 2, which leaves space for params sector and for Bootloader sector*/
-	FLASHITCM (rx)	: ORIGIN = 0x00210000, LENGTH = 1024K /* Not used */
+	FLASHITCM (rx)	: ORIGIN = 0x00210000, LENGTH = 1024K
 }
 
 /* To Do: Add ALIGN_WITH_INPUT to each .section-name : ALIGN_WITH_INPUT */
@@ -34,7 +44,7 @@ SECTIONS
 	. = ALIGN(4);
 	KEEP(*(.isr_vector)) /* Startup code */
 	. = ALIGN(4);
-  } >FLASHAXI
+  } >FLASHITCM AT >FLASHAXI
 
   /* The program code and other data goes into FLASH */
   .text :
@@ -51,7 +61,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	_etext = .;        /* define a global symbols at end of code */
-  } >FLASHAXI
+  } >FLASHITCM AT >FLASHAXI
 
   /* Constant data goes into FLASH */
   .rodata :
@@ -60,36 +70,36 @@ SECTIONS
 	*(.rodata)         /* .rodata sections (constants, strings, etc.) */
 	*(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
 	. = ALIGN(4);
-  } >FLASHAXI
+  } >FLASHITCM AT >FLASHAXI
 
-  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASHAXI
+  .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASHITCM AT >FLASHAXI
 
   .ARM : {
 	__exidx_start = .;
 	*(.ARM.exidx*)
 	__exidx_end = .;
-  } >FLASHAXI
+  } >FLASHITCM AT >FLASHAXI
 
   .preinit_array     :
   {
 	PROVIDE_HIDDEN (__preinit_array_start = .);
 	KEEP (*(.preinit_array*))
 	PROVIDE_HIDDEN (__preinit_array_end = .);
-  } >FLASHAXI
+  } >FLASHITCM AT >FLASHAXI
   .init_array :
   {
 	PROVIDE_HIDDEN (__init_array_start = .);
 	KEEP (*(SORT(.init_array.*)))
 	KEEP (*(.init_array*))
 	PROVIDE_HIDDEN (__init_array_end = .);
-  } >FLASHAXI
+  } >FLASHITCM AT >FLASHAXI
   .fini_array :
   {
 	PROVIDE_HIDDEN (__fini_array_start = .);
 	KEEP (*(SORT(.fini_array.*)))
 	KEEP (*(.fini_array*))
 	PROVIDE_HIDDEN (__fini_array_end = .);
-  } >FLASHAXI
+  } >FLASHITCM AT >FLASHAXI
 
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);

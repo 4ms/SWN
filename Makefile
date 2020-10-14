@@ -96,6 +96,7 @@ LDSCRIPT = $(DEVICE)/$(LOADFILE)
 
 LFLAGS =  -Wl,-Map,build/main.map,--cref \
 	-Wl,--gc-sections \
+	-Wl,--start-group \
 	$(MCU) \
 	-T $(LDSCRIPT)
 	# -specs=nano.specs -T $(LDSCRIPT) \
@@ -215,7 +216,7 @@ $(HEX): $(ELF)
 
 $(ELF): $(OBJECTS) 
 	@echo "Linking..."
-	@$(LD) $(LFLAGS) -o $@ -Wl,--start-group $(OBJECTS) -Wl,--end-group
+	@$(LD) $(LFLAGS) -o $@ $(OBJECTS)
 
 $(BUILDDIR)/%.o: %.c $(BUILDDIR)/%.d
 	@mkdir -p $(dir $@)

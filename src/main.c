@@ -96,9 +96,7 @@ int main(void)
 	SystemClock_Config();
 	//FLASH_OB_BootAddressConfig(OPTIONBYTE_BOOTADDR_0, OB_BOOTADDR_ITCM_FLASH);
 
-	SCB_InvalidateICache();
-	SCB_EnableICache();
-	//SCB_DisableICache(); //not needed because we're running from FLASH on the ITCM bus, using ART and Prefetch
+	SCB_DisableICache(); //not needed because we're running from FLASH on the ITCM bus, using ART and Prefetch
 
 	SCB_InvalidateDCache();
 	SCB_EnableDCache();
