@@ -33,6 +33,9 @@ Released Oct 12, 2020
  
   * SWN now boots up into the last preset that was saved or loaded.
 
+  * Bug Fix: after clearing a User Sphere, it previous would still show in the list of wavetables until reboot. Fixed.
+
+
 #### Changes in v2.1:
 
 Released July 16, 2019
