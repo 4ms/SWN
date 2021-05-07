@@ -12,6 +12,13 @@ The blue light on the outer ring shows the minor version. For example if the ver
 
 On the outer light ring, if you imagine it as a clock face, the light just to the right of 12:00 is 0. The next light going around clockwise is 1. Then next light clockwise is 2, etc. The inner ring counts the same but it starts at 1 (and goes to 6). If you would like a picture to help visualize this, see the [SWN User Manual](https://4mscompany.com/media/SWN/manual/SWN-manual-2.2.pdf), page 39.
 
+#### Changes in v2.2.1:
+
+Released May 8, 2021
+
+  * Bug Fix: After deleting a User Sphere, it could still be selected and loaded until the unit is rebooted. Fixed.
+  * Bug Fix: Fine tuning was not immediately applied after loading a preset (previously you had to adjust Fine Tune or Fine Tune Spread after loading a preset to force it to update). Fixed.
+
 #### Changes in v2.2:
 
 Released Oct 12, 2020
