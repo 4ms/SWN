@@ -1430,6 +1430,7 @@ void update_finetune(int16_t tmp)
 				params.finetune[i] = finetune[i];
 				if (finetune[i]==0)	do_resync_osc+=(1<<i);
 				compute_tuning(i);
+				start_ongoing_display_finetune();
 			}
 		}
 	}
@@ -1510,6 +1511,7 @@ void spread_finetune(int16_t tmp)
 				do_resync_osc += (1<<i);
 
 			compute_tuning(i);
+			start_ongoing_display_finetune();
 		}
 	}
 
@@ -1539,8 +1541,6 @@ void compute_tuning (uint8_t chan){
 			calc_params.tuning[chan] /= f_scaling_finetune;
 		}
 	}
-
-	start_ongoing_display_finetune();
 }
 
 

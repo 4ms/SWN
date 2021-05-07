@@ -249,6 +249,8 @@ void recalc_active_params(void)
 	update_all_wt_pos_interp_params();
 	flag_all_lfos_recalc();
 	force_all_wt_interp_update();
+	for (int i=0; i<NUM_CHANNELS; i++)
+		compute_tuning(i);	
 }
 
 //Writes over preset version in all sectors
