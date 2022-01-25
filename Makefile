@@ -91,12 +91,8 @@ AFLAGS = $(MCU)
 
 LDSCRIPT = $(DEVICE)/$(LOADFILE)
 
-##-lrdimon is required to use math.h, -lc is required because it defines __errno for librdimon
-#LFLAGS  = $(MCU) -v --specs=nano.specs -T $(LDSCRIPT)  -lc -lrdimon
-
 LFLAGS =  -Wl,-Map,build/main.map,--cref \
 	-Wl,--gc-sections \
-	-Wl,--start-group \
 	$(MCU) \
 	-T $(LDSCRIPT)
 	# -specs=nano.specs -T $(LDSCRIPT) \
