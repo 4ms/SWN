@@ -64,7 +64,7 @@ SECTIONS
   } >FLASHITCM AT >FLASHAXI
 
   /* Constant data goes into FLASH */
-  .rodata :
+  .rodata : ALIGN_WITH_INPUT
   {
 	. = ALIGN(4);
 	*(.rodata)         /* .rodata sections (constants, strings, etc.) */
