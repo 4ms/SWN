@@ -39,7 +39,7 @@ MEMORY
 SECTIONS
 {
   /* The startup code goes first into FLASH */
-  .isr_vector :
+  .isr_vector : ALIGN_WITH_INPUT
   {
 	. = ALIGN(4);
 	KEEP(*(.isr_vector)) /* Startup code */
@@ -47,7 +47,7 @@ SECTIONS
   } >FLASHITCM AT >FLASHAXI
 
   /* The program code and other data goes into FLASH */
-  .text :
+  .text : ALIGN_WITH_INPUT
   {
 	. = ALIGN(4);
 	*(.text)           /* .text sections (code) */
@@ -74,13 +74,14 @@ SECTIONS
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASHITCM AT >FLASHAXI
 
-  .ARM : {
+  .ARM : ALIGN_WITH_INPUT 
+  {
 	__exidx_start = .;
 	*(.ARM.exidx*)
 	__exidx_end = .;
   } >FLASHITCM AT >FLASHAXI
 
-  .preinit_array     :
+  .preinit_array     : ALIGN_WITH_INPUT
   {
 	PROVIDE_HIDDEN (__preinit_array_start = .);
 	KEEP (*(.preinit_array*))
@@ -93,7 +94,8 @@ SECTIONS
 	KEEP (*(.init_array*))
 	PROVIDE_HIDDEN (__init_array_end = .);
   } >FLASHITCM AT >FLASHAXI
-  .fini_array :
+
+  .fini_array : ALIGN_WITH_INPUT
   {
 	PROVIDE_HIDDEN (__fini_array_start = .);
 	KEEP (*(SORT(.fini_array.*)))
@@ -105,7 +107,7 @@ SECTIONS
   _sidata = LOADADDR(.data);
 
   /* Initialized data sections goes into RAM, load LMA copy after code */
-  .data : 
+  .data : ALIGN_WITH_INPUT
   {
 	. = ALIGN(4);
 	_sdata = .;        /* create a global symbol at data start */
@@ -119,7 +121,7 @@ SECTIONS
   
   /* Uninitialized data section */
   . = ALIGN(4);
-  .bss :
+  .bss : ALIGN_WITH_INPUT
   {
 	/* This is used by the startup in order to initialize the .bss secion */
 	_sbss = .;         /* define a global symbol at bss start */
@@ -137,7 +139,7 @@ SECTIONS
   /* Example: __attribute__ ((section (".sramdata"))) uint32_t foobar[99999]; */
 
   /* User_heap_stack section, used to check that there is enough RAM left */
-  ._user_heap_stack :
+  ._user_heap_stack : ALIGN_WITH_INPUT
   {
 	. = ALIGN(8);
 	PROVIDE ( end = . );
